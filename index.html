@@ -135,6 +135,25 @@
             transform: none;
         }
         
+        .claim-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+            width: 100%;
+            transition: transform 0.2s;
+            display: none;
+        }
+        
+        .claim-btn:hover {
+            transform: translateY(-2px);
+        }
+        
         .timer {
             font-size: 1em;
             color: #666;
@@ -189,72 +208,85 @@
         .loading-spinner {
             font-size: 3em;
             margin-bottom: 15px;
-            animation: spin 2s linear infinite;
         }
         
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .ad-watch-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
+        .ad-display {
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
+            display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            color: white;
-            z-index: 100;
-            border-radius: 10px;
+            padding: 20px;
         }
         
-        .overlay-content {
-            text-align: center;
+        .reward-popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
             padding: 30px;
-            max-width: 90%;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            min-width: 300px;
         }
         
-        .overlay-icon {
+        .popup-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .popup-icon {
             font-size: 4em;
             margin-bottom: 20px;
         }
         
-        .overlay-timer {
-            font-size: 2.5em;
+        .popup-title {
+            font-size: 1.5em;
             font-weight: bold;
-            margin: 20px 0;
-            color: #667eea;
+            margin-bottom: 10px;
+            color: #333;
         }
         
-        .overlay-message {
-            font-size: 1.2em;
-            margin-bottom: 15px;
+        .popup-message {
+            color: #666;
+            margin-bottom: 20px;
         }
         
-        .overlay-submessage {
-            font-size: 0.9em;
-            color: #ccc;
+        .popup-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
             margin-top: 10px;
+            width: 100%;
         }
         
-        .verification-box {
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+            display: none;
+        }
+        
+        .monetag-status {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border-left: 4px solid #f59e0b;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-        
-        .verification-notice {
-            background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-            border-left: 4px solid #ef4444;
             padding: 12px;
-            border-radius: 10px;
+            border-radius: 8px;
             margin: 15px 0;
             font-size: 0.9em;
         }
@@ -364,15 +396,6 @@
             background: #ef4444;
         }
         
-        .monetag-status {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 0.9em;
-        }
-        
         @media (max-width: 600px) {
             .container {
                 margin: 10px;
@@ -383,17 +406,29 @@
                 padding: 15px;
             }
             
-            .overlay-content {
+            .reward-popup {
+                min-width: 280px;
                 padding: 20px;
-            }
-            
-            .overlay-timer {
-                font-size: 2em;
+                margin: 0 10px;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Reward Popup -->
+    <div class="popup-overlay" id="popupOverlay"></div>
+    <div class="reward-popup" id="rewardPopup">
+        <div class="popup-content">
+            <div class="popup-icon">🎉</div>
+            <div class="popup-title">Ad Completed!</div>
+            <div class="popup-message">You watched the ad successfully!</div>
+            <div class="popup-message" style="font-size: 1.2em; font-weight: bold; color: #667eea;">
+                Earn $0.0001 USDT
+            </div>
+            <button class="popup-btn" onclick="claimReward()">CLAIM REWARD</button>
+        </div>
+    </div>
+    
     <div class="container">
         <header>
             <div class="logo">AdWatch</div>
@@ -413,51 +448,38 @@
         <!-- Watch Ads Tab -->
         <div id="watch-tab" class="tab-content active">
             <h2>Watch & Earn USDT</h2>
-            <p>Click the button to watch a 15-second ad and earn $0.0001 USDT</p>
-            
-            <div class="verification-notice">
-                <strong>⚠️ Verification Required:</strong> You must watch the entire ad to earn rewards. Closing early or switching tabs will cancel earnings.
-            </div>
+            <p>Watch an ad and claim your reward</p>
             
             <div class="ad-instructions">
-                <h4>📺 How to earn:</h4>
+                <h4>📺 How it works:</h4>
                 <p>1. Click "Watch Ad" button</p>
-                <p>2. <strong>Watch the entire 15-second ad</strong></p>
-                <p>3. Don't close or switch tabs</p>
-                <p>4. After verification, earn $0.0001 USDT</p>
+                <p>2. Wait for Monetag ad to load</p>
+                <p>3. Ad will show automatically</p>
+                <p>4. Click "Claim Reward" to earn $0.0001 USDT</p>
             </div>
             
             <div class="ad-container">
-                <!-- Monetag Ad Container with Overlay -->
-                <div id="monetag-ad-container" style="position: relative;">
+                <!-- Monetag Ad Container -->
+                <div id="monetag-ad-container">
                     <div class="ad-loading" id="adLoading">
-                        <div class="loading-spinner">⏳</div>
-                        <div>Click button to load ad</div>
+                        <div class="loading-spinner">📺</div>
+                        <div>Click "Watch Ad" to load ad</div>
                         <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Real ads from Monetag</div>
-                    </div>
-                    
-                    <!-- Watch Verification Overlay -->
-                    <div class="ad-watch-overlay" id="watchOverlay">
-                        <div class="overlay-content">
-                            <div class="overlay-icon">👁️</div>
-                            <div class="overlay-message">Please watch the ad</div>
-                            <div class="overlay-timer" id="overlayTimer">15</div>
-                            <div class="overlay-submessage">Keep this window open and visible</div>
-                            <div style="margin-top: 20px; font-size: 0.9em; color: #ccc;">
-                                Switching tabs or closing will cancel earnings
-                            </div>
-                        </div>
                     </div>
                 </div>
                 
-                <div class="verification-box" id="verificationStatus">
-                    <strong>🔒 Ad Verification:</strong> Waiting for ad to start...
+                <div class="monetag-status" id="monetagStatus">
+                    ✅ Monetag ready: Click "Watch Ad" to start
                 </div>
                 
                 <div class="timer" id="timer">Ready to watch ad</div>
                 
                 <button class="watch-btn" id="watchButton" onclick="startAd()">
-                    WATCH AD & EARN $0.0001 USDT
+                    WATCH AD
+                </button>
+                
+                <button class="claim-btn" id="claimButton" onclick="showRewardPopup()">
+                    CLAIM REWARD - $0.0001 USDT
                 </button>
                 
                 <div class="stats">
@@ -535,15 +557,9 @@
             username: 'User' + Math.floor(Math.random() * 10000)
         };
         
-        // Ad verification variables
+        // Monetag status
         let monetagLoaded = false;
-        let adTimer;
-        let verificationTimer;
-        let secondsLeft = 15;
         let adInProgress = false;
-        let currentAdShown = false;
-        let userWatching = true;
-        let tabActive = true;
         
         // Load saved data
         function loadData() {
@@ -584,12 +600,18 @@
         function checkMonetag() {
             if (typeof show_10396104 !== 'undefined') {
                 monetagLoaded = true;
-                console.log('Monetag SDK loaded');
+                document.getElementById('monetagStatus').innerHTML = 
+                    '✅ Monetag ready: Click "Watch Ad" to start';
+                console.log('Monetag SDK loaded successfully');
+            } else {
+                document.getElementById('monetagStatus').innerHTML = 
+                    '⚠️ Loading Monetag... Please wait';
+                setTimeout(checkMonetag, 1000);
             }
         }
         
-        // Load Monetag ad
-        function loadMonetagAd() {
+        // Load Monetag ad with retry
+        function loadMonetagAd(retryCount = 0) {
             const adContainer = document.getElementById('monetag-ad-container');
             const loadingElement = document.getElementById('adLoading');
             
@@ -598,16 +620,16 @@
             adContainer.appendChild(loadingElement);
             loadingElement.style.display = 'block';
             
+            // Update loading message
+            loadingElement.innerHTML = `
+                <div class="loading-spinner">⏳</div>
+                <div>Loading ad from Monetag...</div>
+                <div style="font-size: 0.8em; margin-top: 10px; color: #666;">This may take a few seconds</div>
+            `;
+            
             if (monetagLoaded && typeof show_10396104 !== 'undefined') {
                 try {
-                    // Show loading
-                    loadingElement.innerHTML = `
-                        <div class="loading-spinner">⏳</div>
-                        <div>Loading ad from Monetag...</div>
-                        <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Please wait</div>
-                    `;
-                    
-                    // Initialize Monetag
+                    // Initialize Monetag interstitial
                     show_10396104({
                         type: 'inApp',
                         inAppSettings: {
@@ -619,33 +641,59 @@
                         }
                     });
                     
-                    // Show the ad after short delay
+                    // Try to show ad
                     setTimeout(() => {
                         try {
-                            show_10396104.show(adContainer);
-                            loadingElement.style.display = 'none';
-                            currentAdShown = true;
-                            console.log('Monetag ad displayed');
+                            // Clear container first
+                            adContainer.innerHTML = '';
                             
-                            // Show verification overlay
-                            startVerification();
+                            // Show Monetag ad
+                            show_10396104.show(adContainer);
+                            
+                            // Hide loading
+                            loadingElement.style.display = 'none';
+                            
+                            // Update status
+                            document.getElementById('monetagStatus').innerHTML = 
+                                '✅ Ad loaded successfully!';
+                            document.getElementById('timer').textContent = 'Ad is ready';
+                            
+                            // Show claim button after ad loads
+                            setTimeout(() => {
+                                showClaimButton();
+                            }, 1000);
+                            
+                            console.log('Monetag ad displayed successfully');
                             
                         } catch (error) {
                             console.error('Error showing Monetag ad:', error);
-                            showFallbackAd();
+                            
+                            // Retry or show fallback
+                            if (retryCount < 2) {
+                                document.getElementById('monetagStatus').innerHTML = 
+                                    '🔄 Retrying ad load...';
+                                setTimeout(() => loadMonetagAd(retryCount + 1), 1000);
+                            } else {
+                                showFallbackAd();
+                            }
                         }
-                    }, 1000);
+                    }, 1500);
                     
                 } catch (error) {
-                    console.error('Monetag error:', error);
+                    console.error('Monetag initialization error:', error);
                     showFallbackAd();
                 }
             } else {
-                showFallbackAd();
+                // Monetag not loaded yet, retry
+                if (retryCount < 3) {
+                    setTimeout(() => loadMonetagAd(retryCount + 1), 1000);
+                } else {
+                    showFallbackAd();
+                }
             }
         }
         
-        // Fallback ad if Monetag fails
+        // Show fallback ad
         function showFallbackAd() {
             const adContainer = document.getElementById('monetag-ad-container');
             const loadingElement = document.getElementById('adLoading');
@@ -653,93 +701,49 @@
             loadingElement.style.display = 'none';
             
             const fallbackAd = document.createElement('div');
-            fallbackAd.style.padding = '20px';
-            fallbackAd.style.textAlign = 'center';
+            fallbackAd.className = 'ad-display';
             fallbackAd.innerHTML = `
-                <div style="font-size: 3em; margin-bottom: 15px;">📱</div>
-                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #333;">Test Advertisement</div>
-                <div style="color: #666; margin-bottom: 20px;">Please watch this ad for 15 seconds to earn rewards</div>
-                <div style="background: #667eea; color: white; padding: 10px 20px; border-radius: 20px; display: inline-block; cursor: pointer;" onclick="this.style.background='#10b981'">
-                    Click to Interact
+                <div style="font-size: 4em; margin-bottom: 20px;">📱</div>
+                <div style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px; color: #333;">Test Advertisement</div>
+                <div style="color: #666; margin-bottom: 20px; text-align: center; padding: 0 20px;">
+                    This is a sample ad. In the live app, real Monetag ads will appear here.
                 </div>
-                <div style="margin-top: 20px; font-size: 0.9em; color: #888;">
-                    Keep this ad visible to earn
+                <div style="background: #667eea; color: white; padding: 12px 30px; border-radius: 25px; display: inline-block; cursor: pointer; margin-top: 10px;" 
+                     onclick="this.style.background='#10b981'; this.innerHTML='✓ Ad Clicked';">
+                    Learn More
                 </div>
             `;
             
             adContainer.appendChild(fallbackAd);
-            currentAdShown = true;
             
-            // Start verification
-            startVerification();
-        }
-        
-        // Start verification process
-        function startVerification() {
-            const overlay = document.getElementById('watchOverlay');
-            const status = document.getElementById('verificationStatus');
+            document.getElementById('monetagStatus').innerHTML = 
+                '⚠️ Using sample ad (Monetag loading...)';
+            document.getElementById('timer').textContent = 'Ad loaded';
             
-            // Show overlay
-            overlay.style.display = 'flex';
-            status.innerHTML = '<strong>🔒 Ad Verification:</strong> Watching... Don\'t close or switch tabs';
-            
-            // Start verification timer
-            secondsLeft = 15;
-            document.getElementById('overlayTimer').textContent = secondsLeft;
-            document.getElementById('timer').textContent = `Watching ad... ${secondsLeft}s`;
-            
-            // Start countdown
-            adTimer = setInterval(() => {
-                secondsLeft--;
-                document.getElementById('overlayTimer').textContent = secondsLeft;
-                document.getElementById('timer').textContent = `Watching ad... ${secondsLeft}s`;
-                
-                if (secondsLeft <= 0) {
-                    completeVerification();
-                }
-            }, 1000);
-            
-            // Start visibility check
-            startVisibilityCheck();
-        }
-        
-        // Check if user is watching
-        function startVisibilityCheck() {
-            // Check tab visibility
-            document.addEventListener('visibilitychange', handleVisibilityChange);
-            
-            // Check every second if user is still on page
-            verificationTimer = setInterval(() => {
-                if (!tabActive) {
-                    cancelAd("Ad cancelled: You switched tabs");
-                }
+            // Show claim button
+            setTimeout(() => {
+                showClaimButton();
             }, 1000);
         }
         
-        // Handle tab visibility change
-        function handleVisibilityChange() {
-            if (document.hidden) {
-                tabActive = false;
-                if (adInProgress) {
-                    cancelAd("Ad cancelled: You switched tabs");
-                }
-            } else {
-                tabActive = true;
-            }
+        // Show claim button
+        function showClaimButton() {
+            document.getElementById('watchButton').style.display = 'none';
+            document.getElementById('claimButton').style.display = 'block';
+            document.getElementById('timer').textContent = 'Click "Claim Reward" to earn';
         }
         
-        // Complete verification and give reward
-        function completeVerification() {
-            if (!adInProgress) return;
-            
-            clearInterval(adTimer);
-            clearInterval(verificationTimer);
-            
-            // Remove event listeners
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            
-            // Hide overlay
-            document.getElementById('watchOverlay').style.display = 'none';
+        // Show reward popup
+        function showRewardPopup() {
+            document.getElementById('popupOverlay').style.display = 'block';
+            document.getElementById('rewardPopup').style.display = 'block';
+        }
+        
+        // Claim reward
+        function claimReward() {
+            // Close popup
+            document.getElementById('popupOverlay').style.display = 'none';
+            document.getElementById('rewardPopup').style.display = 'none';
             
             // Add earnings
             userData.balance += 0.0001;
@@ -751,86 +755,42 @@
             updateDisplay();
             saveData();
             
-            // Update verification status
-            document.getElementById('verificationStatus').innerHTML = 
-                '<strong>✅ Verification Complete:</strong> You watched the full ad';
+            // Show notification
+            showNotification('🎉 Successfully claimed $0.0001 USDT!');
             
-            // Show success notification
-            showNotification('🎉 Earned $0.0001 USDT! Ad verified successfully.');
-            
-            // Reset button
-            const button = document.getElementById('watchButton');
-            button.disabled = false;
-            button.textContent = 'WATCH AD & EARN $0.0001 USDT';
-            document.getElementById('timer').textContent = 'Ready to watch';
-            
-            // Reset ad container after delay
-            setTimeout(() => {
-                resetAdContainer();
-                adInProgress = false;
-                userWatching = true;
-                tabActive = true;
-            }, 2000);
+            // Reset UI
+            resetAdUI();
         }
         
-        // Cancel ad if user doesn't watch properly
-        function cancelAd(reason) {
-            if (!adInProgress) return;
+        // Reset ad UI
+        function resetAdUI() {
+            // Hide claim button, show watch button
+            document.getElementById('claimButton').style.display = 'none';
+            document.getElementById('watchButton').style.display = 'block';
+            document.getElementById('watchButton').disabled = false;
+            document.getElementById('watchButton').textContent = 'WATCH AD';
             
-            clearInterval(adTimer);
-            clearInterval(verificationTimer);
-            
-            // Remove event listeners
-            document.removeEventListener('visibilitychange', handleVisibilityChange);
-            
-            // Hide overlay
-            document.getElementById('watchOverlay').style.display = 'none';
-            
-            // Update verification status
-            document.getElementById('verificationStatus').innerHTML = 
-                `<strong>❌ Verification Failed:</strong> ${reason}`;
-            
-            // Show error notification
-            showNotification(`⚠️ ${reason}. No rewards earned.`, 'error');
-            
-            // Reset button
-            const button = document.getElementById('watchButton');
-            button.disabled = false;
-            button.textContent = 'WATCH AD & EARN $0.0001 USDT';
-            document.getElementById('timer').textContent = 'Ready to watch';
+            // Reset timer
+            document.getElementById('timer').textContent = 'Ready for next ad';
             
             // Reset ad container
-            setTimeout(() => {
-                resetAdContainer();
-                adInProgress = false;
-                userWatching = true;
-                tabActive = true;
-            }, 2000);
-        }
-        
-        // Reset ad container
-        function resetAdContainer() {
             const adContainer = document.getElementById('monetag-ad-container');
             const loadingElement = document.getElementById('adLoading');
             
             adContainer.innerHTML = '';
             loadingElement.innerHTML = `
                 <div class="loading-spinner">📺</div>
-                <div>Click button to load next ad</div>
+                <div>Click "Watch Ad" to load next ad</div>
                 <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Real ads from Monetag</div>
             `;
             loadingElement.style.display = 'block';
             adContainer.appendChild(loadingElement);
+            
+            adInProgress = false;
         }
         
         // Tab navigation
         function showTab(tabName) {
-            // If ad is in progress and user tries to switch tabs
-            if (adInProgress && tabName !== 'watch') {
-                cancelAd("Ad cancelled: You switched tabs");
-                return;
-            }
-            
             // Hide all tabs
             document.querySelectorAll('.tab-content').forEach(tab => {
                 tab.classList.remove('active');
@@ -853,21 +813,14 @@
             if (adInProgress) return;
             
             adInProgress = true;
-            userWatching = true;
-            tabActive = true;
-            currentAdShown = false;
             const button = document.getElementById('watchButton');
             button.disabled = true;
             button.textContent = 'LOADING AD...';
             
-            // Reset verification status
-            document.getElementById('verificationStatus').innerHTML = 
-                '<strong>🔒 Ad Verification:</strong> Loading ad...';
+            document.getElementById('timer').textContent = 'Loading ad...';
+            document.getElementById('monetagStatus').innerHTML = '🔄 Loading Monetag ad...';
             
-            secondsLeft = 15;
-            document.getElementById('timer').textContent = `Loading ad...`;
-            
-            // Load Monetag ad
+            // Load Monetag ad with retry logic
             loadMonetagAd();
         }
         
@@ -960,7 +913,7 @@
         
         // Check Monetag on load
         window.addEventListener('load', function() {
-            setTimeout(checkMonetag, 1000);
+            setTimeout(checkMonetag, 500);
         });
         
         // Try to get Telegram username
