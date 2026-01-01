@@ -100,28 +100,14 @@
             margin: 20px 0;
         }
         
-        .ad-placeholder {
+        .ad-frame {
             width: 100%;
-            height: 250px;
-            background: linear-gradient(45deg, #8247e5, #a78bfa);
+            min-height: 250px;
+            border: none;
             border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.5em;
-            margin: 20px 0;
-            position: relative;
             overflow: hidden;
-        }
-        
-        .ad-placeholder::before {
-            content: "ADVERTISEMENT";
-            position: absolute;
-            font-size: 1em;
-            top: 10px;
-            left: 10px;
-            color: rgba(255,255,255,0.8);
+            margin: 20px 0;
+            background: white;
         }
         
         .watch-button {
@@ -410,48 +396,15 @@
             font-size: 0.8em;
         }
         
-        /* Interstitial Ad Overlay */
-        .interstitial-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            z-index: 9999;
-            display: none;
-            justify-content: center;
+        .ad-loading {
+            background: linear-gradient(45deg, #8247e5, #a78bfa);
+            border-radius: 10px;
+            height: 250px;
+            display: flex;
             align-items: center;
-            flex-direction: column;
+            justify-content: center;
             color: white;
-        }
-        
-        .interstitial-content {
-            text-align: center;
-            padding: 30px;
-            max-width: 90%;
-        }
-        
-        .interstitial-close {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none;
-            color: white;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            font-size: 20px;
-            cursor: pointer;
-            display: none;
-        }
-        
-        .interstitial-countdown {
             font-size: 1.2em;
-            margin-top: 20px;
-            color: #8247e5;
-            font-weight: bold;
         }
         
         @media (max-width: 600px) {
@@ -464,8 +417,8 @@
                 padding: 20px;
             }
             
-            .ad-placeholder {
-                height: 200px;
+            .ad-frame {
+                min-height: 200px;
             }
             
             .stats {
@@ -478,28 +431,10 @@
                 right: 20px;
                 text-align: center;
             }
-            
-            .interstitial-content {
-                padding: 20px;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Interstitial Ad Overlay -->
-    <div id="interstitialOverlay" class="interstitial-overlay">
-        <button id="closeInterstitial" class="interstitial-close" onclick="closeInterstitial()">✕</button>
-        <div class="interstitial-content">
-            <h2>🏆 Bonus Opportunity! 🏆</h2>
-            <p>Watch an interstitial ad to earn extra rewards!</p>
-            <div id="interstitialContainer" style="width: 300px; height: 250px; margin: 20px auto;"></div>
-            <div id="interstitialCountdown" class="interstitial-countdown"></div>
-            <p style="font-size: 0.9em; margin-top: 20px; color: #ccc;">
-                Interstitial ads help support the app and may offer bonus rewards
-            </p>
-        </div>
-    </div>
-    
     <div class="container">
         <header>
             <div class="logo">AdWatch</div>
@@ -522,8 +457,17 @@
             <p>Watch a 15-second ad to earn <span class="currency-display">$0.0001 USDT</span></p>
             
             <div class="ad-container">
-                <!-- Libtl/Monetag Ad Container -->
-                <div id="libtl-ad-container" style="width: 100%; height: 250px; margin: 20px 0;"></div>
+                <!-- Simple Ad Container -->
+                <div id="adContainer">
+                    <div class="ad-loading" id="adLoading">
+                        <div style="text-align: center;">
+                            <div style="font-size: 2em; margin-bottom: 10px;">📺</div>
+                            <div>Loading Ad...</div>
+                            <div style="font-size: 0.8em; margin-top: 10px;">Please wait</div>
+                        </div>
+                    </div>
+                    <iframe id="adFrame" class="ad-frame" style="display: none;"></iframe>
+                </div>
                 
                 <div class="timer" id="timer">Ready to watch ad</div>
                 
@@ -552,7 +496,7 @@
                 <p>• Each ad earns <span class="currency-display">$0.0001 USDT</span> (15 seconds)</p>
                 <p>• Watch more ads daily to earn more</p>
                 <p>• Weekly leaderboard rewards top watchers</p>
-                <p>• Interstitial ads may appear for bonus rewards</p>
+                <p>• Make sure to watch the full ad to earn rewards</p>
             </div>
             
             <div class="sdk-info">
@@ -674,168 +618,13 @@
             lastAdDate: null,
             userId: null,
             firstName: '',
-            lastName: '',
-            interstitialCount: 0,
-            lastInterstitialTime: null
+            lastName: ''
         };
         
-        // Libtl SDK initialization
-        let libtlInitialized = false;
-        
-        // Interstitial tracking
-        let interstitialTimer = null;
-        let interstitialCountdown = 5;
-        let interstitialActive = false;
-        
-        // Initialize Libtl SDK
-        function initLibtlSDK() {
-            if (typeof show_10396104 !== 'undefined') {
-                try {
-                    // Initialize the SDK with your zone
-                    show_10396104.init();
-                    libtlInitialized = true;
-                    console.log('Libtl SDK initialized successfully');
-                    
-                    // Load first banner ad
-                    loadLibtlAd();
-                    
-                    // Initialize interstitial ads
-                    initInterstitialAds();
-                    
-                } catch (error) {
-                    console.error('Error initializing Libtl SDK:', error);
-                }
-            } else {
-                console.warn('Libtl SDK not loaded yet, retrying...');
-                setTimeout(initLibtlSDK, 1000);
-            }
-        }
-        
-        // Initialize Interstitial Ads
-        function initInterstitialAds() {
-            if (typeof show_10396104 !== 'undefined') {
-                // Configure interstitial ads
-                show_10396104({
-                    type: 'inApp',
-                    inAppSettings: {
-                        frequency: 2,
-                        capping: 0.1,
-                        interval: 30,
-                        timeout: 5,
-                        everyPage: false
-                    }
-                });
-                console.log('Interstitial ads configured');
-                
-                // Check if we should show interstitial
-                checkInterstitialShow();
-            }
-        }
-        
-        // Check if we should show interstitial ad
-        function checkInterstitialShow() {
-            const now = Date.now();
-            const lastInterstitial = userData.lastInterstitialTime || 0;
-            const timeSinceLastInterstitial = (now - lastInterstitial) / (1000 * 60 * 60); // in hours
-            
-            // Check conditions for showing interstitial
-            // Show after every 5 regular ads or after 30 minutes
-            if ((userData.totalAds % 5 === 0 && userData.totalAds > 0) || 
-                timeSinceLastInterstitial >= 0.5) { // 30 minutes
-                
-                // Wait 5 seconds before showing (as per timeout: 5)
-                setTimeout(() => {
-                    showInterstitialAd();
-                }, 5000);
-            }
-        }
-        
-        // Show interstitial ad
-        function showInterstitialAd() {
-            if (!libtlInitialized || interstitialActive) return;
-            
-            interstitialActive = true;
-            const overlay = document.getElementById('interstitialOverlay');
-            const closeBtn = document.getElementById('closeInterstitial');
-            const countdownEl = document.getElementById('interstitialCountdown');
-            const container = document.getElementById('interstitialContainer');
-            
-            // Show overlay
-            overlay.style.display = 'flex';
-            
-            // Start countdown
-            interstitialCountdown = 5;
-            countdownEl.textContent = `Ad will show in ${interstitialCountdown}s...`;
-            
-            interstitialTimer = setInterval(() => {
-                interstitialCountdown--;
-                countdownEl.textContent = `Ad will show in ${interstitialCountdown}s...`;
-                
-                if (interstitialCountdown <= 0) {
-                    clearInterval(interstitialTimer);
-                    
-                    // Show close button after countdown
-                    closeBtn.style.display = 'block';
-                    
-                    // Load and show interstitial ad
-                    try {
-                        if (typeof show_10396104 !== 'undefined') {
-                            // Clear previous ad
-                            container.innerHTML = '';
-                            
-                            // Show interstitial ad
-                            show_10396104.show(container);
-                            
-                            // Update interstitial stats
-                            userData.interstitialCount++;
-                            userData.lastInterstitialTime = Date.now();
-                            saveData();
-                            
-                            // Show bonus reward notification
-                            setTimeout(() => {
-                                showNotification('🎁 Bonus! You watched an interstitial ad!');
-                            }, 1000);
-                        }
-                    } catch (error) {
-                        console.error('Error showing interstitial ad:', error);
-                        closeInterstitial();
-                    }
-                }
-            }, 1000);
-        }
-        
-        // Close interstitial ad
-        function closeInterstitial() {
-            const overlay = document.getElementById('interstitialOverlay');
-            const container = document.getElementById('interstitialContainer');
-            
-            clearInterval(interstitialTimer);
-            overlay.style.display = 'none';
-            container.innerHTML = '';
-            interstitialActive = false;
-            
-            // Check for next interstitial
-            setTimeout(checkInterstitialShow, 30000); // Check again in 30 seconds
-        }
-        
-        // Load Libtl banner ad
-        function loadLibtlAd() {
-            if (libtlInitialized && typeof show_10396104 !== 'undefined') {
-                try {
-                    const adContainer = document.getElementById('libtl-ad-container');
-                    if (adContainer) {
-                        // Clear previous ad
-                        adContainer.innerHTML = '';
-                        
-                        // Show new ad
-                        show_10396104.show(adContainer);
-                        console.log('Libtl banner ad loaded');
-                    }
-                } catch (error) {
-                    console.error('Error loading Libtl ad:', error);
-                }
-            }
-        }
+        // Ad tracking
+        let adTimer;
+        let secondsLeft = AD_DURATION;
+        let currentAdActive = false;
         
         // Load data from localStorage
         function loadData() {
@@ -939,106 +728,177 @@
             if (tabName === 'withdraw') {
                 updatePolEquivalent();
             }
-            
-            // Reload ad when returning to watch tab
-            if (tabName === 'watch' && libtlInitialized) {
-                setTimeout(loadLibtlAd, 100);
-            }
-            
-            // Check for interstitial when switching tabs
-            setTimeout(checkInterstitialShow, 1000);
         }
         
-        // Ad watching function
-        let adTimer;
-        let secondsLeft = AD_DURATION;
-        let adCompleted = false;
-        
-        function startAd() {
-            if (!libtlInitialized) {
-                showNotification('⚠️ Ad system is not ready yet. Please wait...', 'warning');
-                return;
-            }
+        // Load a test ad (for demonstration)
+        function loadTestAd() {
+            const adFrame = document.getElementById('adFrame');
+            const adLoading = document.getElementById('adLoading');
             
-            const button = document.getElementById('watchButton');
-            button.disabled = true;
-            button.textContent = 'WATCHING AD...';
-            adCompleted = false;
+            // Show loading
+            adLoading.style.display = 'flex';
+            adFrame.style.display = 'none';
             
-            secondsLeft = AD_DURATION;
-            document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
-            
-            // Show watching overlay
-            const adContainer = document.getElementById('libtl-ad-container');
-            adContainer.style.position = 'relative';
-            
-            const overlay = document.createElement('div');
-            overlay.id = 'ad-overlay';
-            overlay.style.position = 'absolute';
-            overlay.style.top = '0';
-            overlay.style.left = '0';
-            overlay.style.width = '100%';
-            overlay.style.height = '100%';
-            overlay.style.background = 'rgba(0,0,0,0.7)';
-            overlay.style.display = 'flex';
-            overlay.style.flexDirection = 'column';
-            overlay.style.alignItems = 'center';
-            overlay.style.justifyContent = 'center';
-            overlay.style.color = 'white';
-            overlay.style.zIndex = '10';
-            overlay.innerHTML = `
-                <div style="font-size: 2em; margin-bottom: 15px;">⏳</div>
-                <div>Please watch the ad for ${AD_DURATION} seconds</div>
-                <div style="margin-top: 15px; width: 80%; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
-                    <div id="progressBar" style="height: 8px; background: #8247e5; width: 0%; transition: width 1s linear;"></div>
-                </div>
-                <div style="font-size: 0.9em; margin-top: 10px;">Earning $${AD_REWARD.toFixed(4)} USDT</div>
-                <div id="countdown" style="font-size: 1.5em; font-weight: bold; margin-top: 10px;">${AD_DURATION}s</div>
+            // Create a simple test ad
+            const testAdHTML = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <style>
+                        body {
+                            margin: 0;
+                            padding: 20px;
+                            font-family: Arial, sans-serif;
+                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                            color: white;
+                            height: 100%;
+                            display: flex;
+                            flex-direction: column;
+                            justify-content: center;
+                            align-items: center;
+                            text-align: center;
+                        }
+                        .ad-content {
+                            max-width: 90%;
+                        }
+                        .logo {
+                            font-size: 2em;
+                            font-weight: bold;
+                            margin-bottom: 10px;
+                        }
+                        .cta-button {
+                            background: white;
+                            color: #667eea;
+                            border: none;
+                            padding: 10px 20px;
+                            border-radius: 25px;
+                            font-weight: bold;
+                            margin-top: 20px;
+                            cursor: pointer;
+                        }
+                    </style>
+                </head>
+                <body>
+                    <div class="ad-content">
+                        <div class="logo">📺 ADVERTISEMENT</div>
+                        <h2>Test Advertisement</h2>
+                        <p>This is a demonstration ad. In the real app, real ads from Libtl/Monetag will appear here.</p>
+                        <p>Watch for <span id="adTimer">15</span> seconds to earn $${AD_REWARD.toFixed(4)} USDT</p>
+                        <button class="cta-button" onclick="window.top.postMessage('adClicked', '*')">Learn More</button>
+                    </div>
+                    <script>
+                        let timeLeft = 15;
+                        const timerEl = document.getElementById('adTimer');
+                        const timer = setInterval(() => {
+                            timeLeft--;
+                            timerEl.textContent = timeLeft;
+                            if (timeLeft <= 0) {
+                                clearInterval(timer);
+                                window.top.postMessage('adCompleted', '*');
+                            }
+                        }, 1000);
+                        
+                        // Auto-complete after 15 seconds
+                        setTimeout(() => {
+                            window.top.postMessage('adCompleted', '*');
+                        }, 15000);
+                    <\/script>
+                </body>
+                </html>
             `;
             
-            adContainer.appendChild(overlay);
-            
-            // Start progress bar
-            let progress = 0;
-            const progressBar = document.getElementById('progressBar');
-            const countdownElement = document.getElementById('countdown');
-            const progressInterval = setInterval(() => {
-                progress += (100 / AD_DURATION); // 100% over AD_DURATION seconds
-                progressBar.style.width = Math.min(progress, 100) + '%';
+            // Set the iframe content after a short delay (simulating ad load)
+            setTimeout(() => {
+                adLoading.style.display = 'none';
+                adFrame.style.display = 'block';
+                adFrame.srcdoc = testAdHTML;
+                
+                // Listen for ad completion message
+                window.addEventListener('message', function(event) {
+                    if (event.data === 'adCompleted') {
+                        finishAd();
+                    }
+                });
+                
             }, 1000);
+        }
+        
+        // Start ad watching
+        function startAd() {
+            if (currentAdActive) return;
+            
+            currentAdActive = true;
+            const button = document.getElementById('watchButton');
+            button.disabled = true;
+            button.textContent = 'LOADING AD...';
+            
+            secondsLeft = AD_DURATION;
+            document.getElementById('timer').textContent = `Ad loading...`;
+            
+            // Try to load Libtl ad first, fallback to test ad
+            try {
+                if (typeof show_10396104 !== 'undefined') {
+                    // Initialize interstitial ads
+                    show_10396104({
+                        type: 'inApp',
+                        inAppSettings: {
+                            frequency: 2,
+                            capping: 0.1,
+                            interval: 30,
+                            timeout: 5,
+                            everyPage: false
+                        }
+                    });
+                    
+                    // Show the ad
+                    const adContainer = document.getElementById('adContainer');
+                    show_10396104.show(adContainer);
+                    
+                    button.textContent = 'WATCHING AD...';
+                    startAdTimer();
+                    
+                } else {
+                    // Fallback to test ad
+                    loadTestAd();
+                    button.textContent = 'WATCHING AD...';
+                    startAdTimer();
+                }
+            } catch (error) {
+                console.error('Error loading ad:', error);
+                // Fallback to test ad
+                loadTestAd();
+                button.textContent = 'WATCHING AD...';
+                startAdTimer();
+            }
+        }
+        
+        // Start ad timer
+        function startAdTimer() {
+            document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
             
             adTimer = setInterval(() => {
                 secondsLeft--;
                 document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
-                if (countdownElement) {
-                    countdownElement.textContent = `${secondsLeft}s`;
-                }
                 
                 if (secondsLeft <= 0) {
-                    clearInterval(progressInterval);
                     finishAd();
                 }
             }, 1000);
             
-            // Auto-complete ad after duration (in case user doesn't interact)
+            // Auto-complete after duration (in case ad doesn't send completion signal)
             setTimeout(() => {
-                if (!adCompleted) {
+                if (currentAdActive) {
                     finishAd();
                 }
-            }, (AD_DURATION + 2) * 1000); // +2 seconds buffer
+            }, (AD_DURATION + 2) * 1000);
         }
         
+        // Finish ad and give rewards
         function finishAd() {
-            if (adCompleted) return; // Prevent double completion
+            if (!currentAdActive) return;
             
-            adCompleted = true;
+            currentAdActive = false;
             clearInterval(adTimer);
-            
-            // Remove overlay
-            const overlay = document.getElementById('ad-overlay');
-            if (overlay) {
-                overlay.remove();
-            }
             
             // Add earnings
             userData.balance += AD_REWARD;
@@ -1053,48 +913,21 @@
             // Show success notification
             showNotification(`🎉 Earned $${AD_REWARD.toFixed(4)} USDT! Ad completed successfully.`);
             
-            // Show success overlay briefly
-            const adContainer = document.getElementById('libtl-ad-container');
-            const successOverlay = document.createElement('div');
-            successOverlay.style.position = 'absolute';
-            successOverlay.style.top = '0';
-            successOverlay.style.left = '0';
-            successOverlay.style.width = '100%';
-            successOverlay.style.height = '100%';
-            successOverlay.style.background = 'rgba(16, 185, 129, 0.9)';
-            successOverlay.style.display = 'flex';
-            successOverlay.style.flexDirection = 'column';
-            successOverlay.style.alignItems = 'center';
-            successOverlay.style.justifyContent = 'center';
-            successOverlay.style.color = 'white';
-            successOverlay.style.zIndex = '10';
-            successOverlay.innerHTML = `
-                <div style="font-size: 3em; margin-bottom: 15px;">✅</div>
-                <div style="font-size: 1.5em; font-weight: bold;">Ad Completed!</div>
-                <div style="margin-top: 10px;">+$${AD_REWARD.toFixed(4)} USDT added to your balance</div>
-            `;
+            // Reset button
+            const button = document.getElementById('watchButton');
+            button.disabled = false;
+            button.textContent = `WATCH AD & EARN $${AD_REWARD.toFixed(4)} USDT`;
+            document.getElementById('timer').textContent = 'Ready to watch another ad!';
             
-            adContainer.appendChild(successOverlay);
-            
-            // Reset button after 3 seconds
+            // Reset ad display after delay
             setTimeout(() => {
-                const button = document.getElementById('watchButton');
-                button.disabled = false;
-                button.textContent = `WATCH AD & EARN $${AD_REWARD.toFixed(4)} USDT`;
-                document.getElementById('timer').textContent = 'Ready to watch another ad!';
+                const adFrame = document.getElementById('adFrame');
+                const adLoading = document.getElementById('adLoading');
                 
-                // Remove success overlay
-                successOverlay.remove();
-                
-                // Load new ad
-                if (libtlInitialized) {
-                    setTimeout(loadLibtlAd, 500);
-                }
-                
-                // Check for interstitial ad
-                setTimeout(checkInterstitialShow, 1000);
-                
-            }, 3000);
+                adFrame.style.display = 'none';
+                adLoading.style.display = 'flex';
+                adFrame.srcdoc = '';
+            }, 2000);
         }
         
         // Leaderboard data
@@ -1238,7 +1071,6 @@ Confirm withdrawal?
 <b>User Stats:</b>
 • Total Ads: ${userData.totalAds}
 • Ads Today: ${userData.adsToday}
-• Interstitial Ads: ${userData.interstitialCount}
 • Total Earned: $${(userData.totalAds * AD_REWARD).toFixed(4)} USDT
 
 <b>ACTION REQUIRED:</b>
@@ -1314,11 +1146,6 @@ Send ${polCalculation.total.toFixed(4)} POL to address above.
             }
         }
         
-        // Initialize Libtl SDK when page loads
-        window.addEventListener('load', function() {
-            setTimeout(initLibtlSDK, 1000); // Wait 1 second for SDK to load
-        });
-        
         // Update POL equivalent when user types amount
         document.getElementById('withdrawAmount').addEventListener('input', updatePolEquivalent);
         
@@ -1340,8 +1167,21 @@ Send ${polCalculation.total.toFixed(4)} POL to address above.
             }
         }, 60000); // Update every minute
         
-        // Check for interstitial ads periodically
-        setInterval(checkInterstitialShow, 60000); // Check every minute
+        // Test if SDK is loaded
+        window.addEventListener('load', function() {
+            console.log('Page loaded, checking for SDK...');
+            
+            // Check if SDK loaded after 2 seconds
+            setTimeout(() => {
+                if (typeof show_10396104 !== 'undefined') {
+                    console.log('✅ Libtl/Monetag SDK loaded successfully');
+                    showNotification('✅ Ad system ready! You can now watch ads.');
+                } else {
+                    console.warn('❌ Libtl/Monetag SDK not found');
+                    showNotification('⚠️ Using demo ads. Real ads will work when deployed with SDK.', 'warning');
+                }
+            }, 2000);
+        });
     </script>
 </body>
 </html>
