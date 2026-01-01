@@ -95,60 +95,35 @@
             margin: 20px 0;
         }
         
-        .ad-display {
+        .ad-preview {
             width: 100%;
-            height: 250px;
-            background: white;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
             border-radius: 10px;
-            margin: 20px 0;
-            overflow: hidden;
-            position: relative;
-            border: 2px solid #e5e7eb;
-        }
-        
-        .ad-content {
-            width: 100%;
-            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-            text-align: center;
-        }
-        
-        .ad-logo {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-        
-        .ad-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-        
-        .ad-description {
-            color: #666;
-            margin-bottom: 15px;
-            font-size: 0.9em;
-        }
-        
-        .ad-progress {
-            width: 100%;
-            height: 6px;
-            background: #e5e7eb;
-            border-radius: 3px;
+            color: white;
+            margin: 20px 0;
+            position: relative;
             overflow: hidden;
-            margin-top: 20px;
         }
         
-        .ad-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 1s linear;
+        .ad-preview::before {
+            content: "PREVIEW";
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.5);
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8em;
+        }
+        
+        .ad-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
         }
         
         .watch-btn {
@@ -209,6 +184,112 @@
             font-size: 0.8em;
             color: #666;
             margin-top: 5px;
+        }
+        
+        /* Full Screen Ad Overlay */
+        .fullscreen-ad {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: white;
+            z-index: 10000;
+            display: none;
+            flex-direction: column;
+        }
+        
+        .ad-header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .ad-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5em;
+            cursor: pointer;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .ad-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .ad-full-logo {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        
+        .ad-full-title {
+            font-size: 2em;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+        }
+        
+        .ad-full-description {
+            font-size: 1.1em;
+            color: #666;
+            margin-bottom: 30px;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+        
+        .ad-cta-button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+        
+        .ad-footer {
+            background: #f8f9fa;
+            padding: 15px;
+            text-align: center;
+            border-top: 2px solid #e5e7eb;
+        }
+        
+        .ad-countdown {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+        }
+        
+        .ad-progress-container {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            position: absolute;
+            bottom: 0;
+            left: 0;
+        }
+        
+        .ad-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 1s linear;
         }
         
         .leaderboard-item {
@@ -326,13 +407,45 @@
                 padding: 15px;
             }
             
-            .ad-display {
-                height: 220px;
+            .ad-preview {
+                height: 180px;
+            }
+            
+            .ad-full-logo {
+                font-size: 4em;
+            }
+            
+            .ad-full-title {
+                font-size: 1.5em;
             }
         }
     </style>
 </head>
 <body>
+    <!-- Full Screen Ad Overlay -->
+    <div class="fullscreen-ad" id="fullscreenAd">
+        <div class="ad-header">
+            <div>ADVERTISEMENT</div>
+            <button class="ad-close" id="adCloseBtn" onclick="closeAd()">✕</button>
+        </div>
+        
+        <div class="ad-content" id="fullAdContent">
+            <div class="ad-full-logo" id="fullAdLogo">📺</div>
+            <div class="ad-full-title" id="fullAdTitle">Loading Ad...</div>
+            <div class="ad-full-description" id="fullAdDescription">Please wait while the ad loads</div>
+            <div class="ad-countdown" id="adCountdown">15</div>
+            <button class="ad-cta-button" id="adCtaButton" onclick="adButtonClick()">Learn More</button>
+        </div>
+        
+        <div class="ad-footer">
+            <div>Watch the full ad to earn $0.0001 USDT</div>
+        </div>
+        
+        <div class="ad-progress-container">
+            <div class="ad-progress-bar" id="fullAdProgress"></div>
+        </div>
+    </div>
+    
     <div class="container">
         <header>
             <div class="logo">AdWatch</div>
@@ -355,22 +468,16 @@
             <p>Click the button to watch a 15-second ad and earn $0.0001 USDT</p>
             
             <div class="ad-container">
-                <!-- Ad Display Area -->
-                <div class="ad-display" id="adDisplay">
-                    <div class="ad-content" id="adContent">
-                        <div class="ad-logo" id="adLogo">📺</div>
-                        <div class="ad-title" id="adTitle">Click to Watch Ad</div>
-                        <div class="ad-description" id="adDescription">Watch a 15-second ad to earn $0.0001 USDT</div>
-                        <div class="ad-progress">
-                            <div class="ad-progress-bar" id="adProgressBar"></div>
-                        </div>
-                    </div>
+                <div class="ad-preview">
+                    <div class="ad-icon" id="previewIcon">📺</div>
+                    <div id="previewTitle">Full Screen Ad</div>
+                    <div id="previewDesc">Click to watch full screen ad</div>
                 </div>
                 
-                <div class="timer" id="timer">Ready to watch ad</div>
+                <div class="timer" id="timer">Ready to watch</div>
                 
                 <button class="watch-btn" id="watchButton" onclick="startAd()">
-                    WATCH AD & EARN $0.0001 USDT
+                    WATCH FULL SCREEN AD & EARN $0.0001 USDT
                 </button>
                 
                 <div class="stats">
@@ -448,32 +555,63 @@
             username: 'User' + Math.floor(Math.random() * 10000)
         };
         
-        // Sample ads
-        const sampleAds = [
+        // Full screen ads data
+        const fullScreenAds = [
             {
                 logo: "🎮",
-                title: "New Game Release!",
-                description: "Try our exciting new mobile game with amazing graphics"
+                title: "NEW GAME RELEASE!",
+                description: "Experience the most exciting mobile game of 2024 with stunning graphics and endless gameplay. Download now and get 1000 free coins!",
+                cta: "Download Now",
+                bgColor: "#4361ee"
             },
             {
                 logo: "🛒",
-                title: "Special Offer!",
-                description: "50% off on all products this weekend only"
+                title: "50% OFF SALE!",
+                description: "Limited time offer! Get 50% off on all products in our store. Use code: ADWATCH50 at checkout. Hurry, offer ends soon!",
+                cta: "Shop Now",
+                bgColor: "#f72585"
             },
             {
                 logo: "💳",
-                title: "Credit Card Offer",
-                description: "0% interest for first 6 months - Apply now!"
+                title: "0% INTEREST CREDIT CARD",
+                description: "Apply for our premium credit card with 0% interest for first 12 months. No annual fees, instant approval online!",
+                cta: "Apply Now",
+                bgColor: "#4cc9f0"
             },
             {
                 logo: "✈️",
-                title: "Travel Deal",
-                description: "Book your dream vacation with 30% discount"
+                title: "DREAM VACATION DEAL",
+                description: "Book your dream vacation with 40% discount! Includes flights, hotel, and tours. Limited spots available!",
+                cta: "Book Now",
+                bgColor: "#3a0ca3"
             },
             {
                 logo: "📱",
-                title: "New Phone Launch",
-                description: "Pre-order the latest smartphone with free accessories"
+                title: "NEW SMARTPHONE LAUNCH",
+                description: "Be the first to get the latest smartphone with revolutionary camera technology. Pre-order now and get free wireless earbuds!",
+                cta: "Pre-order",
+                bgColor: "#7209b7"
+            },
+            {
+                logo: "🏦",
+                title: "HIGH INTEREST SAVINGS",
+                description: "Earn 5.2% APY on your savings with our premium account. No minimum balance required. Start saving today!",
+                cta: "Open Account",
+                bgColor: "#4895ef"
+            },
+            {
+                logo: "🎓",
+                title: "ONLINE COURSES SALE",
+                description: "Learn new skills with 60% off all online courses. Programming, design, business - choose from 5000+ courses!",
+                cta: "Browse Courses",
+                bgColor: "#560bad"
+            },
+            {
+                logo: "🍕",
+                title: "FOOD DELIVERY OFFER",
+                description: "Get 30% off your first 3 orders with free delivery. Download our app and enjoy delicious food at your doorstep!",
+                cta: "Order Now",
+                bgColor: "#f15bb5"
             }
         ];
         
@@ -499,7 +637,7 @@
                 userData = parsed;
             }
             updateDisplay();
-            loadNextAd();
+            updatePreviewAd();
         }
         
         // Save data
@@ -519,15 +657,47 @@
             generateLeaderboard();
         }
         
-        // Load next ad
-        function loadNextAd() {
-            const ad = sampleAds[currentAdIndex];
-            document.getElementById('adLogo').textContent = ad.logo;
-            document.getElementById('adTitle').textContent = ad.title;
-            document.getElementById('adDescription').textContent = ad.description;
+        // Update preview ad
+        function updatePreviewAd() {
+            const ad = fullScreenAds[currentAdIndex];
+            document.getElementById('previewIcon').textContent = ad.logo;
+            document.getElementById('previewTitle').textContent = ad.title;
+            document.getElementById('previewDesc').textContent = "Watch to earn $0.0001 USDT";
+        }
+        
+        // Load full screen ad
+        function loadFullScreenAd() {
+            const ad = fullScreenAds[currentAdIndex];
+            const adOverlay = document.getElementById('fullscreenAd');
+            
+            // Update ad content
+            document.getElementById('fullAdLogo').textContent = ad.logo;
+            document.getElementById('fullAdTitle').textContent = ad.title;
+            document.getElementById('fullAdDescription').textContent = ad.description;
+            document.getElementById('adCtaButton').textContent = ad.cta;
+            document.getElementById('adCountdown').textContent = '15';
+            
+            // Set background color
+            adOverlay.style.background = ad.bgColor + '10'; // Light version
+            document.getElementById('fullAdContent').style.color = '#333';
+            
+            // Reset progress bar
+            document.getElementById('fullAdProgress').style.width = '0%';
+            
+            // Hide close button initially
+            document.getElementById('adCloseBtn').style.opacity = '0';
+            document.getElementById('adCloseBtn').style.pointerEvents = 'none';
+            
+            // Show the full screen ad
+            adOverlay.style.display = 'flex';
+            
+            // Prevent body scrolling
+            document.body.style.overflow = 'hidden';
             
             // Move to next ad for next time
-            currentAdIndex = (currentAdIndex + 1) % sampleAds.length;
+            currentAdIndex = (currentAdIndex + 1) % fullScreenAds.length;
+            
+            return ad;
         }
         
         // Tab navigation
@@ -548,50 +718,76 @@
             // Activate clicked tab button
             event.target.classList.add('active');
             
-            // Load new ad when returning to watch tab
+            // Update preview when returning to watch tab
             if (tabName === 'watch' && !adInProgress) {
-                loadNextAd();
+                updatePreviewAd();
             }
         }
         
-        // Start watching ad
+        // Start watching ad (full screen)
         function startAd() {
             if (adInProgress) return;
             
             adInProgress = true;
             const button = document.getElementById('watchButton');
             button.disabled = true;
-            button.textContent = 'WATCHING AD...';
+            button.textContent = 'LOADING AD...';
             
-            // Update ad display to show it's playing
-            document.getElementById('adDisplay').style.borderColor = '#667eea';
+            // Load and show full screen ad
+            loadFullScreenAd();
             
+            // Start the ad timer and progress
             secondsLeft = 15;
-            document.getElementById('timer').textContent = `Time remaining: ${secondsLeft}s`;
+            document.getElementById('adCountdown').textContent = secondsLeft;
             
-            // Reset progress bar
-            document.getElementById('adProgressBar').style.width = '0%';
-            
-            // Start progress bar animation
-            let progress = 0;
-            progressInterval = setInterval(() => {
-                progress += (100 / 15); // Complete in 15 seconds
-                document.getElementById('adProgressBar').style.width = Math.min(progress, 100) + '%';
-            }, 1000);
-            
-            // Start timer
+            // Start countdown
             adTimer = setInterval(() => {
                 secondsLeft--;
-                document.getElementById('timer').textContent = `Time remaining: ${secondsLeft}s`;
+                document.getElementById('adCountdown').textContent = secondsLeft;
+                
+                // Show close button after 5 seconds
+                if (secondsLeft === 10) {
+                    document.getElementById('adCloseBtn').style.opacity = '1';
+                    document.getElementById('adCloseBtn').style.pointerEvents = 'auto';
+                }
                 
                 if (secondsLeft <= 0) {
                     finishAd();
                 }
             }, 1000);
+            
+            // Start progress bar animation
+            let progress = 0;
+            progressInterval = setInterval(() => {
+                progress += (100 / 15); // Complete in 15 seconds
+                document.getElementById('fullAdProgress').style.width = Math.min(progress, 100) + '%';
+            }, 1000);
+            
+            // Auto-complete after 15 seconds
+            setTimeout(() => {
+                if (adInProgress) {
+                    finishAd();
+                }
+            }, 15000);
+        }
+        
+        // Close ad early (if user waits 5 seconds)
+        function closeAd() {
+            if (secondsLeft <= 10) { // Allow closing after 5 seconds
+                finishAd();
+            }
+        }
+        
+        // Handle ad button click
+        function adButtonClick() {
+            // Simulate button click (in real app, this would open a link)
+            showNotification('🚀 Opening advertiser website...');
         }
         
         // Finish ad and give reward
         function finishAd() {
+            if (!adInProgress) return;
+            
             clearInterval(adTimer);
             clearInterval(progressInterval);
             
@@ -605,33 +801,23 @@
             updateDisplay();
             saveData();
             
-            // Show success state
-            document.getElementById('adLogo').textContent = '✅';
-            document.getElementById('adTitle').textContent = 'Ad Completed!';
-            document.getElementById('adDescription').textContent = 'You earned $0.0001 USDT';
-            document.getElementById('adDisplay').style.borderColor = '#10b981';
-            document.getElementById('adProgressBar').style.background = '#10b981';
+            // Hide full screen ad
+            document.getElementById('fullscreenAd').style.display = 'none';
+            document.body.style.overflow = 'auto';
             
-            // Show notification
-            showNotification('🎉 Earned $0.0001 USDT!');
+            // Show success notification
+            showNotification('🎉 Earned $0.0001 USDT! Ad completed successfully.');
             
-            // Reset after 2 seconds
-            setTimeout(() => {
-                const button = document.getElementById('watchButton');
-                button.disabled = false;
-                button.textContent = 'WATCH AD & EARN $0.0001 USDT';
-                document.getElementById('timer').textContent = 'Ready to watch';
-                
-                // Reset ad display
-                document.getElementById('adDisplay').style.borderColor = '#e5e7eb';
-                document.getElementById('adProgressBar').style.background = 'linear-gradient(90deg, #667eea, #764ba2)';
-                document.getElementById('adProgressBar').style.width = '0%';
-                
-                // Load next ad
-                loadNextAd();
-                
-                adInProgress = false;
-            }, 2000);
+            // Reset button
+            const button = document.getElementById('watchButton');
+            button.disabled = false;
+            button.textContent = 'WATCH FULL SCREEN AD & EARN $0.0001 USDT';
+            document.getElementById('timer').textContent = 'Ready to watch';
+            
+            // Update preview for next ad
+            updatePreviewAd();
+            
+            adInProgress = false;
         }
         
         // Leaderboard
