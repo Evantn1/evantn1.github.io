@@ -147,7 +147,6 @@
             margin: 10px 0;
             width: 100%;
             transition: transform 0.2s;
-            display: none;
         }
         
         .claim-btn:hover {
@@ -198,6 +197,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
         }
         
         .ad-loading {
@@ -210,14 +210,17 @@
             margin-bottom: 15px;
         }
         
-        .ad-display {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
+        .ad-loaded-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #10b981;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: bold;
+            display: none;
         }
         
         .reward-popup {
@@ -420,8 +423,8 @@
     <div class="reward-popup" id="rewardPopup">
         <div class="popup-content">
             <div class="popup-icon">🎉</div>
-            <div class="popup-title">Ad Completed!</div>
-            <div class="popup-message">You watched the ad successfully!</div>
+            <div class="popup-title">Ad Watched!</div>
+            <div class="popup-message">You successfully watched the ad</div>
             <div class="popup-message" style="font-size: 1.2em; font-weight: bold; color: #667eea;">
                 Earn $0.0001 USDT
             </div>
@@ -448,37 +451,38 @@
         <!-- Watch Ads Tab -->
         <div id="watch-tab" class="tab-content active">
             <h2>Watch & Earn USDT</h2>
-            <p>Watch an ad and claim your reward</p>
+            <p>Click "Watch Ad" to load an ad, then click "Claim Reward"</p>
             
             <div class="ad-instructions">
                 <h4>📺 How it works:</h4>
-                <p>1. Click "Watch Ad" button</p>
-                <p>2. Wait for Monetag ad to load</p>
-                <p>3. Ad will show automatically</p>
-                <p>4. Click "Claim Reward" to earn $0.0001 USDT</p>
+                <p>1. Click <strong>"Watch Ad"</strong> button</p>
+                <p>2. Wait for ad to load (5-10 seconds)</p>
+                <p>3. <strong>"Claim Reward"</strong> button will appear</p>
+                <p>4. Click it to earn $0.0001 USDT</p>
             </div>
             
             <div class="ad-container">
                 <!-- Monetag Ad Container -->
                 <div id="monetag-ad-container">
+                    <div class="ad-loaded-indicator" id="adLoadedIndicator">✓ AD LOADED</div>
                     <div class="ad-loading" id="adLoading">
                         <div class="loading-spinner">📺</div>
-                        <div>Click "Watch Ad" to load ad</div>
-                        <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Real ads from Monetag</div>
+                        <div>Ad will load here</div>
+                        <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Click "Watch Ad" to start</div>
                     </div>
                 </div>
                 
                 <div class="monetag-status" id="monetagStatus">
-                    ✅ Monetag ready: Click "Watch Ad" to start
+                    ✅ Monetag ready - Click "Watch Ad" to load ad
                 </div>
                 
-                <div class="timer" id="timer">Ready to watch ad</div>
+                <div class="timer" id="timer">Click "Watch Ad" to begin</div>
                 
                 <button class="watch-btn" id="watchButton" onclick="startAd()">
                     WATCH AD
                 </button>
                 
-                <button class="claim-btn" id="claimButton" onclick="showRewardPopup()">
+                <button class="claim-btn" id="claimButton" onclick="showRewardPopup()" style="display: none;">
                     CLAIM REWARD - $0.0001 USDT
                 </button>
                 
@@ -560,6 +564,7 @@
         // Monetag status
         let monetagLoaded = false;
         let adInProgress = false;
+        let currentAdLoaded = false;
         
         // Load saved data
         function loadData() {
@@ -577,6 +582,7 @@
                 userData = parsed;
             }
             updateDisplay();
+            resetAdUI(); // Start with clean UI
         }
         
         // Save data
@@ -601,7 +607,7 @@
             if (typeof show_10396104 !== 'undefined') {
                 monetagLoaded = true;
                 document.getElementById('monetagStatus').innerHTML = 
-                    '✅ Monetag ready: Click "Watch Ad" to start';
+                    '✅ Monetag ready - Click "Watch Ad" to load ad';
                 console.log('Monetag SDK loaded successfully');
             } else {
                 document.getElementById('monetagStatus').innerHTML = 
@@ -610,26 +616,35 @@
             }
         }
         
-        // Load Monetag ad with retry
-        function loadMonetagAd(retryCount = 0) {
+        // Load Monetag ad
+        function loadMonetagAd() {
             const adContainer = document.getElementById('monetag-ad-container');
             const loadingElement = document.getElementById('adLoading');
             
             // Clear previous ad
             adContainer.innerHTML = '';
+            loadingElement.style.display = 'flex';
             adContainer.appendChild(loadingElement);
-            loadingElement.style.display = 'block';
             
             // Update loading message
             loadingElement.innerHTML = `
                 <div class="loading-spinner">⏳</div>
                 <div>Loading ad from Monetag...</div>
-                <div style="font-size: 0.8em; margin-top: 10px; color: #666;">This may take a few seconds</div>
+                <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Please wait 5-10 seconds</div>
             `;
+            
+            // Hide claim button and show watch button during loading
+            document.getElementById('claimButton').style.display = 'none';
+            document.getElementById('watchButton').style.display = 'block';
+            document.getElementById('watchButton').disabled = true;
+            document.getElementById('watchButton').textContent = 'LOADING AD...';
+            
+            document.getElementById('timer').textContent = 'Loading ad...';
+            document.getElementById('adLoadedIndicator').style.display = 'none';
             
             if (monetagLoaded && typeof show_10396104 !== 'undefined') {
                 try {
-                    // Initialize Monetag interstitial
+                    // Initialize Monetag
                     show_10396104({
                         type: 'inApp',
                         inAppSettings: {
@@ -641,10 +656,10 @@
                         }
                     });
                     
-                    // Try to show ad
+                    // Try to show ad after delay
                     setTimeout(() => {
                         try {
-                            // Clear container first
+                            // Clear container
                             adContainer.innerHTML = '';
                             
                             // Show Monetag ad
@@ -653,43 +668,40 @@
                             // Hide loading
                             loadingElement.style.display = 'none';
                             
-                            // Update status
+                            // Mark ad as loaded
+                            currentAdLoaded = true;
+                            document.getElementById('adLoadedIndicator').style.display = 'block';
+                            
+                            // Update UI
                             document.getElementById('monetagStatus').innerHTML = 
                                 '✅ Ad loaded successfully!';
-                            document.getElementById('timer').textContent = 'Ad is ready';
+                            document.getElementById('timer').textContent = 'Ad is ready - Click "Claim Reward"';
                             
-                            // Show claim button after ad loads
-                            setTimeout(() => {
-                                showClaimButton();
-                            }, 1000);
+                            // Show claim button
+                            document.getElementById('watchButton').style.display = 'none';
+                            document.getElementById('claimButton').style.display = 'block';
+                            
+                            // Re-enable watch button for next ad
+                            document.getElementById('watchButton').disabled = false;
+                            document.getElementById('watchButton').textContent = 'WATCH AD';
                             
                             console.log('Monetag ad displayed successfully');
                             
                         } catch (error) {
                             console.error('Error showing Monetag ad:', error);
-                            
-                            // Retry or show fallback
-                            if (retryCount < 2) {
-                                document.getElementById('monetagStatus').innerHTML = 
-                                    '🔄 Retrying ad load...';
-                                setTimeout(() => loadMonetagAd(retryCount + 1), 1000);
-                            } else {
-                                showFallbackAd();
-                            }
+                            showFallbackAd();
                         }
-                    }, 1500);
+                    }, 3000); // Wait 3 seconds for ad to load
                     
                 } catch (error) {
                     console.error('Monetag initialization error:', error);
                     showFallbackAd();
                 }
             } else {
-                // Monetag not loaded yet, retry
-                if (retryCount < 3) {
-                    setTimeout(() => loadMonetagAd(retryCount + 1), 1000);
-                } else {
+                // Monetag not loaded, use fallback
+                setTimeout(() => {
                     showFallbackAd();
-                }
+                }, 2000);
             }
         }
         
@@ -701,36 +713,45 @@
             loadingElement.style.display = 'none';
             
             const fallbackAd = document.createElement('div');
-            fallbackAd.className = 'ad-display';
+            fallbackAd.style.padding = '30px';
+            fallbackAd.style.textAlign = 'center';
+            fallbackAd.style.width = '100%';
+            fallbackAd.style.height = '100%';
+            fallbackAd.style.display = 'flex';
+            fallbackAd.style.flexDirection = 'column';
+            fallbackAd.style.alignItems = 'center';
+            fallbackAd.style.justifyContent = 'center';
             fallbackAd.innerHTML = `
                 <div style="font-size: 4em; margin-bottom: 20px;">📱</div>
-                <div style="font-size: 1.5em; font-weight: bold; margin-bottom: 10px; color: #333;">Test Advertisement</div>
-                <div style="color: #666; margin-bottom: 20px; text-align: center; padding: 0 20px;">
-                    This is a sample ad. In the live app, real Monetag ads will appear here.
+                <div style="font-size: 1.3em; font-weight: bold; margin-bottom: 10px; color: #333;">Test Advertisement</div>
+                <div style="color: #666; margin-bottom: 20px; padding: 0 20px;">
+                    Sample ad - In live app, real Monetag ads appear here
                 </div>
-                <div style="background: #667eea; color: white; padding: 12px 30px; border-radius: 25px; display: inline-block; cursor: pointer; margin-top: 10px;" 
-                     onclick="this.style.background='#10b981'; this.innerHTML='✓ Ad Clicked';">
+                <div style="background: #667eea; color: white; padding: 12px 30px; border-radius: 25px; 
+                          display: inline-block; cursor: pointer; margin-top: 10px;"
+                     onclick="this.style.background='#10b981'; this.innerHTML='✓ Clicked!';">
                     Learn More
                 </div>
             `;
             
             adContainer.appendChild(fallbackAd);
             
+            // Mark ad as loaded
+            currentAdLoaded = true;
+            document.getElementById('adLoadedIndicator').style.display = 'block';
+            
+            // Update UI
             document.getElementById('monetagStatus').innerHTML = 
-                '⚠️ Using sample ad (Monetag loading...)';
-            document.getElementById('timer').textContent = 'Ad loaded';
+                '✅ Test ad loaded - Click "Claim Reward"';
+            document.getElementById('timer').textContent = 'Ad is ready - Click "Claim Reward"';
             
             // Show claim button
-            setTimeout(() => {
-                showClaimButton();
-            }, 1000);
-        }
-        
-        // Show claim button
-        function showClaimButton() {
             document.getElementById('watchButton').style.display = 'none';
             document.getElementById('claimButton').style.display = 'block';
-            document.getElementById('timer').textContent = 'Click "Claim Reward" to earn';
+            
+            // Re-enable watch button for next ad
+            document.getElementById('watchButton').disabled = false;
+            document.getElementById('watchButton').textContent = 'WATCH AD';
         }
         
         // Show reward popup
@@ -758,20 +779,22 @@
             // Show notification
             showNotification('🎉 Successfully claimed $0.0001 USDT!');
             
-            // Reset UI
+            // Reset UI for next ad
             resetAdUI();
         }
         
         // Reset ad UI
         function resetAdUI() {
-            // Hide claim button, show watch button
+            // Reset buttons
             document.getElementById('claimButton').style.display = 'none';
             document.getElementById('watchButton').style.display = 'block';
             document.getElementById('watchButton').disabled = false;
             document.getElementById('watchButton').textContent = 'WATCH AD';
             
-            // Reset timer
-            document.getElementById('timer').textContent = 'Ready for next ad';
+            // Reset timer and status
+            document.getElementById('timer').textContent = 'Click "Watch Ad" to begin';
+            document.getElementById('monetagStatus').innerHTML = 
+                '✅ Ready for next ad - Click "Watch Ad"';
             
             // Reset ad container
             const adContainer = document.getElementById('monetag-ad-container');
@@ -780,13 +803,18 @@
             adContainer.innerHTML = '';
             loadingElement.innerHTML = `
                 <div class="loading-spinner">📺</div>
-                <div>Click "Watch Ad" to load next ad</div>
-                <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Real ads from Monetag</div>
+                <div>Ad will load here</div>
+                <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Click "Watch Ad" to start</div>
             `;
-            loadingElement.style.display = 'block';
+            loadingElement.style.display = 'flex';
             adContainer.appendChild(loadingElement);
             
+            // Hide loaded indicator
+            document.getElementById('adLoadedIndicator').style.display = 'none';
+            
+            // Reset flags
             adInProgress = false;
+            currentAdLoaded = false;
         }
         
         // Tab navigation
@@ -813,14 +841,9 @@
             if (adInProgress) return;
             
             adInProgress = true;
-            const button = document.getElementById('watchButton');
-            button.disabled = true;
-            button.textContent = 'LOADING AD...';
+            currentAdLoaded = false;
             
-            document.getElementById('timer').textContent = 'Loading ad...';
-            document.getElementById('monetagStatus').innerHTML = '🔄 Loading Monetag ad...';
-            
-            // Load Monetag ad with retry logic
+            // Start loading ad
             loadMonetagAd();
         }
         
