@@ -5,42 +5,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdWatch - Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    
-    <!-- Libtl/Monetag SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='10396104' data-sdk='show_10396104'></script>
-    
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: Arial, sans-serif;
         }
         
         body {
-            background: linear-gradient(135deg, #8247e5 0%, #6b46c1 100%);
-            min-height: 100vh;
+            background: #f0f2f5;
             padding: 20px;
+            min-height: 100vh;
         }
         
         .container {
-            max-width: 800px;
+            max-width: 500px;
             margin: 0 auto;
             background: white;
             border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
         }
         
         header {
-            background: linear-gradient(135deg, #8247e5 0%, #6b46c1 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             padding: 30px 20px;
             text-align: center;
         }
         
         .logo {
-            font-size: 2.5em;
+            font-size: 2em;
             font-weight: bold;
             margin-bottom: 10px;
         }
@@ -51,20 +47,20 @@
             padding: 20px;
             border-radius: 15px;
             margin: 20px auto;
-            max-width: 300px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 250px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
         
         .balance-amount {
-            font-size: 2.5em;
+            font-size: 2em;
             font-weight: bold;
-            color: #8247e5;
+            color: #667eea;
         }
         
         .nav-tabs {
             display: flex;
             background: #f8f9fa;
-            border-bottom: 2px solid #8247e5;
+            border-bottom: 2px solid #667eea;
         }
         
         .tab {
@@ -73,19 +69,18 @@
             text-align: center;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.3s;
             color: #666;
+            transition: all 0.3s;
         }
         
         .tab.active {
-            background: #8247e5;
+            background: #667eea;
             color: white;
         }
         
         .tab-content {
             display: none;
-            padding: 30px;
-            min-height: 400px;
+            padding: 20px;
         }
         
         .tab-content.active {
@@ -95,61 +90,72 @@
         .ad-container {
             background: #f8f9fa;
             border-radius: 15px;
-            padding: 40px;
+            padding: 20px;
             text-align: center;
             margin: 20px 0;
         }
         
-        .ad-frame {
+        .ad-box {
             width: 100%;
-            min-height: 250px;
-            border: none;
+            height: 200px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             border-radius: 10px;
-            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
             margin: 20px 0;
-            background: white;
+            padding: 20px;
         }
         
-        .watch-button {
-            background: linear-gradient(135deg, #8247e5 0%, #6b46c1 100%);
+        .ad-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .watch-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 40px;
-            font-size: 1.2em;
-            border-radius: 50px;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
             cursor: pointer;
             font-weight: bold;
-            margin: 20px 0;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 5px 15px rgba(130, 71, 229, 0.4);
+            margin: 10px 0;
+            width: 100%;
+            transition: transform 0.2s;
         }
         
-        .watch-button:hover {
+        .watch-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(130, 71, 229, 0.6);
         }
         
-        .watch-button:disabled {
+        .watch-btn:active {
+            transform: translateY(0);
+        }
+        
+        .watch-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
             transform: none;
         }
         
         .timer {
-            font-size: 1.2em;
+            font-size: 1em;
             color: #666;
             margin: 10px 0;
-            font-weight: 600;
+            font-weight: bold;
         }
         
         .stats {
             display: flex;
             justify-content: space-around;
-            margin: 20px 0;
-            padding: 15px;
             background: white;
+            padding: 15px;
             border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            margin: 20px 0;
         }
         
         .stat-item {
@@ -159,12 +165,13 @@
         .stat-value {
             font-size: 1.5em;
             font-weight: bold;
-            color: #8247e5;
+            color: #667eea;
         }
         
         .stat-label {
-            font-size: 0.9em;
+            font-size: 0.8em;
             color: #666;
+            margin-top: 5px;
         }
         
         .leaderboard-item {
@@ -174,17 +181,11 @@
             margin: 10px 0;
             background: #f8f9fa;
             border-radius: 10px;
-            transition: transform 0.3s;
-            border-left: 4px solid #8247e5;
-        }
-        
-        .leaderboard-item:hover {
-            transform: translateX(5px);
         }
         
         .rank {
-            width: 40px;
-            height: 40px;
+            width: 35px;
+            height: 35px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -192,25 +193,12 @@
             font-weight: bold;
             color: white;
             margin-right: 15px;
-            font-size: 1.2em;
         }
         
-        .rank-1 { 
-            background: linear-gradient(135deg, #ffd700 0%, #ffa500 100%);
-            box-shadow: 0 4px 10px rgba(255, 165, 0, 0.3);
-        }
-        .rank-2 { 
-            background: linear-gradient(135deg, #c0c0c0 0%, #a0a0a0 100%);
-            box-shadow: 0 4px 10px rgba(160, 160, 160, 0.3);
-        }
-        .rank-3 { 
-            background: linear-gradient(135deg, #cd7f32 0%, #a6692e 100%);
-            box-shadow: 0 4px 10px rgba(205, 127, 50, 0.3);
-        }
-        .rank-other { 
-            background: linear-gradient(135deg, #8247e5 0%, #6b46c1 100%);
-            box-shadow: 0 4px 10px rgba(130, 71, 229, 0.3);
-        }
+        .rank-1 { background: gold; }
+        .rank-2 { background: silver; }
+        .rank-3 { background: #cd7f32; }
+        .rank-other { background: #667eea; }
         
         .user-info {
             flex: 1;
@@ -218,8 +206,6 @@
         
         .username {
             font-weight: bold;
-            font-size: 1.1em;
-            color: #333;
         }
         
         .ads-count {
@@ -229,182 +215,64 @@
         
         .reward {
             font-weight: bold;
-            color: #8247e5;
-            font-size: 1.1em;
+            color: #667eea;
         }
         
         .withdrawal-form {
-            max-width: 400px;
-            margin: 0 auto;
             background: #f8f9fa;
-            padding: 25px;
+            padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin: 20px 0;
         }
         
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
         
         .form-label {
             display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
+            margin-bottom: 5px;
+            font-weight: bold;
             color: #333;
         }
         
         input {
             width: 100%;
-            padding: 12px 15px;
+            padding: 12px;
             border: 2px solid #ddd;
             border-radius: 8px;
             font-size: 1em;
-            transition: border-color 0.3s;
         }
         
         input:focus {
-            border-color: #8247e5;
+            border-color: #667eea;
             outline: none;
-            box-shadow: 0 0 0 3px rgba(130, 71, 229, 0.1);
         }
         
-        .payment-method-info {
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 4px solid #8247e5;
-        }
-        
-        .polygon-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, #8247e5 0%, #6b46c1 100%);
-            color: white;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.9em;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-        
-        .withdraw-button {
+        .withdraw-btn {
             background: linear-gradient(135deg, #10b981 0%, #059669 100%);
             color: white;
             border: none;
-            padding: 16px;
+            padding: 15px;
             width: 100%;
-            font-size: 1.2em;
+            font-size: 1.1em;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            transition: transform 0.3s, box-shadow 0.3s;
-            box-shadow: 0 5px 15px rgba(16, 185, 129, 0.4);
-        }
-        
-        .withdraw-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.6);
-        }
-        
-        .withdraw-button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
+            margin-top: 10px;
         }
         
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 25px;
+            padding: 15px 20px;
             background: #10b981;
             color: white;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             display: none;
             z-index: 1000;
-            animation: slideIn 0.3s ease;
-        }
-        
-        .notification.error {
-            background: #ef4444;
-        }
-        
-        .notification.warning {
-            background: #f59e0b;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
-        }
-        
-        .info-box {
-            background: linear-gradient(135deg, #e0e7ff 0%, #f3e8ff 100%);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            border-left: 4px solid #8247e5;
-        }
-        
-        .info-box h4 {
-            margin: 0 0 10px 0;
-            color: #8247e5;
-        }
-        
-        .currency-display {
-            display: inline-block;
-            background: #8247e5;
-            color: white;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-weight: bold;
-            margin: 0 2px;
-        }
-        
-        .conversion-note {
-            font-size: 0.85em;
-            color: #666;
-            text-align: center;
-            margin-top: 10px;
-            padding: 10px;
-            background: #f8f9fa;
-            border-radius: 8px;
-        }
-        
-        .admin-notice {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 0.85em;
-        }
-        
-        .sdk-info {
-            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-            border-left: 4px solid #3b82f6;
-            padding: 10px;
-            border-radius: 8px;
-            margin-top: 15px;
-            font-size: 0.8em;
-        }
-        
-        .ad-loading {
-            background: linear-gradient(45deg, #8247e5, #a78bfa);
-            border-radius: 10px;
-            height: 250px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 1.2em;
         }
         
         @media (max-width: 600px) {
@@ -414,22 +282,11 @@
             }
             
             .tab-content {
-                padding: 20px;
+                padding: 15px;
             }
             
-            .ad-frame {
-                min-height: 200px;
-            }
-            
-            .stats {
-                flex-direction: column;
-                gap: 15px;
-            }
-            
-            .notification {
-                left: 20px;
-                right: 20px;
-                text-align: center;
+            .ad-box {
+                height: 180px;
             }
         }
     </style>
@@ -454,24 +311,18 @@
         <!-- Watch Ads Tab -->
         <div id="watch-tab" class="tab-content active">
             <h2>Watch & Earn USDT</h2>
-            <p>Watch a 15-second ad to earn <span class="currency-display">$0.0001 USDT</span></p>
+            <p>Click the button to watch a 15-second ad and earn $0.0001 USDT</p>
             
             <div class="ad-container">
-                <!-- Simple Ad Container -->
-                <div id="adContainer">
-                    <div class="ad-loading" id="adLoading">
-                        <div style="text-align: center;">
-                            <div style="font-size: 2em; margin-bottom: 10px;">📺</div>
-                            <div>Loading Ad...</div>
-                            <div style="font-size: 0.8em; margin-top: 10px;">Please wait</div>
-                        </div>
-                    </div>
-                    <iframe id="adFrame" class="ad-frame" style="display: none;"></iframe>
+                <div class="ad-box" id="adBox">
+                    <div class="ad-icon" id="adIcon">📺</div>
+                    <div id="adText">Click button to watch ad</div>
+                    <div id="adSubtext">Earn $0.0001 USDT per ad</div>
                 </div>
                 
-                <div class="timer" id="timer">Ready to watch ad</div>
+                <div class="timer" id="timer">Ready to watch</div>
                 
-                <button class="watch-button" id="watchButton" onclick="startAd()">
+                <button class="watch-btn" id="watchButton" onclick="startAd()">
                     WATCH AD & EARN $0.0001 USDT
                 </button>
                 
@@ -490,98 +341,44 @@
                     </div>
                 </div>
             </div>
-            
-            <div class="info-box">
-                <h4>💡 Tips:</h4>
-                <p>• Each ad earns <span class="currency-display">$0.0001 USDT</span> (15 seconds)</p>
-                <p>• Watch more ads daily to earn more</p>
-                <p>• Weekly leaderboard rewards top watchers</p>
-                <p>• Make sure to watch the full ad to earn rewards</p>
-            </div>
-            
-            <div class="sdk-info">
-                <strong>📢 Ad Network:</strong> Libtl/Monetag SDK is active. Real ads will be displayed here.
-            </div>
         </div>
         
         <!-- Leaderboard Tab -->
         <div id="leaderboard-tab" class="tab-content">
             <h2>Weekly Leaderboard</h2>
-            <p id="leaderboardTimer">Top earners this week (Resets every Sunday at 00:00 UTC)</p>
+            <p>Top earners this week</p>
             
             <div id="leaderboard-list">
-                <!-- Generated dynamically -->
+                <!-- Generated by JavaScript -->
             </div>
             
-            <div style="text-align: center; margin-top: 20px; padding: 20px; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border-radius: 15px;">
-                <h3 style="color: #d97706; margin-bottom: 15px;">🏆 Weekly Prizes 🏆</h3>
-                <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
-                    <div style="background: white; padding: 15px; border-radius: 10px; min-width: 150px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        <div style="font-size: 1.5em; color: #ffd700;">🥇 1st</div>
-                        <div style="font-weight: bold; font-size: 1.2em; color: #8247e5;">$0.50 USDT</div>
-                    </div>
-                    <div style="background: white; padding: 15px; border-radius: 10px; min-width: 150px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        <div style="font-size: 1.5em; color: #c0c0c0;">🥈 2nd</div>
-                        <div style="font-weight: bold; font-size: 1.2em; color: #8247e5;">$0.30 USDT</div>
-                    </div>
-                    <div style="background: white; padding: 15px; border-radius: 10px; min-width: 150px; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
-                        <div style="font-size: 1.5em; color: #cd7f32;">🥉 3rd</div>
-                        <div style="font-weight: bold; font-size: 1.2em; color: #8247e5;">$0.10 USDT</div>
-                    </div>
-                </div>
+            <div style="text-align: center; margin-top: 20px; padding: 15px; background: #fef3c7; border-radius: 10px;">
+                <h3>🏆 Weekly Prizes 🏆</h3>
+                <p>1st: $0.50 USDT | 2nd: $0.30 USDT | 3rd: $0.10 USDT</p>
             </div>
         </div>
         
         <!-- Withdrawal Tab -->
         <div id="withdraw-tab" class="tab-content">
             <h2>Withdraw Your USDT</h2>
-            <p>Minimum withdrawal: <span class="currency-display">$0.015 USDT</span></p>
+            <p>Minimum withdrawal: $0.015 USDT</p>
             
             <div class="withdrawal-form">
-                <div class="payment-method-info">
-                    <div class="polygon-badge">POLYGON NETWORK</div>
-                    <p><strong>Payment Method:</strong> POL (Polygon Chain Native Token)</p>
-                    <p><strong>Withdrawal Currency:</strong> USDT (converted to POL)</p>
-                    <p><strong>Network Fee:</strong> ~0.1 POL per transaction</p>
-                </div>
-                
-                <div class="conversion-note">
-                    💱 USDT will be converted to POL at current market rate
-                </div>
-                
                 <div class="form-group">
                     <label class="form-label">Amount (USDT)</label>
-                    <input type="number" id="withdrawAmount" min="0.015" max="100" step="0.0001" placeholder="0.015">
-                    <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
+                    <input type="number" id="withdrawAmount" min="0.015" step="0.0001" placeholder="0.015">
+                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
                         Available: $<span id="availableBalance">0.0000</span> USDT
-                    </div>
-                    <div style="font-size: 0.85em; color: #666; margin-top: 5px;" id="polEquivalent">
-                        Equivalent: ~0 POL
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label class="form-label">POL Polygon Address</label>
-                    <input type="text" id="walletAddress" placeholder="0x742d35Cc6634C0532925a3b844Bc9e" pattern="^0x[a-fA-F0-9]{40}$">
-                    <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
-                        Must start with "0x" and be 42 characters (Polygon address)
-                    </div>
+                    <label class="form-label">Wallet Address (Polygon)</label>
+                    <input type="text" id="walletAddress" placeholder="0x...">
                 </div>
                 
-                <div class="info-box">
-                    <h4>⚠️ Important:</h4>
-                    <p>• USDT will be converted to POL (Polygon's native token)</p>
-                    <p>• Only send to Polygon (POL) addresses</p>
-                    <p>• Withdrawals processed within 24 hours</p>
-                    <p>• Network fees (~0.1 POL) deducted from withdrawal</p>
-                </div>
-                
-                <div class="admin-notice">
-                    ⚡ <strong>Admin Notification:</strong> All withdrawals will send a notification to the admin bot for manual processing.
-                </div>
-                
-                <button class="withdraw-button" onclick="processWithdrawal()">
-                    WITHDRAW USDT (as POL)
+                <button class="withdraw-btn" onclick="processWithdrawal()">
+                    WITHDRAW USDT
                 </button>
             </div>
         </div>
@@ -590,20 +387,7 @@
     <div class="notification" id="notification"></div>
     
     <script>
-        // ============ CONFIGURATION ============
-        // 🔧 CONFIGURE THESE SETTINGS:
-        const BOT_TOKEN = 'YOUR_BOT_TOKEN_HERE'; // Your Telegram Bot Token from @BotFather
-        const ADMIN_CHAT_ID = 'YOUR_CHAT_ID_HERE'; // Your Telegram Chat ID to receive notifications
-        
-        // App Constants
-        const AD_DURATION = 15; // 15-second ads
-        const AD_REWARD = 0.0001; // $0.0001 USDT per ad
-        const MIN_WITHDRAWAL = 0.015; // $0.015 USDT minimum
-        const NETWORK_FEE_POL = 0.1; // 0.1 POL network fee
-        const USDT_TO_POL_RATE = 0.0012; // Example: 1 USDT = 0.0012 POL
-        
-        // ============ APP CODE ============
-        // Initialize Telegram Web App
+        // Initialize Telegram
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
@@ -614,26 +398,17 @@
             adsToday: 0,
             totalAds: 0,
             earnedToday: 0.0000,
-            username: 'User' + Math.floor(Math.random() * 10000),
-            lastAdDate: null,
-            userId: null,
-            firstName: '',
-            lastName: ''
+            username: 'User' + Math.floor(Math.random() * 10000)
         };
         
-        // Ad tracking
-        let adTimer;
-        let secondsLeft = AD_DURATION;
-        let currentAdActive = false;
-        
-        // Load data from localStorage
+        // Load saved data
         function loadData() {
             const saved = localStorage.getItem('adWatchData');
             if (saved) {
                 const parsed = JSON.parse(saved);
                 const today = new Date().toDateString();
                 
-                // Reset daily stats if it's a new day
+                // Reset daily stats if new day
                 if (parsed.lastAdDate !== today) {
                     parsed.adsToday = 0;
                     parsed.earnedToday = 0.0000;
@@ -644,45 +419,13 @@
             updateDisplay();
         }
         
-        // Save data to localStorage
+        // Save data
         function saveData() {
             userData.lastAdDate = new Date().toDateString();
             localStorage.setItem('adWatchData', JSON.stringify(userData));
         }
         
-        // Send notification to Telegram bot
-        async function sendTelegramNotification(message) {
-            // Only send if bot token is configured
-            if (BOT_TOKEN === 'YOUR_BOT_TOKEN_HERE' || ADMIN_CHAT_ID === 'YOUR_CHAT_ID_HERE') {
-                console.log('⚠️ Bot token or chat ID not configured');
-                console.log('📝 Notification message:', message);
-                return false;
-            }
-            
-            try {
-                const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`;
-                
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: ADMIN_CHAT_ID,
-                        text: message,
-                        parse_mode: 'HTML'
-                    })
-                });
-                
-                const data = await response.json();
-                return data.ok;
-            } catch (error) {
-                console.error('Error sending Telegram notification:', error);
-                return false;
-            }
-        }
-        
-        // Update all displayed values
+        // Update display
         function updateDisplay() {
             document.getElementById('balance').textContent = userData.balance.toFixed(4);
             document.getElementById('todayCount').textContent = userData.adsToday;
@@ -690,20 +433,7 @@
             document.getElementById('earnedToday').textContent = '$' + userData.earnedToday.toFixed(4);
             document.getElementById('availableBalance').textContent = userData.balance.toFixed(4);
             
-            // Update POL equivalent
-            updatePolEquivalent();
-            
-            // Update leaderboard
             generateLeaderboard();
-        }
-        
-        // Update POL equivalent display
-        function updatePolEquivalent() {
-            const amountInput = document.getElementById('withdrawAmount');
-            const amount = parseFloat(amountInput.value) || 0;
-            const polAmount = amount * USDT_TO_POL_RATE;
-            document.getElementById('polEquivalent').textContent = 
-                `Equivalent: ~${polAmount.toFixed(4)} POL (Rate: 1 USDT = ${USDT_TO_POL_RATE.toFixed(4)} POL)`;
         }
         
         // Tab navigation
@@ -713,7 +443,7 @@
                 tab.classList.remove('active');
             });
             
-            // Remove active class from all tab buttons
+            // Remove active from all tab buttons
             document.querySelectorAll('.tab').forEach(tab => {
                 tab.classList.remove('active');
             });
@@ -723,219 +453,83 @@
             
             // Activate clicked tab button
             event.target.classList.add('active');
-            
-            // Update POL equivalent when withdrawal tab is shown
-            if (tabName === 'withdraw') {
-                updatePolEquivalent();
-            }
         }
         
-        // Load a test ad (for demonstration)
-        function loadTestAd() {
-            const adFrame = document.getElementById('adFrame');
-            const adLoading = document.getElementById('adLoading');
-            
-            // Show loading
-            adLoading.style.display = 'flex';
-            adFrame.style.display = 'none';
-            
-            // Create a simple test ad
-            const testAdHTML = `
-                <!DOCTYPE html>
-                <html>
-                <head>
-                    <style>
-                        body {
-                            margin: 0;
-                            padding: 20px;
-                            font-family: Arial, sans-serif;
-                            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-                            color: white;
-                            height: 100%;
-                            display: flex;
-                            flex-direction: column;
-                            justify-content: center;
-                            align-items: center;
-                            text-align: center;
-                        }
-                        .ad-content {
-                            max-width: 90%;
-                        }
-                        .logo {
-                            font-size: 2em;
-                            font-weight: bold;
-                            margin-bottom: 10px;
-                        }
-                        .cta-button {
-                            background: white;
-                            color: #667eea;
-                            border: none;
-                            padding: 10px 20px;
-                            border-radius: 25px;
-                            font-weight: bold;
-                            margin-top: 20px;
-                            cursor: pointer;
-                        }
-                    </style>
-                </head>
-                <body>
-                    <div class="ad-content">
-                        <div class="logo">📺 ADVERTISEMENT</div>
-                        <h2>Test Advertisement</h2>
-                        <p>This is a demonstration ad. In the real app, real ads from Libtl/Monetag will appear here.</p>
-                        <p>Watch for <span id="adTimer">15</span> seconds to earn $${AD_REWARD.toFixed(4)} USDT</p>
-                        <button class="cta-button" onclick="window.top.postMessage('adClicked', '*')">Learn More</button>
-                    </div>
-                    <script>
-                        let timeLeft = 15;
-                        const timerEl = document.getElementById('adTimer');
-                        const timer = setInterval(() => {
-                            timeLeft--;
-                            timerEl.textContent = timeLeft;
-                            if (timeLeft <= 0) {
-                                clearInterval(timer);
-                                window.top.postMessage('adCompleted', '*');
-                            }
-                        }, 1000);
-                        
-                        // Auto-complete after 15 seconds
-                        setTimeout(() => {
-                            window.top.postMessage('adCompleted', '*');
-                        }, 15000);
-                    <\/script>
-                </body>
-                </html>
-            `;
-            
-            // Set the iframe content after a short delay (simulating ad load)
-            setTimeout(() => {
-                adLoading.style.display = 'none';
-                adFrame.style.display = 'block';
-                adFrame.srcdoc = testAdHTML;
-                
-                // Listen for ad completion message
-                window.addEventListener('message', function(event) {
-                    if (event.data === 'adCompleted') {
-                        finishAd();
-                    }
-                });
-                
-            }, 1000);
-        }
+        // Ad watching
+        let adTimer;
+        let secondsLeft = 15;
+        let adInProgress = false;
         
-        // Start ad watching
         function startAd() {
-            if (currentAdActive) return;
+            if (adInProgress) return;
             
-            currentAdActive = true;
+            adInProgress = true;
             const button = document.getElementById('watchButton');
             button.disabled = true;
-            button.textContent = 'LOADING AD...';
+            button.textContent = 'WATCHING AD...';
             
-            secondsLeft = AD_DURATION;
-            document.getElementById('timer').textContent = `Ad loading...`;
+            // Update ad display
+            document.getElementById('adIcon').textContent = '⏳';
+            document.getElementById('adText').textContent = 'Ad playing...';
+            document.getElementById('adSubtext').textContent = 'Please wait 15 seconds';
             
-            // Try to load Libtl ad first, fallback to test ad
-            try {
-                if (typeof show_10396104 !== 'undefined') {
-                    // Initialize interstitial ads
-                    show_10396104({
-                        type: 'inApp',
-                        inAppSettings: {
-                            frequency: 2,
-                            capping: 0.1,
-                            interval: 30,
-                            timeout: 5,
-                            everyPage: false
-                        }
-                    });
-                    
-                    // Show the ad
-                    const adContainer = document.getElementById('adContainer');
-                    show_10396104.show(adContainer);
-                    
-                    button.textContent = 'WATCHING AD...';
-                    startAdTimer();
-                    
-                } else {
-                    // Fallback to test ad
-                    loadTestAd();
-                    button.textContent = 'WATCHING AD...';
-                    startAdTimer();
-                }
-            } catch (error) {
-                console.error('Error loading ad:', error);
-                // Fallback to test ad
-                loadTestAd();
-                button.textContent = 'WATCHING AD...';
-                startAdTimer();
-            }
-        }
-        
-        // Start ad timer
-        function startAdTimer() {
-            document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
+            secondsLeft = 15;
+            document.getElementById('timer').textContent = `Time remaining: ${secondsLeft}s`;
             
+            // Start timer
             adTimer = setInterval(() => {
                 secondsLeft--;
-                document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
+                document.getElementById('timer').textContent = `Time remaining: ${secondsLeft}s`;
                 
                 if (secondsLeft <= 0) {
                     finishAd();
                 }
             }, 1000);
-            
-            // Auto-complete after duration (in case ad doesn't send completion signal)
-            setTimeout(() => {
-                if (currentAdActive) {
-                    finishAd();
-                }
-            }, (AD_DURATION + 2) * 1000);
         }
         
-        // Finish ad and give rewards
         function finishAd() {
-            if (!currentAdActive) return;
-            
-            currentAdActive = false;
             clearInterval(adTimer);
             
             // Add earnings
-            userData.balance += AD_REWARD;
+            userData.balance += 0.0001;
             userData.adsToday++;
             userData.totalAds++;
-            userData.earnedToday += AD_REWARD;
+            userData.earnedToday += 0.0001;
             
             // Update display
             updateDisplay();
             saveData();
             
-            // Show success notification
-            showNotification(`🎉 Earned $${AD_REWARD.toFixed(4)} USDT! Ad completed successfully.`);
+            // Show success
+            document.getElementById('adIcon').textContent = '✅';
+            document.getElementById('adText').textContent = 'Ad completed!';
+            document.getElementById('adSubtext').textContent = '+$0.0001 USDT earned';
             
-            // Reset button
-            const button = document.getElementById('watchButton');
-            button.disabled = false;
-            button.textContent = `WATCH AD & EARN $${AD_REWARD.toFixed(4)} USDT`;
-            document.getElementById('timer').textContent = 'Ready to watch another ad!';
+            // Show notification
+            showNotification('🎉 Earned $0.0001 USDT!');
             
-            // Reset ad display after delay
+            // Reset button after 2 seconds
             setTimeout(() => {
-                const adFrame = document.getElementById('adFrame');
-                const adLoading = document.getElementById('adLoading');
+                const button = document.getElementById('watchButton');
+                button.disabled = false;
+                button.textContent = 'WATCH AD & EARN $0.0001 USDT';
+                document.getElementById('timer').textContent = 'Ready to watch';
                 
-                adFrame.style.display = 'none';
-                adLoading.style.display = 'flex';
-                adFrame.srcdoc = '';
+                // Reset ad display
+                document.getElementById('adIcon').textContent = '📺';
+                document.getElementById('adText').textContent = 'Click button to watch ad';
+                document.getElementById('adSubtext').textContent = 'Earn $0.0001 USDT per ad';
+                
+                adInProgress = false;
             }, 2000);
         }
         
-        // Leaderboard data
+        // Leaderboard
         function generateLeaderboard() {
             const leaderboard = [
-                { username: 'CryptoKing', ads: 245, reward: '$0.50 USDT' },
-                { username: 'AdMaster', ads: 198, reward: '$0.30 USDT' },
-                { username: 'EarnPro', ads: 167, reward: '$0.10 USDT' },
+                { username: 'CryptoKing', ads: 245, reward: '$0.50' },
+                { username: 'AdMaster', ads: 198, reward: '$0.30' },
+                { username: 'EarnPro', ads: 167, reward: '$0.10' },
                 { username: userData.username, ads: userData.totalAds, reward: '-' },
                 { username: 'BitcoinLover', ads: 89, reward: '-' },
                 { username: 'TradingGuru', ads: 76, reward: '-' },
@@ -969,219 +563,62 @@
             });
         }
         
-        // Validate Polygon address
-        function isValidPolygonAddress(address) {
-            return /^0x[a-fA-F0-9]{40}$/.test(address);
-        }
-        
-        // Calculate total POL needed (USDT amount + fee)
-        function calculateTotalPOLNeeded(usdtAmount) {
-            const polAmount = usdtAmount * USDT_TO_POL_RATE;
-            const totalPOL = polAmount + NETWORK_FEE_POL;
-            return {
-                usdt: usdtAmount,
-                polAmount: polAmount,
-                fee: NETWORK_FEE_POL,
-                total: totalPOL
-            };
-        }
-        
-        // Generate withdrawal ID
-        function generateWithdrawalId() {
-            return 'W' + Date.now() + Math.random().toString(36).substr(2, 6).toUpperCase();
-        }
-        
-        // Withdrawal function
-        async function processWithdrawal() {
+        // Withdrawal
+        function processWithdrawal() {
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             const wallet = document.getElementById('walletAddress').value.trim();
             
             // Validation
-            if (!amount || isNaN(amount)) {
-                showNotification('⚠️ Please enter a valid amount', 'warning');
-                return;
-            }
-            
-            if (amount < MIN_WITHDRAWAL) {
-                showNotification(`⚠️ Minimum withdrawal is $${MIN_WITHDRAWAL.toFixed(4)} USDT`, 'warning');
+            if (!amount || amount < 0.015) {
+                showNotification('⚠️ Minimum withdrawal is $0.015 USDT', 'error');
                 return;
             }
             
             if (amount > userData.balance) {
-                showNotification('⚠️ Insufficient USDT balance', 'warning');
+                showNotification('⚠️ Insufficient balance', 'error');
                 return;
             }
             
-            if (!wallet || !isValidPolygonAddress(wallet)) {
-                showNotification('⚠️ Please enter a valid Polygon wallet address', 'warning');
+            if (!wallet) {
+                showNotification('⚠️ Please enter wallet address', 'error');
                 return;
             }
             
-            // Calculate POL equivalent
-            const polCalculation = calculateTotalPOLNeeded(amount);
-            const withdrawalId = generateWithdrawalId();
+            // Process withdrawal
+            userData.balance -= amount;
+            saveData();
+            updateDisplay();
             
-            // Show confirmation with details
-            const confirmationMessage = `
-Withdraw $${amount.toFixed(4)} USDT as POL?
-
-Details:
-• USDT Amount: $${amount.toFixed(4)}
-• POL Equivalent: ${polCalculation.polAmount.toFixed(4)} POL
-• Network Fee: ${polCalculation.fee.toFixed(4)} POL
-• Total POL: ${polCalculation.total.toFixed(4)} POL
-• To Address: ${wallet.substring(0, 16)}...${wallet.substring(38)}
-
-Conversion Rate: 1 USDT = ${USDT_TO_POL_RATE.toFixed(4)} POL
-
-Confirm withdrawal?
-            `;
+            showNotification(`✅ Withdrawal request for $${amount.toFixed(4)} USDT submitted!`);
             
-            if (confirm(confirmationMessage)) {
-                // Disable button to prevent double submission
-                const withdrawBtn = document.querySelector('.withdraw-button');
-                withdrawBtn.disabled = true;
-                withdrawBtn.textContent = 'PROCESSING...';
-                
-                // Simulate processing
-                showNotification('⏳ Processing withdrawal request...', 'success');
-                
-                // In real app, this would process actual withdrawal
-                // For demo, we just simulate it
-                setTimeout(async () => {
-                    userData.balance -= amount;
-                    saveData();
-                    updateDisplay();
-                    
-                    // Send Telegram notification to admin
-                    const telegramMessage = `
-🚀 <b>NEW WITHDRAWAL REQUEST</b> 🚀
-
-<b>Withdrawal ID:</b> <code>${withdrawalId}</code>
-<b>User:</b> ${userData.username}
-<b>User ID:</b> ${userData.userId || 'N/A'}
-<b>Amount:</b> $${amount.toFixed(4)} USDT
-<b>POL Equivalent:</b> ${polCalculation.polAmount.toFixed(4)} POL
-<b>Network Fee:</b> ${polCalculation.fee.toFixed(4)} POL
-<b>Total to Send:</b> ${polCalculation.total.toFixed(4)} POL
-<b>Wallet Address:</b> <code>${wallet}</code>
-<b>Date:</b> ${new Date().toLocaleString()}
-<b>User Balance After:</b> $${userData.balance.toFixed(4)} USDT
-
-<b>User Stats:</b>
-• Total Ads: ${userData.totalAds}
-• Ads Today: ${userData.adsToday}
-• Total Earned: $${(userData.totalAds * AD_REWARD).toFixed(4)} USDT
-
-<b>ACTION REQUIRED:</b>
-Send ${polCalculation.total.toFixed(4)} POL to address above.
-                    `;
-                    
-                    // Send notification to Telegram bot
-                    const notificationSent = await sendTelegramNotification(telegramMessage);
-                    
-                    if (notificationSent) {
-                        showNotification(`✅ Withdrawal request #${withdrawalId} submitted!\nAdmin has been notified.\nYou will receive ${polCalculation.polAmount.toFixed(4)} POL.\nProcessing time: 1-24 hours`);
-                    } else {
-                        showNotification(`✅ Withdrawal request #${withdrawalId} submitted!\nYou will receive ${polCalculation.polAmount.toFixed(4)} POL.\nProcessing time: 1-24 hours`);
-                    }
-                    
-                    // Clear form
-                    document.getElementById('withdrawAmount').value = '';
-                    document.getElementById('walletAddress').value = '';
-                    
-                    // Re-enable button
-                    withdrawBtn.disabled = false;
-                    withdrawBtn.textContent = 'WITHDRAW USDT (as POL)';
-                    
-                    // Show transaction details (simulated)
-                    setTimeout(() => {
-                        const txHash = '0x' + Math.random().toString(16).substr(2, 64);
-                        showNotification(`📝 Transaction sent on Polygon!\nHash: ${txHash.substr(0, 16)}...\nAmount: ${polCalculation.polAmount.toFixed(4)} POL`);
-                    }, 1500);
-                    
-                }, 2000); // Simulate 2 second processing time
-            }
+            // Clear form
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('walletAddress').value = '';
         }
         
-        // Notification system
+        // Notification
         function showNotification(message, type = 'success') {
             const notification = document.getElementById('notification');
             notification.textContent = message;
-            notification.className = 'notification ' + type;
+            notification.style.background = type === 'error' ? '#ef4444' : '#10b981';
             notification.style.display = 'block';
             
             setTimeout(() => {
                 notification.style.display = 'none';
-            }, 4000);
+            }, 3000);
         }
         
-        // Initialize app
+        // Initialize
         loadData();
         
-        // Try to get Telegram user info
+        // Try to get Telegram username
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const tgUser = tg.initDataUnsafe.user;
             userData.username = tgUser.username || 
                               `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 
                               userData.username;
-            userData.userId = tgUser.id;
-            userData.firstName = tgUser.first_name || '';
-            userData.lastName = tgUser.last_name || '';
             updateDisplay();
-            
-            // Send welcome notification to admin (optional)
-            if (BOT_TOKEN !== 'YOUR_BOT_TOKEN_HERE' && ADMIN_CHAT_ID !== 'YOUR_CHAT_ID_HERE') {
-                const welcomeMessage = `
-👤 <b>New User Started App</b>
-
-<b>User:</b> ${userData.username}
-<b>User ID:</b> ${userData.userId}
-<b>Name:</b> ${userData.firstName} ${userData.lastName}
-<b>Date:</b> ${new Date().toLocaleString()}
-                `;
-                
-                // Send in background, don't wait for response
-                sendTelegramNotification(welcomeMessage);
-            }
         }
-        
-        // Update POL equivalent when user types amount
-        document.getElementById('withdrawAmount').addEventListener('input', updatePolEquivalent);
-        
-        // Update timer and reset time
-        setInterval(() => {
-            const now = new Date();
-            const day = now.getDay();
-            const hours = now.getHours();
-            const minutes = now.getMinutes();
-            
-            // Show leaderboard reset time
-            const daysLeft = 6 - day;
-            const hoursLeft = 23 - hours;
-            const minutesLeft = 59 - minutes;
-            const resetTime = `Leaderboard resets in ${daysLeft}d ${hoursLeft}h ${minutesLeft}m`;
-            const resetElement = document.getElementById('leaderboardTimer');
-            if (resetElement && daysLeft >= 0) {
-                resetElement.textContent = resetTime;
-            }
-        }, 60000); // Update every minute
-        
-        // Test if SDK is loaded
-        window.addEventListener('load', function() {
-            console.log('Page loaded, checking for SDK...');
-            
-            // Check if SDK loaded after 2 seconds
-            setTimeout(() => {
-                if (typeof show_10396104 !== 'undefined') {
-                    console.log('✅ Libtl/Monetag SDK loaded successfully');
-                    showNotification('✅ Ad system ready! You can now watch ads.');
-                } else {
-                    console.warn('❌ Libtl/Monetag SDK not found');
-                    showNotification('⚠️ Using demo ads. Real ads will work when deployed with SDK.', 'warning');
-                }
-            }, 2000);
-        });
     </script>
 </body>
 </html>
