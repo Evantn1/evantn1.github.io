@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdWatch - Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Monetag/Libtl SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10396104' data-sdk='show_10396104'></script>
+    
     <style>
         * {
             margin: 0;
@@ -397,6 +401,15 @@
             font-size: 0.85em;
         }
         
+        .sdk-info {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
+            border-left: 4px solid #3b82f6;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.8em;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 margin: 10px;
@@ -447,13 +460,8 @@
             <p>Watch a 15-second ad to earn <span class="currency-display">$0.0001 USDT</span></p>
             
             <div class="ad-container">
-                <div class="ad-placeholder" id="adDisplay">
-                    <div style="text-align: center;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">📺</div>
-                        <div>Sponsored Content</div>
-                        <div style="font-size: 0.8em; margin-top: 5px;">15 seconds</div>
-                    </div>
-                </div>
+                <!-- Libtl/Monetag Ad Container -->
+                <div id="libtl-ad-container" style="width: 100%; height: 250px; margin: 20px 0;"></div>
                 
                 <div class="timer" id="timer">Ready to watch ad</div>
                 
@@ -482,6 +490,10 @@
                 <p>• Each ad earns <span class="currency-display">$0.0001 USDT</span> (15 seconds)</p>
                 <p>• Watch more ads daily to earn more</p>
                 <p>• Weekly leaderboard rewards top watchers</p>
+            </div>
+            
+            <div class="sdk-info">
+                <strong>📢 Ad Network:</strong> Libtl/Monetag SDK is active. Real ads will be displayed here.
             </div>
         </div>
         
@@ -602,6 +614,45 @@
             lastName: ''
         };
         
+        // Libtl SDK initialization
+        let libtlInitialized = false;
+        
+        // Initialize Libtl SDK
+        function initLibtlSDK() {
+            if (typeof show_10396104 !== 'undefined') {
+                try {
+                    // Initialize the SDK with your zone
+                    show_10396104.init();
+                    libtlInitialized = true;
+                    console.log('Libtl SDK initialized successfully');
+                    
+                    // Load first ad
+                    loadLibtlAd();
+                    
+                } catch (error) {
+                    console.error('Error initializing Libtl SDK:', error);
+                }
+            } else {
+                console.warn('Libtl SDK not loaded yet, retrying...');
+                setTimeout(initLibtlSDK, 1000);
+            }
+        }
+        
+        // Load Libtl ad
+        function loadLibtlAd() {
+            if (libtlInitialized && typeof show_10396104 !== 'undefined') {
+                try {
+                    const adContainer = document.getElementById('libtl-ad-container');
+                    if (adContainer) {
+                        show_10396104.show(adContainer);
+                        console.log('Libtl ad loaded');
+                    }
+                } catch (error) {
+                    console.error('Error loading Libtl ad:', error);
+                }
+            }
+        }
+        
         // Load data from localStorage
         function loadData() {
             const saved = localStorage.getItem('adWatchData');
@@ -704,36 +755,66 @@
             if (tabName === 'withdraw') {
                 updatePolEquivalent();
             }
+            
+            // Reload ad when returning to watch tab
+            if (tabName === 'watch' && libtlInitialized) {
+                setTimeout(loadLibtlAd, 100);
+            }
         }
         
         // Ad watching function
         let adTimer;
         let secondsLeft = AD_DURATION;
+        let adCompleted = false;
         
         function startAd() {
+            if (!libtlInitialized) {
+                showNotification('⚠️ Ad system is not ready yet. Please wait...', 'warning');
+                return;
+            }
+            
             const button = document.getElementById('watchButton');
             button.disabled = true;
             button.textContent = 'WATCHING AD...';
+            adCompleted = false;
             
             secondsLeft = AD_DURATION;
             document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
             
-            // Show progress bar animation
-            const adDisplay = document.getElementById('adDisplay');
-            adDisplay.innerHTML = `
-                <div style="text-align: center; width: 100%;">
-                    <div style="font-size: 2em; margin-bottom: 15px;">⏳</div>
-                    <div>Watching ad...</div>
-                    <div style="margin-top: 15px; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
-                        <div id="progressBar" style="height: 8px; background: white; width: 0%; transition: width 1s linear;"></div>
-                    </div>
-                    <div style="font-size: 0.9em; margin-top: 10px;">Earning $${AD_REWARD.toFixed(4)} USDT</div>
+            // Show watching overlay
+            const adContainer = document.getElementById('libtl-ad-container');
+            adContainer.style.position = 'relative';
+            
+            const overlay = document.createElement('div');
+            overlay.id = 'ad-overlay';
+            overlay.style.position = 'absolute';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.width = '100%';
+            overlay.style.height = '100%';
+            overlay.style.background = 'rgba(0,0,0,0.7)';
+            overlay.style.display = 'flex';
+            overlay.style.flexDirection = 'column';
+            overlay.style.alignItems = 'center';
+            overlay.style.justifyContent = 'center';
+            overlay.style.color = 'white';
+            overlay.style.zIndex = '10';
+            overlay.innerHTML = `
+                <div style="font-size: 2em; margin-bottom: 15px;">⏳</div>
+                <div>Please watch the ad for ${AD_DURATION} seconds</div>
+                <div style="margin-top: 15px; width: 80%; background: rgba(255,255,255,0.2); border-radius: 10px; overflow: hidden;">
+                    <div id="progressBar" style="height: 8px; background: #8247e5; width: 0%; transition: width 1s linear;"></div>
                 </div>
+                <div style="font-size: 0.9em; margin-top: 10px;">Earning $${AD_REWARD.toFixed(4)} USDT</div>
+                <div id="countdown" style="font-size: 1.5em; font-weight: bold; margin-top: 10px;">${AD_DURATION}s</div>
             `;
+            
+            adContainer.appendChild(overlay);
             
             // Start progress bar
             let progress = 0;
             const progressBar = document.getElementById('progressBar');
+            const countdownElement = document.getElementById('countdown');
             const progressInterval = setInterval(() => {
                 progress += (100 / AD_DURATION); // 100% over AD_DURATION seconds
                 progressBar.style.width = Math.min(progress, 100) + '%';
@@ -742,16 +823,35 @@
             adTimer = setInterval(() => {
                 secondsLeft--;
                 document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
+                if (countdownElement) {
+                    countdownElement.textContent = `${secondsLeft}s`;
+                }
                 
                 if (secondsLeft <= 0) {
                     clearInterval(progressInterval);
                     finishAd();
                 }
             }, 1000);
+            
+            // Auto-complete ad after duration (in case user doesn't interact)
+            setTimeout(() => {
+                if (!adCompleted) {
+                    finishAd();
+                }
+            }, (AD_DURATION + 2) * 1000); // +2 seconds buffer
         }
         
         function finishAd() {
+            if (adCompleted) return; // Prevent double completion
+            
+            adCompleted = true;
             clearInterval(adTimer);
+            
+            // Remove overlay
+            const overlay = document.getElementById('ad-overlay');
+            if (overlay) {
+                overlay.remove();
+            }
             
             // Add earnings
             userData.balance += AD_REWARD;
@@ -763,35 +863,47 @@
             updateDisplay();
             saveData();
             
-            // Show notification
-            showNotification(`🎉 Earned $${AD_REWARD.toFixed(4)} USDT!`);
+            // Show success notification
+            showNotification(`🎉 Earned $${AD_REWARD.toFixed(4)} USDT! Ad completed successfully.`);
             
-            // Reset ad display
-            const adDisplay = document.getElementById('adDisplay');
-            adDisplay.innerHTML = `
-                <div style="text-align: center;">
-                    <div style="font-size: 2em; margin-bottom: 10px;">✅</div>
-                    <div>Ad Completed!</div>
-                    <div style="font-size: 0.9em; margin-top: 10px;">+$${AD_REWARD.toFixed(4)} USDT added</div>
-                </div>
+            // Show success overlay briefly
+            const adContainer = document.getElementById('libtl-ad-container');
+            const successOverlay = document.createElement('div');
+            successOverlay.style.position = 'absolute';
+            successOverlay.style.top = '0';
+            successOverlay.style.left = '0';
+            successOverlay.style.width = '100%';
+            successOverlay.style.height = '100%';
+            successOverlay.style.background = 'rgba(16, 185, 129, 0.9)';
+            successOverlay.style.display = 'flex';
+            successOverlay.style.flexDirection = 'column';
+            successOverlay.style.alignItems = 'center';
+            successOverlay.style.justifyContent = 'center';
+            successOverlay.style.color = 'white';
+            successOverlay.style.zIndex = '10';
+            successOverlay.innerHTML = `
+                <div style="font-size: 3em; margin-bottom: 15px;">✅</div>
+                <div style="font-size: 1.5em; font-weight: bold;">Ad Completed!</div>
+                <div style="margin-top: 10px;">+$${AD_REWARD.toFixed(4)} USDT added to your balance</div>
             `;
             
-            // Reset button after 2 seconds
+            adContainer.appendChild(successOverlay);
+            
+            // Reset button after 3 seconds
             setTimeout(() => {
                 const button = document.getElementById('watchButton');
                 button.disabled = false;
                 button.textContent = `WATCH AD & EARN $${AD_REWARD.toFixed(4)} USDT`;
                 document.getElementById('timer').textContent = 'Ready to watch another ad!';
                 
-                // Reset ad display
-                adDisplay.innerHTML = `
-                    <div style="text-align: center;">
-                        <div style="font-size: 2em; margin-bottom: 10px;">📺</div>
-                        <div>Sponsored Content</div>
-                        <div style="font-size: 0.8em; margin-top: 5px;">${AD_DURATION} seconds</div>
-                    </div>
-                `;
-            }, 2000);
+                // Remove success overlay
+                successOverlay.remove();
+                
+                // Load new ad
+                if (libtlInitialized) {
+                    loadLibtlAd();
+                }
+            }, 3000);
         }
         
         // Leaderboard data
@@ -1009,6 +1121,11 @@ Send ${polCalculation.total.toFixed(4)} POL to address above.
                 sendTelegramNotification(welcomeMessage);
             }
         }
+        
+        // Initialize Libtl SDK when page loads
+        window.addEventListener('load', function() {
+            setTimeout(initLibtlSDK, 1000); // Wait 1 second for SDK to load
+        });
         
         // Update POL equivalent when user types amount
         document.getElementById('withdrawAmount').addEventListener('input', updatePolEquivalent);
