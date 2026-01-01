@@ -6,7 +6,7 @@
     <title>AdWatch - Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Monetag/Libtl SDK -->
+    <!-- Libtl/Monetag SDK -->
     <script src='//libtl.com/sdk.js' data-zone='10396104' data-sdk='show_10396104'></script>
     
     <style>
@@ -410,6 +410,50 @@
             font-size: 0.8em;
         }
         
+        /* Interstitial Ad Overlay */
+        .interstitial-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+        }
+        
+        .interstitial-content {
+            text-align: center;
+            padding: 30px;
+            max-width: 90%;
+        }
+        
+        .interstitial-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            display: none;
+        }
+        
+        .interstitial-countdown {
+            font-size: 1.2em;
+            margin-top: 20px;
+            color: #8247e5;
+            font-weight: bold;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 margin: 10px;
@@ -434,10 +478,28 @@
                 right: 20px;
                 text-align: center;
             }
+            
+            .interstitial-content {
+                padding: 20px;
+            }
         }
     </style>
 </head>
 <body>
+    <!-- Interstitial Ad Overlay -->
+    <div id="interstitialOverlay" class="interstitial-overlay">
+        <button id="closeInterstitial" class="interstitial-close" onclick="closeInterstitial()">✕</button>
+        <div class="interstitial-content">
+            <h2>🏆 Bonus Opportunity! 🏆</h2>
+            <p>Watch an interstitial ad to earn extra rewards!</p>
+            <div id="interstitialContainer" style="width: 300px; height: 250px; margin: 20px auto;"></div>
+            <div id="interstitialCountdown" class="interstitial-countdown"></div>
+            <p style="font-size: 0.9em; margin-top: 20px; color: #ccc;">
+                Interstitial ads help support the app and may offer bonus rewards
+            </p>
+        </div>
+    </div>
+    
     <div class="container">
         <header>
             <div class="logo">AdWatch</div>
@@ -490,6 +552,7 @@
                 <p>• Each ad earns <span class="currency-display">$0.0001 USDT</span> (15 seconds)</p>
                 <p>• Watch more ads daily to earn more</p>
                 <p>• Weekly leaderboard rewards top watchers</p>
+                <p>• Interstitial ads may appear for bonus rewards</p>
             </div>
             
             <div class="sdk-info">
@@ -500,7 +563,7 @@
         <!-- Leaderboard Tab -->
         <div id="leaderboard-tab" class="tab-content">
             <h2>Weekly Leaderboard</h2>
-            <p>Top earners this week (Resets every Sunday at 00:00 UTC)</p>
+            <p id="leaderboardTimer">Top earners this week (Resets every Sunday at 00:00 UTC)</p>
             
             <div id="leaderboard-list">
                 <!-- Generated dynamically -->
@@ -611,11 +674,18 @@
             lastAdDate: null,
             userId: null,
             firstName: '',
-            lastName: ''
+            lastName: '',
+            interstitialCount: 0,
+            lastInterstitialTime: null
         };
         
         // Libtl SDK initialization
         let libtlInitialized = false;
+        
+        // Interstitial tracking
+        let interstitialTimer = null;
+        let interstitialCountdown = 5;
+        let interstitialActive = false;
         
         // Initialize Libtl SDK
         function initLibtlSDK() {
@@ -626,8 +696,11 @@
                     libtlInitialized = true;
                     console.log('Libtl SDK initialized successfully');
                     
-                    // Load first ad
+                    // Load first banner ad
                     loadLibtlAd();
+                    
+                    // Initialize interstitial ads
+                    initInterstitialAds();
                     
                 } catch (error) {
                     console.error('Error initializing Libtl SDK:', error);
@@ -638,14 +711,125 @@
             }
         }
         
-        // Load Libtl ad
+        // Initialize Interstitial Ads
+        function initInterstitialAds() {
+            if (typeof show_10396104 !== 'undefined') {
+                // Configure interstitial ads
+                show_10396104({
+                    type: 'inApp',
+                    inAppSettings: {
+                        frequency: 2,
+                        capping: 0.1,
+                        interval: 30,
+                        timeout: 5,
+                        everyPage: false
+                    }
+                });
+                console.log('Interstitial ads configured');
+                
+                // Check if we should show interstitial
+                checkInterstitialShow();
+            }
+        }
+        
+        // Check if we should show interstitial ad
+        function checkInterstitialShow() {
+            const now = Date.now();
+            const lastInterstitial = userData.lastInterstitialTime || 0;
+            const timeSinceLastInterstitial = (now - lastInterstitial) / (1000 * 60 * 60); // in hours
+            
+            // Check conditions for showing interstitial
+            // Show after every 5 regular ads or after 30 minutes
+            if ((userData.totalAds % 5 === 0 && userData.totalAds > 0) || 
+                timeSinceLastInterstitial >= 0.5) { // 30 minutes
+                
+                // Wait 5 seconds before showing (as per timeout: 5)
+                setTimeout(() => {
+                    showInterstitialAd();
+                }, 5000);
+            }
+        }
+        
+        // Show interstitial ad
+        function showInterstitialAd() {
+            if (!libtlInitialized || interstitialActive) return;
+            
+            interstitialActive = true;
+            const overlay = document.getElementById('interstitialOverlay');
+            const closeBtn = document.getElementById('closeInterstitial');
+            const countdownEl = document.getElementById('interstitialCountdown');
+            const container = document.getElementById('interstitialContainer');
+            
+            // Show overlay
+            overlay.style.display = 'flex';
+            
+            // Start countdown
+            interstitialCountdown = 5;
+            countdownEl.textContent = `Ad will show in ${interstitialCountdown}s...`;
+            
+            interstitialTimer = setInterval(() => {
+                interstitialCountdown--;
+                countdownEl.textContent = `Ad will show in ${interstitialCountdown}s...`;
+                
+                if (interstitialCountdown <= 0) {
+                    clearInterval(interstitialTimer);
+                    
+                    // Show close button after countdown
+                    closeBtn.style.display = 'block';
+                    
+                    // Load and show interstitial ad
+                    try {
+                        if (typeof show_10396104 !== 'undefined') {
+                            // Clear previous ad
+                            container.innerHTML = '';
+                            
+                            // Show interstitial ad
+                            show_10396104.show(container);
+                            
+                            // Update interstitial stats
+                            userData.interstitialCount++;
+                            userData.lastInterstitialTime = Date.now();
+                            saveData();
+                            
+                            // Show bonus reward notification
+                            setTimeout(() => {
+                                showNotification('🎁 Bonus! You watched an interstitial ad!');
+                            }, 1000);
+                        }
+                    } catch (error) {
+                        console.error('Error showing interstitial ad:', error);
+                        closeInterstitial();
+                    }
+                }
+            }, 1000);
+        }
+        
+        // Close interstitial ad
+        function closeInterstitial() {
+            const overlay = document.getElementById('interstitialOverlay');
+            const container = document.getElementById('interstitialContainer');
+            
+            clearInterval(interstitialTimer);
+            overlay.style.display = 'none';
+            container.innerHTML = '';
+            interstitialActive = false;
+            
+            // Check for next interstitial
+            setTimeout(checkInterstitialShow, 30000); // Check again in 30 seconds
+        }
+        
+        // Load Libtl banner ad
         function loadLibtlAd() {
             if (libtlInitialized && typeof show_10396104 !== 'undefined') {
                 try {
                     const adContainer = document.getElementById('libtl-ad-container');
                     if (adContainer) {
+                        // Clear previous ad
+                        adContainer.innerHTML = '';
+                        
+                        // Show new ad
                         show_10396104.show(adContainer);
-                        console.log('Libtl ad loaded');
+                        console.log('Libtl banner ad loaded');
                     }
                 } catch (error) {
                     console.error('Error loading Libtl ad:', error);
@@ -760,6 +944,9 @@
             if (tabName === 'watch' && libtlInitialized) {
                 setTimeout(loadLibtlAd, 100);
             }
+            
+            // Check for interstitial when switching tabs
+            setTimeout(checkInterstitialShow, 1000);
         }
         
         // Ad watching function
@@ -901,8 +1088,12 @@
                 
                 // Load new ad
                 if (libtlInitialized) {
-                    loadLibtlAd();
+                    setTimeout(loadLibtlAd, 500);
                 }
+                
+                // Check for interstitial ad
+                setTimeout(checkInterstitialShow, 1000);
+                
             }, 3000);
         }
         
@@ -1047,6 +1238,7 @@ Confirm withdrawal?
 <b>User Stats:</b>
 • Total Ads: ${userData.totalAds}
 • Ads Today: ${userData.adsToday}
+• Interstitial Ads: ${userData.interstitialCount}
 • Total Earned: $${(userData.totalAds * AD_REWARD).toFixed(4)} USDT
 
 <b>ACTION REQUIRED:</b>
@@ -1138,17 +1330,18 @@ Send ${polCalculation.total.toFixed(4)} POL to address above.
             const minutes = now.getMinutes();
             
             // Show leaderboard reset time
-            if (document.getElementById('leaderboard-tab').classList.contains('active')) {
-                const daysLeft = 6 - day;
-                const hoursLeft = 23 - hours;
-                const minutesLeft = 59 - minutes;
-                const resetTime = `Leaderboard resets in ${daysLeft}d ${hoursLeft}h ${minutesLeft}m`;
-                const resetElement = document.querySelector('#leaderboard-tab p');
-                if (resetElement && daysLeft >= 0) {
-                    resetElement.textContent = resetTime;
-                }
+            const daysLeft = 6 - day;
+            const hoursLeft = 23 - hours;
+            const minutesLeft = 59 - minutes;
+            const resetTime = `Leaderboard resets in ${daysLeft}d ${hoursLeft}h ${minutesLeft}m`;
+            const resetElement = document.getElementById('leaderboardTimer');
+            if (resetElement && daysLeft >= 0) {
+                resetElement.textContent = resetTime;
             }
         }, 60000); // Update every minute
+        
+        // Check for interstitial ads periodically
+        setInterval(checkInterstitialShow, 60000); // Check every minute
     </script>
 </body>
 </html>
