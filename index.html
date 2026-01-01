@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdWatch - Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    
+    <!-- Monetag/Libtl SDK -->
+    <script src='//libtl.com/sdk.js' data-zone='10396104' data-sdk='show_10396104'></script>
+    
     <style>
         * {
             margin: 0;
@@ -95,35 +99,12 @@
             margin: 20px 0;
         }
         
-        .ad-preview {
-            width: 100%;
-            height: 200px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+        .ad-instructions {
+            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
             border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
+            padding: 20px;
             margin: 20px 0;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .ad-preview::before {
-            content: "PREVIEW";
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.5);
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.8em;
-        }
-        
-        .ad-icon {
-            font-size: 3em;
-            margin-bottom: 10px;
+            border-left: 4px solid #667eea;
         }
         
         .watch-btn {
@@ -186,110 +167,28 @@
             margin-top: 5px;
         }
         
-        /* Full Screen Ad Overlay */
-        .fullscreen-ad {
-            position: fixed;
-            top: 0;
-            left: 0;
+        /* Monetag Ad Container */
+        #monetag-ad-container {
             width: 100%;
-            height: 100%;
+            min-height: 250px;
+            margin: 20px 0;
             background: white;
-            z-index: 10000;
-            display: none;
-            flex-direction: column;
-        }
-        
-        .ad-header {
-            background: #667eea;
-            color: white;
-            padding: 15px;
-            text-align: center;
-            font-weight: bold;
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .ad-close {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 1.5em;
-            cursor: pointer;
-            opacity: 0;
-            pointer-events: none;
-        }
-        
-        .ad-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 30px;
+        }
+        
+        .ad-loading {
             text-align: center;
+            padding: 40px;
         }
         
-        .ad-full-logo {
-            font-size: 5em;
-            margin-bottom: 20px;
-        }
-        
-        .ad-full-title {
-            font-size: 2em;
-            font-weight: bold;
-            color: #333;
+        .loading-spinner {
+            font-size: 3em;
             margin-bottom: 15px;
-        }
-        
-        .ad-full-description {
-            font-size: 1.1em;
-            color: #666;
-            margin-bottom: 30px;
-            max-width: 400px;
-            line-height: 1.5;
-        }
-        
-        .ad-cta-button {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 40px;
-            font-size: 1.2em;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        
-        .ad-footer {
-            background: #f8f9fa;
-            padding: 15px;
-            text-align: center;
-            border-top: 2px solid #e5e7eb;
-        }
-        
-        .ad-countdown {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
-            margin: 10px 0;
-        }
-        
-        .ad-progress-container {
-            width: 100%;
-            height: 6px;
-            background: #e5e7eb;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-        }
-        
-        .ad-progress-bar {
-            height: 100%;
-            background: linear-gradient(90deg, #667eea, #764ba2);
-            width: 0%;
-            transition: width 1s linear;
         }
         
         .leaderboard-item {
@@ -397,6 +296,15 @@
             background: #ef4444;
         }
         
+        .monetag-status {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 0.9em;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 margin: 10px;
@@ -406,46 +314,10 @@
             .tab-content {
                 padding: 15px;
             }
-            
-            .ad-preview {
-                height: 180px;
-            }
-            
-            .ad-full-logo {
-                font-size: 4em;
-            }
-            
-            .ad-full-title {
-                font-size: 1.5em;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- Full Screen Ad Overlay -->
-    <div class="fullscreen-ad" id="fullscreenAd">
-        <div class="ad-header">
-            <div>ADVERTISEMENT</div>
-            <button class="ad-close" id="adCloseBtn" onclick="closeAd()">✕</button>
-        </div>
-        
-        <div class="ad-content" id="fullAdContent">
-            <div class="ad-full-logo" id="fullAdLogo">📺</div>
-            <div class="ad-full-title" id="fullAdTitle">Loading Ad...</div>
-            <div class="ad-full-description" id="fullAdDescription">Please wait while the ad loads</div>
-            <div class="ad-countdown" id="adCountdown">15</div>
-            <button class="ad-cta-button" id="adCtaButton" onclick="adButtonClick()">Learn More</button>
-        </div>
-        
-        <div class="ad-footer">
-            <div>Watch the full ad to earn $0.0001 USDT</div>
-        </div>
-        
-        <div class="ad-progress-container">
-            <div class="ad-progress-bar" id="fullAdProgress"></div>
-        </div>
-    </div>
-    
     <div class="container">
         <header>
             <div class="logo">AdWatch</div>
@@ -467,17 +339,32 @@
             <h2>Watch & Earn USDT</h2>
             <p>Click the button to watch a 15-second ad and earn $0.0001 USDT</p>
             
+            <div class="ad-instructions">
+                <h4>📺 How it works:</h4>
+                <p>1. Click "Watch Ad" button</p>
+                <p>2. Real ad from Monetag will load</p>
+                <p>3. Watch ad for 15 seconds</p>
+                <p>4. Earn $0.0001 USDT instantly</p>
+            </div>
+            
             <div class="ad-container">
-                <div class="ad-preview">
-                    <div class="ad-icon" id="previewIcon">📺</div>
-                    <div id="previewTitle">Full Screen Ad</div>
-                    <div id="previewDesc">Click to watch full screen ad</div>
+                <!-- Monetag Ad Container -->
+                <div id="monetag-ad-container">
+                    <div class="ad-loading" id="adLoading">
+                        <div class="loading-spinner">📺</div>
+                        <div>Click button to load ad</div>
+                        <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Real ads from Monetag</div>
+                    </div>
                 </div>
                 
-                <div class="timer" id="timer">Ready to watch</div>
+                <div class="monetag-status" id="monetagStatus">
+                    Monetag ads: Ready
+                </div>
+                
+                <div class="timer" id="timer">Ready to watch ad</div>
                 
                 <button class="watch-btn" id="watchButton" onclick="startAd()">
-                    WATCH FULL SCREEN AD & EARN $0.0001 USDT
+                    WATCH AD & EARN $0.0001 USDT
                 </button>
                 
                 <div class="stats">
@@ -555,71 +442,12 @@
             username: 'User' + Math.floor(Math.random() * 10000)
         };
         
-        // Full screen ads data
-        const fullScreenAds = [
-            {
-                logo: "🎮",
-                title: "NEW GAME RELEASE!",
-                description: "Experience the most exciting mobile game of 2024 with stunning graphics and endless gameplay. Download now and get 1000 free coins!",
-                cta: "Download Now",
-                bgColor: "#4361ee"
-            },
-            {
-                logo: "🛒",
-                title: "50% OFF SALE!",
-                description: "Limited time offer! Get 50% off on all products in our store. Use code: ADWATCH50 at checkout. Hurry, offer ends soon!",
-                cta: "Shop Now",
-                bgColor: "#f72585"
-            },
-            {
-                logo: "💳",
-                title: "0% INTEREST CREDIT CARD",
-                description: "Apply for our premium credit card with 0% interest for first 12 months. No annual fees, instant approval online!",
-                cta: "Apply Now",
-                bgColor: "#4cc9f0"
-            },
-            {
-                logo: "✈️",
-                title: "DREAM VACATION DEAL",
-                description: "Book your dream vacation with 40% discount! Includes flights, hotel, and tours. Limited spots available!",
-                cta: "Book Now",
-                bgColor: "#3a0ca3"
-            },
-            {
-                logo: "📱",
-                title: "NEW SMARTPHONE LAUNCH",
-                description: "Be the first to get the latest smartphone with revolutionary camera technology. Pre-order now and get free wireless earbuds!",
-                cta: "Pre-order",
-                bgColor: "#7209b7"
-            },
-            {
-                logo: "🏦",
-                title: "HIGH INTEREST SAVINGS",
-                description: "Earn 5.2% APY on your savings with our premium account. No minimum balance required. Start saving today!",
-                cta: "Open Account",
-                bgColor: "#4895ef"
-            },
-            {
-                logo: "🎓",
-                title: "ONLINE COURSES SALE",
-                description: "Learn new skills with 60% off all online courses. Programming, design, business - choose from 5000+ courses!",
-                cta: "Browse Courses",
-                bgColor: "#560bad"
-            },
-            {
-                logo: "🍕",
-                title: "FOOD DELIVERY OFFER",
-                description: "Get 30% off your first 3 orders with free delivery. Download our app and enjoy delicious food at your doorstep!",
-                cta: "Order Now",
-                bgColor: "#f15bb5"
-            }
-        ];
-        
-        let currentAdIndex = 0;
+        // Monetag status
+        let monetagLoaded = false;
         let adTimer;
         let secondsLeft = 15;
         let adInProgress = false;
-        let progressInterval;
+        let currentAdShown = false;
         
         // Load saved data
         function loadData() {
@@ -637,7 +465,6 @@
                 userData = parsed;
             }
             updateDisplay();
-            updatePreviewAd();
         }
         
         // Save data
@@ -657,47 +484,108 @@
             generateLeaderboard();
         }
         
-        // Update preview ad
-        function updatePreviewAd() {
-            const ad = fullScreenAds[currentAdIndex];
-            document.getElementById('previewIcon').textContent = ad.logo;
-            document.getElementById('previewTitle').textContent = ad.title;
-            document.getElementById('previewDesc').textContent = "Watch to earn $0.0001 USDT";
+        // Check Monetag SDK
+        function checkMonetag() {
+            if (typeof show_10396104 !== 'undefined') {
+                monetagLoaded = true;
+                document.getElementById('monetagStatus').innerHTML = 
+                    '✅ Monetag ads: Loaded successfully';
+                console.log('Monetag SDK loaded');
+            } else {
+                document.getElementById('monetagStatus').innerHTML = 
+                    '⚠️ Monetag ads: Loading... (refresh if stuck)';
+                setTimeout(checkMonetag, 1000);
+            }
         }
         
-        // Load full screen ad
-        function loadFullScreenAd() {
-            const ad = fullScreenAds[currentAdIndex];
-            const adOverlay = document.getElementById('fullscreenAd');
+        // Load Monetag ad
+        function loadMonetagAd() {
+            const adContainer = document.getElementById('monetag-ad-container');
+            const loadingElement = document.getElementById('adLoading');
             
-            // Update ad content
-            document.getElementById('fullAdLogo').textContent = ad.logo;
-            document.getElementById('fullAdTitle').textContent = ad.title;
-            document.getElementById('fullAdDescription').textContent = ad.description;
-            document.getElementById('adCtaButton').textContent = ad.cta;
-            document.getElementById('adCountdown').textContent = '15';
+            // Clear previous ad
+            adContainer.innerHTML = '';
+            adContainer.appendChild(loadingElement);
+            loadingElement.style.display = 'block';
             
-            // Set background color
-            adOverlay.style.background = ad.bgColor + '10'; // Light version
-            document.getElementById('fullAdContent').style.color = '#333';
+            if (monetagLoaded && typeof show_10396104 !== 'undefined') {
+                try {
+                    // Show loading
+                    loadingElement.innerHTML = `
+                        <div class="loading-spinner">⏳</div>
+                        <div>Loading ad from Monetag...</div>
+                        <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Please wait</div>
+                    `;
+                    
+                    // Initialize Monetag interstitial
+                    show_10396104({
+                        type: 'inApp',
+                        inAppSettings: {
+                            frequency: 2,
+                            capping: 0.1,
+                            interval: 30,
+                            timeout: 5,
+                            everyPage: false
+                        }
+                    });
+                    
+                    // Show the ad after short delay
+                    setTimeout(() => {
+                        try {
+                            show_10396104.show(adContainer);
+                            loadingElement.style.display = 'none';
+                            currentAdShown = true;
+                            console.log('Monetag ad displayed');
+                        } catch (error) {
+                            console.error('Error showing Monetag ad:', error);
+                            showFallbackAd();
+                        }
+                    }, 1000);
+                    
+                } catch (error) {
+                    console.error('Monetag error:', error);
+                    showFallbackAd();
+                }
+            } else {
+                showFallbackAd();
+            }
+        }
+        
+        // Fallback ad if Monetag fails
+        function showFallbackAd() {
+            const adContainer = document.getElementById('monetag-ad-container');
+            const loadingElement = document.getElementById('adLoading');
             
-            // Reset progress bar
-            document.getElementById('fullAdProgress').style.width = '0%';
+            loadingElement.style.display = 'none';
             
-            // Hide close button initially
-            document.getElementById('adCloseBtn').style.opacity = '0';
-            document.getElementById('adCloseBtn').style.pointerEvents = 'none';
+            const fallbackAd = document.createElement('div');
+            fallbackAd.style.padding = '20px';
+            fallbackAd.style.textAlign = 'center';
+            fallbackAd.innerHTML = `
+                <div style="font-size: 3em; margin-bottom: 15px;">📱</div>
+                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 10px; color: #333;">Advertisement</div>
+                <div style="color: #666; margin-bottom: 20px;">This is a demonstration ad. Real Monetag ads will show here.</div>
+                <div style="background: #667eea; color: white; padding: 10px 20px; border-radius: 20px; display: inline-block;">
+                    Learn More
+                </div>
+                <div style="margin-top: 20px; font-size: 0.9em; color: #888;">
+                    Watching for <span id="fallbackTimer">15</span> seconds...
+                </div>
+            `;
             
-            // Show the full screen ad
-            adOverlay.style.display = 'flex';
+            adContainer.appendChild(fallbackAd);
+            currentAdShown = true;
             
-            // Prevent body scrolling
-            document.body.style.overflow = 'hidden';
-            
-            // Move to next ad for next time
-            currentAdIndex = (currentAdIndex + 1) % fullScreenAds.length;
-            
-            return ad;
+            // Start fallback timer
+            let fallbackTime = 15;
+            const fallbackTimerEl = document.getElementById('fallbackTimer');
+            const fallbackInterval = setInterval(() => {
+                fallbackTime--;
+                fallbackTimerEl.textContent = fallbackTime;
+                if (fallbackTime <= 0) {
+                    clearInterval(fallbackInterval);
+                }
+            }, 1000);
         }
         
         // Tab navigation
@@ -717,53 +605,50 @@
             
             // Activate clicked tab button
             event.target.classList.add('active');
-            
-            // Update preview when returning to watch tab
-            if (tabName === 'watch' && !adInProgress) {
-                updatePreviewAd();
-            }
         }
         
-        // Start watching ad (full screen)
+        // Start watching ad
         function startAd() {
             if (adInProgress) return;
             
             adInProgress = true;
+            currentAdShown = false;
             const button = document.getElementById('watchButton');
             button.disabled = true;
             button.textContent = 'LOADING AD...';
             
-            // Load and show full screen ad
-            loadFullScreenAd();
-            
-            // Start the ad timer and progress
             secondsLeft = 15;
-            document.getElementById('adCountdown').textContent = secondsLeft;
+            document.getElementById('timer').textContent = `Loading ad...`;
             
-            // Start countdown
+            // Load Monetag ad
+            loadMonetagAd();
+            
+            // Wait a moment for ad to load, then start timer
+            setTimeout(() => {
+                if (!currentAdShown) {
+                    // If ad didn't load, use fallback
+                    showFallbackAd();
+                }
+                
+                button.textContent = 'WATCHING AD...';
+                startAdTimer();
+            }, 1500);
+        }
+        
+        // Start ad timer
+        function startAdTimer() {
+            document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
+            
             adTimer = setInterval(() => {
                 secondsLeft--;
-                document.getElementById('adCountdown').textContent = secondsLeft;
-                
-                // Show close button after 5 seconds
-                if (secondsLeft === 10) {
-                    document.getElementById('adCloseBtn').style.opacity = '1';
-                    document.getElementById('adCloseBtn').style.pointerEvents = 'auto';
-                }
+                document.getElementById('timer').textContent = `Ad playing... ${secondsLeft}s remaining`;
                 
                 if (secondsLeft <= 0) {
                     finishAd();
                 }
             }, 1000);
             
-            // Start progress bar animation
-            let progress = 0;
-            progressInterval = setInterval(() => {
-                progress += (100 / 15); // Complete in 15 seconds
-                document.getElementById('fullAdProgress').style.width = Math.min(progress, 100) + '%';
-            }, 1000);
-            
-            // Auto-complete after 15 seconds
+            // Auto-complete after duration
             setTimeout(() => {
                 if (adInProgress) {
                     finishAd();
@@ -771,25 +656,11 @@
             }, 15000);
         }
         
-        // Close ad early (if user waits 5 seconds)
-        function closeAd() {
-            if (secondsLeft <= 10) { // Allow closing after 5 seconds
-                finishAd();
-            }
-        }
-        
-        // Handle ad button click
-        function adButtonClick() {
-            // Simulate button click (in real app, this would open a link)
-            showNotification('🚀 Opening advertiser website...');
-        }
-        
         // Finish ad and give reward
         function finishAd() {
             if (!adInProgress) return;
             
             clearInterval(adTimer);
-            clearInterval(progressInterval);
             
             // Add earnings
             userData.balance += 0.0001;
@@ -801,23 +672,31 @@
             updateDisplay();
             saveData();
             
-            // Hide full screen ad
-            document.getElementById('fullscreenAd').style.display = 'none';
-            document.body.style.overflow = 'auto';
-            
             // Show success notification
-            showNotification('🎉 Earned $0.0001 USDT! Ad completed successfully.');
+            showNotification('🎉 Earned $0.0001 USDT! Ad completed.');
             
             // Reset button
             const button = document.getElementById('watchButton');
             button.disabled = false;
-            button.textContent = 'WATCH FULL SCREEN AD & EARN $0.0001 USDT';
+            button.textContent = 'WATCH AD & EARN $0.0001 USDT';
             document.getElementById('timer').textContent = 'Ready to watch';
             
-            // Update preview for next ad
-            updatePreviewAd();
-            
-            adInProgress = false;
+            // Reset ad container
+            setTimeout(() => {
+                const adContainer = document.getElementById('monetag-ad-container');
+                const loadingElement = document.getElementById('adLoading');
+                
+                adContainer.innerHTML = '';
+                loadingElement.innerHTML = `
+                    <div class="loading-spinner">📺</div>
+                    <div>Click button to load next ad</div>
+                    <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Real ads from Monetag</div>
+                `;
+                loadingElement.style.display = 'block';
+                adContainer.appendChild(loadingElement);
+                
+                adInProgress = false;
+            }, 1000);
         }
         
         // Leaderboard
@@ -906,6 +785,11 @@
         
         // Initialize
         loadData();
+        
+        // Check Monetag on load
+        window.addEventListener('load', function() {
+            setTimeout(checkMonetag, 1000);
+        });
         
         // Try to get Telegram username
         if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
