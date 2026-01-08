@@ -3,1063 +3,471 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AdWatch - Earn USDT</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>Earn Money - Watch Ads</title>
     
-    <!-- Monetag/Libtl SDK -->
-    <script src='//libtl.com/sdk.js' data-zone='10396104' data-sdk='show_10396104'></script>
+    <!-- IMPORTANT: Telegram Web App SDK -->
+    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
+    
+    <!-- IMPORTANT: Adexium Ad Script -->
+    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
+            const adexiumWidget = new AdexiumWidget({
+                wid: 'dbccb9bb-6b6a-45e4-b459-95017c843220', 
+                adFormat: 'interstitial'
+            });
+            adexiumWidget.autoMode();
+        });
+    </script>
     
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
         
         body {
-            background: #f0f2f5;
-            padding: 20px;
+            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
             min-height: 100vh;
+            padding: 16px;
+            color: #333;
         }
         
         .container {
-            max-width: 500px;
+            max-width: 480px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
         }
         
-        header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px 20px;
+        .header {
             text-align: center;
+            margin-bottom: 24px;
         }
         
         .logo {
-            font-size: 2em;
-            font-weight: bold;
-            margin-bottom: 10px;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 14px;
         }
         
         .balance-card {
-            background: white;
-            color: #333;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px auto;
-            max-width: 250px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+        
+        .balance-label {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 8px;
         }
         
         .balance-amount {
-            font-size: 2em;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 48px;
+            font-weight: 800;
+            margin: 12px 0;
         }
         
-        .nav-tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-bottom: 2px solid #667eea;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 15px;
-            text-align: center;
-            cursor: pointer;
-            font-weight: 600;
-            color: #666;
-            transition: all 0.3s;
-        }
-        
-        .tab.active {
-            background: #667eea;
-            color: white;
-        }
-        
-        .tab-content {
-            display: none;
-            padding: 20px;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .ad-container {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            text-align: center;
-            margin: 20px 0;
-        }
-        
-        .ad-instructions {
-            background: linear-gradient(135deg, #dbeafe 0%, #e0e7ff 100%);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            border-left: 4px solid #667eea;
-        }
-        
-        .watch-btn {
+        .btn {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 10px 0;
+            padding: 18px 24px;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
             width: 100%;
-            transition: transform 0.2s;
+            margin: 12px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.3);
         }
         
-        .watch-btn:hover {
+        .btn:hover {
             transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
         
-        .watch-btn:active {
+        .btn:active {
             transform: translateY(0);
         }
         
-        .watch-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
+        .btn-watch {
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            box-shadow: 0 6px 20px rgba(72, 187, 120, 0.3);
         }
         
-        .claim-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin: 10px 0;
-            width: 100%;
-            transition: transform 0.2s;
+        .btn-withdraw {
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            box-shadow: 0 6px 20px rgba(237, 137, 54, 0.3);
         }
         
-        .claim-btn:hover {
-            transform: translateY(-2px);
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin: 24px 0;
         }
         
-        .timer {
-            font-size: 1em;
-            color: #666;
-            margin: 10px 0;
-            font-weight: bold;
-        }
-        
-        .stats {
-            display: flex;
-            justify-content: space-around;
-            background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-        
-        .stat-item {
+        .stat-card {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 16px;
             text-align: center;
+            border: 1px solid #e9ecef;
         }
         
         .stat-value {
-            font-size: 1.5em;
-            font-weight: bold;
-            color: #667eea;
+            font-size: 20px;
+            font-weight: 700;
+            color: #6a11cb;
+            margin: 8px 0;
         }
         
         .stat-label {
-            font-size: 0.8em;
-            color: #666;
-            margin-top: 5px;
-        }
-        
-        /* Monetag Ad Container */
-        #monetag-ad-container {
-            width: 100%;
-            min-height: 250px;
-            margin: 20px 0;
-            background: white;
-            border-radius: 10px;
-            border: 2px solid #e5e7eb;
-            overflow: hidden;
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .ad-empty-state {
-            text-align: center;
-            padding: 40px 20px;
+            font-size: 12px;
             color: #666;
         }
         
-        .ad-empty-state .icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            opacity: 0.5;
-        }
-        
-        .ad-loading {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-        
-        .loading-spinner {
-            font-size: 2em;
-            margin-bottom: 15px;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
-        }
-        
-        .ad-loaded-indicator {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: #10b981;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 15px;
-            font-size: 0.8em;
-            font-weight: bold;
-            z-index: 10;
+        .withdraw-form {
             display: none;
+            margin-top: 24px;
+            padding: 24px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            border: 1px solid #e9ecef;
         }
         
-        .monetag-ad-frame {
-            width: 100%;
-            height: 250px;
-            border: none;
-            overflow: hidden;
-        }
-        
-        .reward-popup {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            text-align: center;
-            z-index: 1000;
-            display: none;
-            min-width: 300px;
-        }
-        
-        .popup-content {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        
-        .popup-icon {
-            font-size: 4em;
+        .form-title {
+            font-size: 18px;
+            font-weight: 600;
             margin-bottom: 20px;
-        }
-        
-        .popup-title {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-bottom: 10px;
             color: #333;
         }
         
-        .popup-message {
-            color: #666;
+        .input-group {
             margin-bottom: 20px;
         }
         
-        .popup-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            font-size: 1.1em;
-            border-radius: 25px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+            font-size: 14px;
+        }
+        
+        input, select {
             width: 100%;
+            padding: 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+            background: white;
         }
         
-        .popup-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            display: none;
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
         
-        .monetag-status {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            font-size: 0.9em;
-        }
-        
-        .leaderboard-item {
+        .btn-group {
             display: flex;
-            align-items: center;
-            padding: 15px;
-            margin: 10px 0;
-            background: #f8f9fa;
-            border-radius: 10px;
+            gap: 12px;
+            margin-top: 24px;
         }
         
-        .rank {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            color: white;
-            margin-right: 15px;
-        }
-        
-        .rank-1 { background: gold; }
-        .rank-2 { background: silver; }
-        .rank-3 { background: #cd7f32; }
-        .rank-other { background: #667eea; }
-        
-        .user-info {
+        .btn-secondary {
+            background: #718096;
             flex: 1;
         }
         
-        .username {
-            font-weight: bold;
-        }
-        
-        .ads-count {
-            color: #666;
-            font-size: 0.9em;
-        }
-        
-        .reward {
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        .withdrawal-form {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 15px;
-            margin: 20px 0;
-        }
-        
-        .form-group {
-            margin-bottom: 15px;
-        }
-        
-        .form-label {
-            display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #333;
-        }
-        
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 8px;
-            font-size: 1em;
-        }
-        
-        input:focus {
-            border-color: #667eea;
-            outline: none;
-        }
-        
-        .withdraw-btn {
-            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        .ad-container {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
             color: white;
-            border: none;
-            padding: 15px;
-            width: 100%;
-            font-size: 1.1em;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 10px;
+            padding: 24px;
+            border-radius: 20px;
+            text-align: center;
+            margin: 24px 0;
+            display: none;
+        }
+        
+        .ad-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+        
+        .ad-timer {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 16px 0;
+            font-family: monospace;
+        }
+        
+        .history-section {
+            margin-top: 32px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .history-list {
+            background: #f8f9fa;
+            border-radius: 16px;
+            padding: 16px;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .history-item {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .history-status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+        
+        .status-pending { background: #fef3c7; color: #92400e; }
+        .status-processing { background: #dbeafe; color: #1e40af; }
+        .status-completed { background: #d1fae5; color: #065f46; }
+        .status-failed { background: #fee2e2; color: #991b1b; }
+        
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 8px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
         
         .notification {
             position: fixed;
             top: 20px;
             right: 20px;
-            padding: 15px 20px;
-            background: #10b981;
-            color: white;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            background: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             display: none;
             z-index: 1000;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
         }
         
-        .notification.error {
-            background: #ef4444;
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
         
-        @media (max-width: 600px) {
+        .notification-success {
+            border-left: 4px solid #48bb78;
+        }
+        
+        .notification-error {
+            border-left: 4px solid #f56565;
+        }
+        
+        /* Adexium ad container styling */
+        .adexium-ad {
+            margin: 20px 0;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 480px) {
             .container {
-                margin: 10px;
-                border-radius: 15px;
+                padding: 16px;
+                border-radius: 20px;
             }
             
-            .tab-content {
-                padding: 15px;
+            .balance-amount {
+                font-size: 40px;
             }
             
-            .reward-popup {
-                min-width: 280px;
-                padding: 20px;
-                margin: 0 10px;
-            }
-            
-            #monetag-ad-container {
-                min-height: 250px;
-            }
-            
-            .monetag-ad-frame {
-                height: 250px;
+            .btn {
+                padding: 16px;
+                font-size: 16px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Reward Popup -->
-    <div class="popup-overlay" id="popupOverlay"></div>
-    <div class="reward-popup" id="rewardPopup">
-        <div class="popup-content">
-            <div class="popup-icon">🎉</div>
-            <div class="popup-title">Ad Watched!</div>
-            <div class="popup-message">You successfully watched the ad</div>
-            <div class="popup-message" style="font-size: 1.2em; font-weight: bold; color: #667eea;">
-                Earn $0.0001 USDT
-            </div>
-            <button class="popup-btn" onclick="claimReward()">CLAIM REWARD</button>
-        </div>
+    <!-- Notification Toast -->
+    <div id="notification" class="notification">
+        <div id="notificationMessage"></div>
     </div>
     
     <div class="container">
-        <header>
-            <div class="logo">AdWatch</div>
-            <p>Watch ads & Earn USDT</p>
-            <div class="balance-card">
-                <div>Your Balance</div>
-                <div class="balance-amount">$<span id="balance">0.0000</span> USDT</div>
-            </div>
-        </header>
-        
-        <div class="nav-tabs">
-            <div class="tab active" onclick="showTab('watch')">Watch Ads</div>
-            <div class="tab" onclick="showTab('leaderboard')">Leaderboard</div>
-            <div class="tab" onclick="showTab('withdraw')">Withdraw</div>
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">💰 Earn & Withdraw</div>
+            <div class="subtitle">Watch ads and earn crypto instantly</div>
         </div>
         
-        <!-- Watch Ads Tab -->
-        <div id="watch-tab" class="tab-content active">
-            <h2>Watch & Earn USDT</h2>
-            <p>Click "Watch Ad" to load an ad, then click "Claim Reward"</p>
+        <!-- Balance Card -->
+        <div class="balance-card">
+            <div class="balance-label">Your Balance</div>
+            <div class="balance-amount" id="balance">$0.00</div>
+            <div>Total Earned: <span id="totalEarned">$0.00</span></div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <button class="btn btn-watch" onclick="showAd()">
+            <span>👁️</span>
+            <span>Watch Ad & Earn $0.10</span>
+        </button>
+        
+        <button class="btn btn-withdraw" onclick="showWithdrawForm()">
+            <span>💰</span>
+            <span>Withdraw Money</span>
+        </button>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Today's Earnings</div>
+                <div class="stat-value" id="todayEarnings">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Withdrawn</div>
+                <div class="stat-value" id="totalWithdrawn">$0.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Min Withdrawal</div>
+                <div class="stat-value" id="minWithdrawal">$10.00</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Ads Watched</div>
+                <div class="stat-value" id="adsWatched">0</div>
+            </div>
+        </div>
+        
+        <!-- Adexium Ad Container (Automatically populated) -->
+        <div class="adexium-ad" id="adexiumAdContainer">
+            <!-- Adexium ads will be injected here automatically -->
+        </div>
+        
+        <!-- Withdrawal Form -->
+        <div class="withdraw-form" id="withdrawForm">
+            <div class="form-title">💸 Withdraw Funds</div>
             
-            <div class="ad-instructions">
-                <h4>📺 How it works:</h4>
-                <p>1. Click <strong>"Watch Ad"</strong> button</p>
-                <p>2. Wait for ad to load (5-10 seconds)</p>
-                <p>3. <strong>"Claim Reward"</strong> button will appear</p>
-                <p>4. Click it to earn $0.0001 USDT</p>
+            <div class="input-group">
+                <label for="withdrawAmount">Amount (USDT)</label>
+                <input type="number" id="withdrawAmount" placeholder="10.00" step="0.01" min="10">
+                <div style="font-size: 12px; color: #666; margin-top: 4px;">Available: $<span id="availableBalance">0.00</span></div>
             </div>
             
-            <div class="ad-container">
-                <!-- Monetag Ad Container -->
-                <div id="monetag-ad-container">
-                    <div class="ad-loaded-indicator" id="adLoadedIndicator">✓ AD LOADED</div>
-                    <div class="ad-empty-state" id="adEmptyState">
-                        <div class="icon">📺</div>
-                        <div>No ad loaded yet</div>
-                    </div>
-                    <div class="ad-loading" id="adLoading" style="display: none;">
-                        <div class="loading-spinner">⏳</div>
-                        <div>Loading ad...</div>
-                    </div>
-                    <!-- Monetag ads will appear here -->
-                </div>
-                
-                <div class="monetag-status" id="monetagStatus">
-                    ✅ Monetag ready - Click "Watch Ad" to load ad
-                </div>
-                
-                <div class="timer" id="timer">Click "Watch Ad" to begin</div>
-                
-                <button class="watch-btn" id="watchButton" onclick="startAd()">
-                    WATCH AD
+            <div class="input-group">
+                <label for="walletAddress">Wallet Address (TRC20)</label>
+                <input type="text" id="walletAddress" placeholder="TXYZ123...">
+            </div>
+            
+            <div class="input-group">
+                <label for="network">Network</label>
+                <select id="network">
+                    <option value="TRC20">TRC20 (Recommended, Low Fee)</option>
+                    <option value="BEP20">BEP20 (BSC Network)</option>
+                    <option value="ERC20">ERC20 (Ethereum)</option>
+                </select>
+            </div>
+            
+            <div class="btn-group">
+                <button class="btn" onclick="submitWithdrawal()" id="submitWithdrawalBtn">
+                    📤 Submit Withdrawal
                 </button>
-                
-                <button class="claim-btn" id="claimButton" onclick="showRewardPopup()" style="display: none;">
-                    CLAIM REWARD - $0.0001 USDT
-                </button>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="todayCount">0</div>
-                        <div class="stat-label">Today</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalCount">0</div>
-                        <div class="stat-label">Total Ads</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="earnedToday">$0.0000</div>
-                        <div class="stat-label">Earned Today</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Leaderboard Tab -->
-        <div id="leaderboard-tab" class="tab-content">
-            <h2>Weekly Leaderboard</h2>
-            <p>Top earners this week</p>
-            
-            <div id="leaderboard-list">
-                <!-- Generated by JavaScript -->
-            </div>
-            
-            <div style="text-align: center; margin-top: 20px; padding: 15px; background: #fef3c7; border-radius: 10px;">
-                <h3>🏆 Weekly Prizes 🏆</h3>
-                <p>1st: $0.50 USDT | 2nd: $0.30 USDT | 3rd: $0.10 USDT</p>
-            </div>
-        </div>
-        
-        <!-- Withdrawal Tab -->
-        <div id="withdraw-tab" class="tab-content">
-            <h2>Withdraw Your USDT</h2>
-            <p>Minimum withdrawal: $0.015 USDT</p>
-            
-            <div class="withdrawal-form">
-                <div class="form-group">
-                    <label class="form-label">Amount (USDT)</label>
-                    <input type="number" id="withdrawAmount" min="0.015" step="0.0001" placeholder="0.015">
-                    <div style="font-size: 0.9em; color: #666; margin-top: 5px;">
-                        Available: $<span id="availableBalance">0.0000</span> USDT
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label">Wallet Address (Polygon)</label>
-                    <input type="text" id="walletAddress" placeholder="0x...">
-                </div>
-                
-                <button class="withdraw-btn" onclick="processWithdrawal()">
-                    WITHDRAW USDT
+                <button class="btn btn-secondary" onclick="hideWithdrawForm()">
+                    Cancel
                 </button>
             </div>
+            
+            <div style="margin-top: 20px; padding: 16px; background: #e9ecef; border-radius: 12px;">
+                <div style="font-size: 14px; color: #666; margin-bottom: 8px;">
+                    ⏰ Processing time: 24 hours
+                </div>
+                <div style="font-size: 14px; color: #666;">
+                    ⚠️ Network fee: 1% (min $1)
+                </div>
+            </div>
         </div>
+        
+        <!-- Ad Watch Interface -->
+        <div class="ad-container" id="adContainer">
+            <div class="ad-title">Watch Ad to Earn Money</div>
+            <div class="ad-timer" id="adTimer">30</div>
+            <p>Please watch the ad completely to earn your reward</p>
+            <button class="btn" onclick="completeAd()" id="completeBtn" disabled style="background: rgba(255,255,255,0.2);">
+                ⏳ Please wait...
+            </button>
+        </div>
+        
+        <!-- Withdrawal History -->
+        <div class="history-section">
+            <div class="section-title">
+                <span>📜</span>
+                <span>Recent Withdrawals</span>
+            </div>
+            <div class="history-list" id="withdrawalHistory">
+                <div style="text-align: center; padding: 40px 20px; color: #999;">
+                    <div style="margin-bottom: 12px;">No withdrawals yet</div>
+                    <div style="font-size: 14px;">Start by watching ads to earn money!</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- User Info (Hidden) -->
+        <div style="display: none;" id="userInfo"></div>
     </div>
-    
-    <div class="notification" id="notification"></div>
-    
-    <script>
-        // Initialize Telegram
-        let tg = window.Telegram.WebApp;
-        tg.expand();
-        tg.ready();
-        
-        // User data
-        let userData = {
-            balance: 0.0000,
-            adsToday: 0,
-            totalAds: 0,
-            earnedToday: 0.0000,
-            username: 'User' + Math.floor(Math.random() * 10000)
-        };
-        
-        // Monetag status
-        let monetagLoaded = false;
-        let adInProgress = false;
-        let currentAdLoaded = false;
-        let adWatchTimer = null;
-        let secondsLeft = 0;
-        let currentAdId = null;
-        let adRetryCount = 0;
-        
-        // Load saved data
-        function loadData() {
-            const saved = localStorage.getItem('adWatchData');
-            if (saved) {
-                const parsed = JSON.parse(saved);
-                const today = new Date().toDateString();
-                
-                // Reset daily stats if new day
-                if (parsed.lastAdDate !== today) {
-                    parsed.adsToday = 0;
-                    parsed.earnedToday = 0.0000;
-                }
-                
-                userData = parsed;
-            }
-            updateDisplay();
-            resetAdUI();
-        }
-        
-        // Save data
-        function saveData() {
-            userData.lastAdDate = new Date().toDateString();
-            localStorage.setItem('adWatchData', JSON.stringify(userData));
-        }
-        
-        // Update display
-        function updateDisplay() {
-            document.getElementById('balance').textContent = userData.balance.toFixed(4);
-            document.getElementById('todayCount').textContent = userData.adsToday;
-            document.getElementById('totalCount').textContent = userData.totalAds;
-            document.getElementById('earnedToday').textContent = '$' + userData.earnedToday.toFixed(4);
-            document.getElementById('availableBalance').textContent = userData.balance.toFixed(4);
-            
-            generateLeaderboard();
-        }
-        
-        // Check Monetag SDK
-        function checkMonetag() {
-            if (typeof show_10396104 !== 'undefined') {
-                monetagLoaded = true;
-                document.getElementById('monetagStatus').innerHTML = 
-                    '✅ Monetag ready - Click "Watch Ad" to load ad';
-                console.log('Monetag SDK loaded successfully');
-            } else {
-                document.getElementById('monetagStatus').innerHTML = 
-                    '⚠️ Loading Monetag... Please wait';
-                setTimeout(checkMonetag, 1000);
-            }
-        }
-        
-        // Load Monetag ad - FIXED VERSION
-        function loadMonetagAd() {
-            const adContainer = document.getElementById('monetag-ad-container');
-            
-            // Show loading state
-            document.getElementById('adEmptyState').style.display = 'none';
-            document.getElementById('adLoading').style.display = 'block';
-            
-            // Disable watch button during loading
-            document.getElementById('watchButton').disabled = true;
-            document.getElementById('watchButton').textContent = 'LOADING AD...';
-            
-            // Hide claim button
-            document.getElementById('claimButton').style.display = 'none';
-            
-            // Update timer
-            document.getElementById('timer').textContent = 'Loading ad...';
-            document.getElementById('adLoadedIndicator').style.display = 'none';
-            
-            // Clear any previous ad
-            const oldFrames = adContainer.querySelectorAll('.monetag-ad-frame');
-            oldFrames.forEach(frame => frame.remove());
-            
-            // Reset ad ID
-            currentAdId = 'ad_' + Date.now();
-            adRetryCount = 0;
-            
-            if (monetagLoaded && typeof show_10396104 !== 'undefined') {
-                try {
-                    // Create container for Monetag ad
-                    const adFrame = document.createElement('div');
-                    adFrame.id = currentAdId;
-                    adFrame.className = 'monetag-ad-frame';
-                    
-                    // Append to container
-                    adContainer.appendChild(adFrame);
-                    
-                    // Show Monetag ad with retry logic
-                    showMonetagAdWithRetry(adFrame, currentAdId);
-                    
-                } catch (error) {
-                    console.error('Error loading Monetag ad:', error);
-                    showNotification('⚠️ Failed to load ad. Please try again.', 'error');
-                    resetAdUI();
-                }
-            } else {
-                // Monetag not loaded
-                console.log('Monetag not loaded');
-                setTimeout(() => {
-                    document.getElementById('adLoading').innerHTML = 
-                        '<div class="loading-spinner">❌</div><div>Ad service not available</div>';
-                    setTimeout(() => {
-                        showNotification('⚠️ Ad service not available. Please refresh and try again.', 'error');
-                        resetAdUI();
-                    }, 2000);
-                }, 3000);
-            }
-        }
-        
-        // Retry logic for Monetag ads
-        function showMonetagAdWithRetry(adFrame, adId, retryCount = 0) {
-            if (retryCount > 2) {
-                console.log('Max retries reached');
-                document.getElementById('adLoading').innerHTML = 
-                    '<div class="loading-spinner">❌</div><div>No ads available</div>';
-                setTimeout(() => {
-                    showNotification('⚠️ No ads available right now. Please try again later.', 'error');
-                    resetAdUI();
-                }, 2000);
-                return;
-            }
-            
-            try {
-                show_10396104.show(adFrame, {
-                    onLoad: function() {
-                        console.log('Monetag ad loaded successfully');
-                        
-                        // Hide loading
-                        document.getElementById('adLoading').style.display = 'none';
-                        
-                        // Mark ad as loaded
-                        currentAdLoaded = true;
-                        document.getElementById('adLoadedIndicator').style.display = 'block';
-                        
-                        // Update UI
-                        document.getElementById('monetagStatus').innerHTML = 
-                            '✅ Ad loaded successfully! Watch the ad for 30 seconds...';
-                        
-                        // Start timer
-                        startAdTimer();
-                        
-                        // Enable claiming after 30 seconds
-                        setTimeout(() => {
-                            if (currentAdLoaded && currentAdId === adId) {
-                                document.getElementById('watchButton').style.display = 'none';
-                                document.getElementById('claimButton').style.display = 'block';
-                                document.getElementById('timer').textContent = 'Ad complete! Click "Claim Reward"';
-                            }
-                        }, 30000);
-                        
-                    },
-                    onError: function(error) {
-                        console.error('Monetag ad error:', error);
-                        
-                        // Retry after delay
-                        if (retryCount < 2) {
-                            console.log('Retrying ad load... Attempt', retryCount + 1);
-                            document.getElementById('adLoading').innerHTML = 
-                                '<div class="loading-spinner">🔄</div><div>Retrying... Attempt ' + (retryCount + 2) + '/3</div>';
-                            
-                            setTimeout(() => {
-                                showMonetagAdWithRetry(adFrame, adId, retryCount + 1);
-                            }, 2000);
-                        } else {
-                            // Max retries reached
-                            document.getElementById('adLoading').innerHTML = 
-                                '<div class="loading-spinner">❌</div><div>Failed to load ad</div>';
-                            
-                            setTimeout(() => {
-                                showNotification('⚠️ Failed to load ad. Please try again.', 'error');
-                                resetAdUI();
-                            }, 2000);
-                        }
-                    },
-                    onClose: function() {
-                        console.log('Monetag ad closed');
-                        // User might have closed ad early
-                        if (secondsLeft > 0) {
-                            document.getElementById('timer').textContent = 'Please watch the full ad to earn reward';
-                        }
-                    }
-                });
-                
-                // Timeout for ad loading
-                setTimeout(() => {
-                    if (!currentAdLoaded && currentAdId === adId) {
-                        console.log('Ad loading timeout');
-                        if (retryCount < 2) {
-                            showMonetagAdWithRetry(adFrame, adId, retryCount + 1);
-                        }
-                    }
-                }, 10000); // 10 second timeout
-                
-            } catch (error) {
-                console.error('Exception showing Monetag ad:', error);
-                if (retryCount < 2) {
-                    showMonetagAdWithRetry(adFrame, adId, retryCount + 1);
-                }
-            }
-        }
-        
-        // Start ad timer
-        function startAdTimer() {
-            if (adWatchTimer) {
-                clearInterval(adWatchTimer);
-            }
-            
-            secondsLeft = 30;
-            updateTimerDisplay();
-            
-            adWatchTimer = setInterval(() => {
-                secondsLeft--;
-                updateTimerDisplay();
-                
-                if (secondsLeft <= 0) {
-                    clearInterval(adWatchTimer);
-                    document.getElementById('timer').textContent = 'Ad complete! Click "Claim Reward"';
-                    document.getElementById('monetagStatus').innerHTML = 
-                        '✅ Ad watched successfully! Click "Claim Reward" to earn';
-                }
-            }, 1000);
-        }
-        
-        function updateTimerDisplay() {
-            document.getElementById('timer').textContent = `Watch for ${secondsLeft}s to earn reward`;
-        }
-        
-        // Show reward popup
-        function showRewardPopup() {
-            // Validate that ad was actually watched
-            if (!currentAdLoaded) {
-                showNotification('⚠️ Please load and watch an ad first', 'error');
-                return;
-            }
-            
-            if (secondsLeft > 0) {
-                showNotification(`⚠️ Please watch for ${secondsLeft} more seconds`, 'error');
-                return;
-            }
-            
-            document.getElementById('popupOverlay').style.display = 'block';
-            document.getElementById('rewardPopup').style.display = 'block';
-        }
-        
-        // Claim reward
-        function claimReward() {
-            // Close popup
-            document.getElementById('popupOverlay').style.display = 'none';
-            document.getElementById('rewardPopup').style.display = 'none';
-            
-            // Add earnings
-            userData.balance += 0.0001;
-            userData.adsToday++;
-            userData.totalAds++;
-            userData.earnedToday += 0.0001;
-            
-            // Update display
-            updateDisplay();
-            saveData();
-            
-            // Show notification
-            showNotification('🎉 Successfully claimed $0.0001 USDT!');
-            
-            // Reset UI for next ad
-            resetAdUI();
-        }
-        
-        // Reset ad UI
-        function resetAdUI() {
-            // Clear timer
-            if (adWatchTimer) {
-                clearInterval(adWatchTimer);
-                adWatchTimer = null;
-            }
-            
-            // Reset buttons
-            document.getElementById('claimButton').style.display = 'none';
-            document.getElementById('watchButton').style.display = 'block';
-            document.getElementById('watchButton').disabled = false;
-            document.getElementById('watchButton').textContent = 'WATCH AD';
-            
-            // Reset timer and status
-            secondsLeft = 0;
-            document.getElementById('timer').textContent = 'Click "Watch Ad" to begin';
-            document.getElementById('monetagStatus').innerHTML = 
-                '✅ Ready for next ad - Click "Watch Ad"';
-            
-            // Reset ad container
-            const adContainer = document.getElementById('monetag-ad-container');
-            
-            // Clear old ads
-            const oldFrames = adContainer.querySelectorAll('.monetag-ad-frame');
-            oldFrames.forEach(frame => frame.remove());
-            
-            // Show empty state
-            document.getElementById('adEmptyState').style.display = 'block';
-            document.getElementById('adLoading').style.display = 'none';
-            document.getElementById('adLoading').innerHTML = 
-                '<div class="loading-spinner">⏳</div><div>Loading ad...</div>';
-            
-            // Hide loaded indicator
-            document.getElementById('adLoadedIndicator').style.display = 'none';
-            
-            // Reset flags
-            adInProgress = false;
-            currentAdLoaded = false;
-            currentAdId = null;
-        }
-        
-        // Tab navigation
-        function showTab(tabName) {
-            // Hide all tabs
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Remove active from all tab buttons
-            document.querySelectorAll('.tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            
-            // Show selected tab
-            document.getElementById(tabName + '-tab').classList.add('active');
-            
-            // Activate clicked tab button
-            event.target.classList.add('active');
-        }
-        
-        // Start watching ad
-        function startAd() {
-            if (adInProgress) {
-                showNotification('⚠️ Already loading an ad. Please wait.', 'error');
-                return;
-            }
-            
-            adInProgress = true;
-            currentAdLoaded = false;
-            
-            // Start loading ad
-            loadMonetagAd();
-        }
-        
-        // Leaderboard
-        function generateLeaderboard() {
-            const leaderboard = [
-                { username: 'CryptoKing', ads: 245, reward: '$0.50' },
-                { username: 'AdMaster', ads: 198, reward: '$0.30' },
-                { username: 'EarnPro', ads: 167, reward: '$0.10' },
-                { username: userData.username, ads: userData.totalAds, reward: '-' },
-                { username: 'BitcoinLover', ads: 89, reward: '-' },
-                { username: 'TradingGuru', ads: 76, reward: '-' },
-                { username: 'CryptoNewbie', ads: 54, reward: '-' }
-            ];
-            
-            // Sort by ads watched
-            leaderboard.sort((a, b) => b.ads - a.ads);
-            
-            const listElement = document.getElementById('leaderboard-list');
-            listElement.innerHTML = '';
-            
-            leaderboard.forEach((user, index) => {
-                const item = document.createElement('div');
-                item.className = 'leaderboard-item';
-                
-                const rankClass = index === 0 ? 'rank-1' : 
-                                index === 1 ? 'rank-2' : 
-                                index === 2 ? 'rank-3' : 'rank-other';
-                
-                item.innerHTML = `
-                    <div class="rank ${rankClass}">${index + 1}</div>
-                    <div class="user-info">
-                        <div class="username">${user.username}</div>
-                        <div class="ads-count">${user.ads} ads watched</div>
-                    </div>
-                    <div class="reward">${user.reward}</div>
-                `;
-                
-                listElement.appendChild(item);
-            });
-        }
-        
-        // Withdrawal
-        function processWithdrawal() {
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-            const wallet = document.getElementById('walletAddress').value.trim();
-            
-            // Validation
-            if (!amount || amount < 0.015) {
-                showNotification('⚠️ Minimum withdrawal is $0.015 USDT', 'error');
-                return;
-            }
-            
-            if (amount > userData.balance) {
-                showNotification('⚠️ Insufficient balance', 'error');
-                return;
-            }
-            
-            if (!wallet) {
-                showNotification('⚠️ Please enter wallet address', 'error');
-                return;
-            }
-            
-            // Process withdrawal
-            userData.balance -= amount;
-            saveData();
-            updateDisplay();
-            
-            showNotification(`✅ Withdrawal request for $${amount.toFixed(4)} USDT submitted!`);
-            
-            // Clear form
-            document.getElementById('withdrawAmount').value = '';
-            document.getElementById('walletAddress').value = '';
-        }
-        
-        // Notification
-        function showNotification(message, type = 'success') {
-            const notification = document.getElementById('notification');
-            notification.textContent = message;
-            notification.style.background = type === 'error' ? '#ef4444' : '#10b981';
-            notification.style.display = 'block';
-            
-            setTimeout(() => {
-                notification.style.display = 'none';
-            }, 3000);
-        }
-        
-        // Initialize
-        loadData();
-        
-        // Check Monetag on load
-        window.addEventListener('load', function() {
-            setTimeout(checkMonetag, 1000);
-        });
-        
-        // Try to get Telegram username
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
-            const tgUser = tg.initDataUnsafe.user;
-            userData.username = tgUser.username || 
-                              `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 
-                              userData.username;
-            userData.telegramId = tgUser.id;
-            updateDisplay();
-        }
-        
-        // Listen for Monetag SDK load
-        window.addEventListener('monetag_loaded', function() {
-            console.log('Monetag SDK loaded via event');
-            monetagLoaded = true;
-            checkMonetag();
-        });
-    </script>
+
+    <script src="app.js"></script>
 </body>
 </html>
