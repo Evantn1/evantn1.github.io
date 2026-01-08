@@ -4,31 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdWatch - Earn USDT</title>
-    
-    <!-- Telegram Web App SDK -->
-    <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
-    
-    <!-- Adexium Widget SDK -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    <script type="text/javascript">
-        // Initialize Adexium widget
-        let adexiumWidget = null;
-        let adReady = false;
-        
-        document.addEventListener('DOMContentLoaded', () => {
-            try {
-                adexiumWidget = new AdexiumWidget({
-                    wid: 'dbccb9bb-6b6a-45e4-b459-95017c843220', 
-                    adFormat: 'interstitial'
-                });
-                console.log('Adexium Widget initialized successfully');
-                adReady = true;
-            } catch (error) {
-                console.error('Failed to initialize Adexium Widget:', error);
-                adReady = false;
-            }
-        });
-    </script>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
     <style>
         * {
@@ -209,46 +185,26 @@
         /* Ad Container */
         #ad-container {
             width: 100%;
-            min-height: 250px;
+            min-height: 300px;
             margin: 20px 0;
             background: white;
             border-radius: 10px;
             border: 2px solid #e5e7eb;
             overflow: hidden;
-            position: relative;
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        
-        .ad-empty-state {
-            text-align: center;
-            padding: 40px 20px;
-            color: #666;
-        }
-        
-        .ad-empty-state .icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-            opacity: 0.5;
+            position: relative;
         }
         
         .ad-loading {
             text-align: center;
-            padding: 40px 20px;
-            color: #666;
+            padding: 40px;
         }
         
         .loading-spinner {
-            font-size: 2em;
+            font-size: 3em;
             margin-bottom: 15px;
-            animation: pulse 1.5s infinite;
-        }
-        
-        @keyframes pulse {
-            0% { opacity: 0.3; }
-            50% { opacity: 1; }
-            100% { opacity: 0.3; }
         }
         
         .ad-loaded-indicator {
@@ -261,7 +217,6 @@
             border-radius: 15px;
             font-size: 0.8em;
             font-weight: bold;
-            z-index: 10;
             display: none;
         }
         
@@ -327,7 +282,7 @@
             display: none;
         }
         
-        .adexium-status {
+        .ad-status {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border-left: 4px solid #f59e0b;
             padding: 12px;
@@ -441,6 +396,70 @@
             background: #ef4444;
         }
         
+        .ad-content {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .ad-title {
+            font-size: 1.5em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .ad-description {
+            color: #666;
+            margin-bottom: 20px;
+            text-align: center;
+            padding: 0 20px;
+        }
+        
+        .ad-cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 10px 0;
+            transition: transform 0.2s;
+        }
+        
+        .ad-cta:hover {
+            transform: translateY(-2px);
+        }
+        
+        .ad-image {
+            width: 100px;
+            height: 100px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            object-fit: cover;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e5e7eb;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
         @media (max-width: 600px) {
             .container {
                 margin: 10px;
@@ -455,10 +474,6 @@
                 min-width: 280px;
                 padding: 20px;
                 margin: 0 10px;
-            }
-            
-            #ad-container {
-                min-height: 250px;
             }
         }
     </style>
@@ -502,27 +517,28 @@
             <div class="ad-instructions">
                 <h4>📺 How it works:</h4>
                 <p>1. Click <strong>"Watch Ad"</strong> button</p>
-                <p>2. Wait for ad to load (5-10 seconds)</p>
+                <p>2. Watch the ad for <strong>10 seconds</strong></p>
                 <p>3. <strong>"Claim Reward"</strong> button will appear</p>
                 <p>4. Click it to earn $0.0001 USDT</p>
             </div>
             
             <div class="ad-container">
-                <!-- Adexium Ad Container -->
+                <!-- Ad Container -->
                 <div id="ad-container">
-                    <div class="ad-loaded-indicator" id="adLoadedIndicator">✓ AD LOADED</div>
-                    <div class="ad-empty-state" id="adEmptyState">
-                        <div class="icon">📺</div>
-                        <div>No ad loaded yet</div>
-                    </div>
-                    <div class="ad-loading" id="adLoading" style="display: none;">
-                        <div class="loading-spinner">⏳</div>
-                        <div>Loading ad...</div>
+                    <div class="ad-loaded-indicator" id="adLoadedIndicator">✓ AD READY</div>
+                    <div class="ad-loading" id="adLoading">
+                        <div class="loading-spinner">📺</div>
+                        <div>Ad will load here</div>
+                        <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Click "Watch Ad" to start</div>
                     </div>
                 </div>
                 
-                <div class="adexium-status" id="adexiumStatus">
-                    <span id="statusIcon">⏳</span> Loading Adexium...
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                
+                <div class="ad-status" id="adStatus">
+                    ✅ Ready - Click "Watch Ad" to load ad
                 </div>
                 
                 <div class="timer" id="timer">Click "Watch Ad" to begin</div>
@@ -610,12 +626,64 @@
             username: 'User' + Math.floor(Math.random() * 10000)
         };
         
-        // Ad status
+        // Ad system variables
         let adInProgress = false;
         let currentAdLoaded = false;
-        let adWatchTimer = null;
-        let secondsLeft = 0;
-        let currentAdId = null;
+        let adTimer = null;
+        let timeLeft = 0;
+        const AD_DURATION = 10; // seconds to watch ad
+        
+        // Ad database - simulate different ads
+        const adDatabase = [
+            {
+                id: 1,
+                title: "Try Crypto Exchange Pro",
+                description: "Trade with confidence on our secure platform with low fees",
+                cta: "Sign Up Now",
+                image: "📈",
+                category: "Crypto"
+            },
+            {
+                id: 2,
+                title: "Earn Free Crypto Daily",
+                description: "Play games and complete tasks to earn cryptocurrency",
+                cta: "Start Earning",
+                image: "🎮",
+                category: "Earn"
+            },
+            {
+                id: 3,
+                title: "Secure Your Wallet",
+                description: "Protect your assets with our hardware wallet solution",
+                cta: "Learn More",
+                image: "🔒",
+                category: "Security"
+            },
+            {
+                id: 4,
+                title: "DeFi Yield Farming",
+                description: "Earn high APY on stablecoin deposits",
+                cta: "Invest Now",
+                image: "🌾",
+                category: "DeFi"
+            },
+            {
+                id: 5,
+                title: "NFT Marketplace",
+                description: "Buy, sell and trade digital collectibles",
+                cta: "Explore NFTs",
+                image: "🖼️",
+                category: "NFT"
+            },
+            {
+                id: 6,
+                title: "Crypto Learning Platform",
+                description: "Learn blockchain technology from experts",
+                cta: "Start Learning",
+                image: "📚",
+                category: "Education"
+            }
+        ];
         
         // Load saved data
         function loadData() {
@@ -653,185 +721,131 @@
             generateLeaderboard();
         }
         
-        // Check Adexium status
-        function checkAdexiumStatus() {
-            if (window.AdexiumWidget && adexiumWidget) {
-                document.getElementById('adexiumStatus').innerHTML = 
-                    '<span id="statusIcon">✅</span> Adexium ready - Click "Watch Ad" to load ad';
-                console.log('Adexium Widget ready');
-                return true;
-            } else {
-                document.getElementById('adexiumStatus').innerHTML = 
-                    '<span id="statusIcon">⏳</span> Loading Adexium... Please wait';
-                setTimeout(checkAdexiumStatus, 1000);
-                return false;
-            }
+        // Get random ad from database
+        function getRandomAd() {
+            const randomIndex = Math.floor(Math.random() * adDatabase.length);
+            return adDatabase[randomIndex];
         }
         
-        // Load Adexium ad
-        function loadAdexiumAd() {
-            const adContainer = document.getElementById('ad-container');
+        // Start ad watching process
+        function startAd() {
+            if (adInProgress) return;
             
-            // Show loading state
-            document.getElementById('adEmptyState').style.display = 'none';
-            document.getElementById('adLoading').style.display = 'block';
+            // Check daily limit (50 ads per day)
+            if (userData.adsToday >= 50) {
+                showNotification('⚠️ Daily limit reached! Come back tomorrow.', 'error');
+                return;
+            }
             
-            // Disable watch button during loading
+            adInProgress = true;
+            currentAdLoaded = false;
+            
+            // Update UI
             document.getElementById('watchButton').disabled = true;
             document.getElementById('watchButton').textContent = 'LOADING AD...';
+            document.getElementById('timer').textContent = 'Loading advertisement...';
+            document.getElementById('adStatus').innerHTML = '⏳ Loading ad...';
             
-            // Hide claim button
-            document.getElementById('claimButton').style.display = 'none';
-            
-            // Update timer
-            document.getElementById('timer').textContent = 'Loading ad...';
-            document.getElementById('adLoadedIndicator').style.display = 'none';
-            
-            // Reset ad ID
-            currentAdId = 'ad_' + Date.now();
-            
-            if (adexiumWidget && window.AdexiumWidget) {
-                try {
-                    // Show Adexium interstitial ad
-                    adexiumWidget.showInterstitial({
-                        onAdLoaded: function() {
-                            console.log('Adexium ad loaded successfully');
-                            
-                            // Hide loading
-                            document.getElementById('adLoading').style.display = 'none';
-                            
-                            // Mark ad as loaded
-                            currentAdLoaded = true;
-                            document.getElementById('adLoadedIndicator').style.display = 'block';
-                            
-                            // Update UI
-                            document.getElementById('adexiumStatus').innerHTML = 
-                                '<span id="statusIcon">✅</span> Ad loaded successfully! Watch the ad...';
-                            
-                            // Start timer
-                            startAdTimer();
-                            
-                            // Track ad completion
-                            setTimeout(() => {
-                                if (currentAdLoaded && currentAdId === adId) {
-                                    document.getElementById('watchButton').style.display = 'none';
-                                    document.getElementById('claimButton').style.display = 'block';
-                                    document.getElementById('timer').textContent = 'Ad complete! Click "Claim Reward"';
-                                    document.getElementById('adexiumStatus').innerHTML = 
-                                        '<span id="statusIcon">✅</span> Ad watched successfully!';
-                                }
-                            }, 30000);
-                        },
-                        onAdFailedToLoad: function(error) {
-                            console.error('Adexium ad failed to load:', error);
-                            
-                            document.getElementById('adLoading').innerHTML = 
-                                '<div class="loading-spinner">❌</div><div>Failed to load ad</div>';
-                            
-                            setTimeout(() => {
-                                showNotification('⚠️ Failed to load ad. Please try again.', 'error');
-                                resetAdUI();
-                            }, 2000);
-                        },
-                        onAdClosed: function() {
-                            console.log('Adexium ad closed');
-                            // If ad was closed early
-                            if (secondsLeft > 0) {
-                                document.getElementById('timer').textContent = 'Please watch the full ad to earn reward';
-                            } else {
-                                // Ad completed
-                                document.getElementById('watchButton').style.display = 'none';
-                                document.getElementById('claimButton').style.display = 'block';
-                                document.getElementById('timer').textContent = 'Ad complete! Click "Claim Reward"';
-                            }
-                        },
-                        onAdReward: function() {
-                            console.log('Adexium ad reward earned');
-                            // This is called when the user earns a reward
-                            if (currentAdLoaded && currentAdId === adId) {
-                                document.getElementById('watchButton').style.display = 'none';
-                                document.getElementById('claimButton').style.display = 'block';
-                                document.getElementById('timer').textContent = 'Ad complete! Click "Claim Reward"';
-                                document.getElementById('adexiumStatus').innerHTML = 
-                                    '<span id="statusIcon">✅</span> Ad reward earned!';
-                            }
-                        }
-                    });
-                    
-                    // Store ad ID
-                    const adId = currentAdId;
-                    
-                    // Timeout for ad loading
-                    setTimeout(() => {
-                        if (!currentAdLoaded && currentAdId === adId) {
-                            console.log('Ad loading timeout');
-                            document.getElementById('adLoading').innerHTML = 
-                                '<div class="loading-spinner">❌</div><div>Ad loading timeout</div>';
-                            
-                            setTimeout(() => {
-                                showNotification('⚠️ Ad loading timeout. Please try again.', 'error');
-                                resetAdUI();
-                            }, 2000);
-                        }
-                    }, 15000); // 15 second timeout
-                    
-                } catch (error) {
-                    console.error('Exception showing Adexium ad:', error);
-                    showNotification('⚠️ Error loading ad. Please try again.', 'error');
-                    resetAdUI();
-                }
-            } else {
-                // Adexium not loaded
-                console.log('Adexium not loaded');
-                document.getElementById('adLoading').innerHTML = 
-                    '<div class="loading-spinner">❌</div><div>Ad service not available</div>';
-                
-                setTimeout(() => {
-                    showNotification('⚠️ Ad service not available. Please refresh and try again.', 'error');
-                    resetAdUI();
-                }, 2000);
-            }
+            // Simulate ad loading
+            setTimeout(() => {
+                loadAdContent();
+            }, 1500);
         }
         
-        // Start ad timer
-        function startAdTimer() {
-            if (adWatchTimer) {
-                clearInterval(adWatchTimer);
-            }
+        // Load ad content
+        function loadAdContent() {
+            const adContainer = document.getElementById('ad-container');
+            const loadingElement = document.getElementById('adLoading');
             
-            secondsLeft = 30;
-            updateTimerDisplay();
+            // Hide loading
+            loadingElement.style.display = 'none';
             
-            adWatchTimer = setInterval(() => {
-                secondsLeft--;
-                updateTimerDisplay();
+            // Get random ad
+            const ad = getRandomAd();
+            
+            // Create ad content
+            const adContent = document.createElement('div');
+            adContent.className = 'ad-content';
+            adContent.innerHTML = `
+                <div style="font-size: 4em; margin-bottom: 15px;">${ad.image}</div>
+                <div class="ad-title">${ad.title}</div>
+                <div class="ad-description">${ad.description}</div>
+                <button class="ad-cta" onclick="handleAdClick(${ad.id})">${ad.cta}</button>
+                <div style="margin-top: 10px; font-size: 0.8em; color: #666;">Advertisement • ${ad.category}</div>
+            `;
+            
+            // Clear and add ad
+            adContainer.innerHTML = '';
+            adContainer.appendChild(adContent);
+            
+            // Mark as loaded
+            currentAdLoaded = true;
+            document.getElementById('adLoadedIndicator').style.display = 'block';
+            
+            // Start countdown timer
+            startCountdown();
+        }
+        
+        // Start countdown timer
+        function startCountdown() {
+            timeLeft = AD_DURATION;
+            document.getElementById('progressFill').style.width = '0%';
+            
+            // Update timer display
+            document.getElementById('timer').textContent = `Watch ad: ${timeLeft} seconds remaining`;
+            document.getElementById('adStatus').innerHTML = '⏳ Watching ad... Please wait';
+            
+            // Start interval
+            adTimer = setInterval(() => {
+                timeLeft--;
                 
-                if (secondsLeft <= 0) {
-                    clearInterval(adWatchTimer);
-                    document.getElementById('timer').textContent = 'Ad complete! Click "Claim Reward"';
-                    document.getElementById('adexiumStatus').innerHTML = 
-                        '<span id="statusIcon">✅</span> Ad watched successfully!';
+                // Update progress bar
+                const progressPercent = ((AD_DURATION - timeLeft) / AD_DURATION) * 100;
+                document.getElementById('progressFill').style.width = `${progressPercent}%`;
+                
+                // Update timer text
+                if (timeLeft > 0) {
+                    document.getElementById('timer').textContent = `Watch ad: ${timeLeft} seconds remaining`;
+                } else {
+                    // Countdown finished
+                    clearInterval(adTimer);
+                    onAdWatched();
                 }
             }, 1000);
         }
         
-        function updateTimerDisplay() {
-            document.getElementById('timer').textContent = `Watch for ${secondsLeft}s to earn reward`;
+        // When ad is fully watched
+        function onAdWatched() {
+            document.getElementById('adLoadedIndicator').style.display = 'none';
+            document.getElementById('timer').textContent = 'Ad watched! Click "Claim Reward"';
+            document.getElementById('adStatus').innerHTML = '✅ Ad completed! Click "Claim Reward" below';
+            document.getElementById('progressFill').style.width = '100%';
+            
+            // Show claim button
+            document.getElementById('watchButton').style.display = 'none';
+            document.getElementById('claimButton').style.display = 'block';
+            
+            // Mark ad as completed
+            adInProgress = false;
+        }
+        
+        // Handle ad click (CTA button)
+        function handleAdClick(adId) {
+            // In a real app, this would track ad engagement
+            console.log(`Ad ${adId} clicked`);
+            
+            // Show click confirmation
+            const ctaButton = event.target;
+            ctaButton.style.background = '#10b981';
+            ctaButton.textContent = '✓ Clicked!';
+            ctaButton.disabled = true;
+            
+            // Optional: Track engagement for better rewards
+            // userData.engagementBonus = true;
         }
         
         // Show reward popup
         function showRewardPopup() {
-            // Validate that ad was actually watched
-            if (!currentAdLoaded) {
-                showNotification('⚠️ Please load and watch an ad first', 'error');
-                return;
-            }
-            
-            if (secondsLeft > 0) {
-                showNotification(`⚠️ Please watch for ${secondsLeft} more seconds`, 'error');
-                return;
-            }
-            
             document.getElementById('popupOverlay').style.display = 'block';
             document.getElementById('rewardPopup').style.display = 'block';
         }
@@ -843,17 +857,18 @@
             document.getElementById('rewardPopup').style.display = 'none';
             
             // Add earnings
-            userData.balance += 0.0001;
+            const earnings = 0.0001;
+            userData.balance += earnings;
             userData.adsToday++;
             userData.totalAds++;
-            userData.earnedToday += 0.0001;
+            userData.earnedToday += earnings;
             
             // Update display
             updateDisplay();
             saveData();
             
             // Show notification
-            showNotification('🎉 Successfully claimed $0.0001 USDT!');
+            showNotification(`🎉 Successfully claimed $${earnings.toFixed(4)} USDT!`);
             
             // Reset UI for next ad
             resetAdUI();
@@ -861,10 +876,9 @@
         
         // Reset ad UI
         function resetAdUI() {
-            // Clear timer
-            if (adWatchTimer) {
-                clearInterval(adWatchTimer);
-                adWatchTimer = null;
+            // Clear any running timer
+            if (adTimer) {
+                clearInterval(adTimer);
             }
             
             // Reset buttons
@@ -874,16 +888,23 @@
             document.getElementById('watchButton').textContent = 'WATCH AD';
             
             // Reset timer and status
-            secondsLeft = 0;
             document.getElementById('timer').textContent = 'Click "Watch Ad" to begin';
-            document.getElementById('adexiumStatus').innerHTML = 
-                '<span id="statusIcon">✅</span> Ready for next ad - Click "Watch Ad"';
+            document.getElementById('adStatus').innerHTML = 
+                '✅ Ready for next ad - Click "Watch Ad"';
+            document.getElementById('progressFill').style.width = '0%';
             
             // Reset ad container
-            document.getElementById('adEmptyState').style.display = 'block';
-            document.getElementById('adLoading').style.display = 'none';
-            document.getElementById('adLoading').innerHTML = 
-                '<div class="loading-spinner">⏳</div><div>Loading ad...</div>';
+            const adContainer = document.getElementById('ad-container');
+            const loadingElement = document.getElementById('adLoading');
+            
+            adContainer.innerHTML = '';
+            loadingElement.innerHTML = `
+                <div class="loading-spinner">📺</div>
+                <div>Ad will load here</div>
+                <div style="font-size: 0.8em; margin-top: 10px; color: #666;">Click "Watch Ad" to start</div>
+            `;
+            loadingElement.style.display = 'flex';
+            adContainer.appendChild(loadingElement);
             
             // Hide loaded indicator
             document.getElementById('adLoadedIndicator').style.display = 'none';
@@ -891,7 +912,7 @@
             // Reset flags
             adInProgress = false;
             currentAdLoaded = false;
-            currentAdId = null;
+            timeLeft = 0;
         }
         
         // Tab navigation
@@ -911,26 +932,11 @@
             
             // Activate clicked tab button
             event.target.classList.add('active');
-        }
-        
-        // Start watching ad
-        function startAd() {
-            if (adInProgress) {
-                showNotification('⚠️ Already loading an ad. Please wait.', 'error');
-                return;
+            
+            // Reset ad UI when switching away from watch tab
+            if (tabName !== 'watch') {
+                resetAdUI();
             }
-            
-            // Check if Adexium is ready
-            if (!adexiumWidget || !window.AdexiumWidget) {
-                showNotification('⚠️ Ad service not ready yet. Please wait.', 'error');
-                return;
-            }
-            
-            adInProgress = true;
-            currentAdLoaded = false;
-            
-            // Start loading ad
-            loadAdexiumAd();
         }
         
         // Leaderboard
@@ -959,10 +965,17 @@
                                 index === 1 ? 'rank-2' : 
                                 index === 2 ? 'rank-3' : 'rank-other';
                 
+                // Highlight current user
+                const isCurrentUser = user.username === userData.username;
+                if (isCurrentUser) {
+                    item.style.background = '#e0e7ff';
+                    item.style.border = '2px solid #667eea';
+                }
+                
                 item.innerHTML = `
                     <div class="rank ${rankClass}">${index + 1}</div>
                     <div class="user-info">
-                        <div class="username">${user.username}</div>
+                        <div class="username">${user.username} ${isCurrentUser ? '(You)' : ''}</div>
                         <div class="ads-count">${user.ads} ads watched</div>
                     </div>
                     <div class="reward">${user.reward}</div>
@@ -993,16 +1006,33 @@
                 return;
             }
             
+            // Basic wallet validation
+            if (!/^0x[a-fA-F0-9]{40}$/.test(wallet)) {
+                showNotification('⚠️ Invalid Polygon wallet address', 'error');
+                return;
+            }
+            
+            // Confirm withdrawal
+            if (!confirm(`Withdraw $${amount.toFixed(4)} USDT to ${wallet.substring(0, 10)}...?`)) {
+                return;
+            }
+            
             // Process withdrawal
             userData.balance -= amount;
             saveData();
             updateDisplay();
             
-            showNotification(`✅ Withdrawal request for $${amount.toFixed(4)} USDT submitted!`);
+            showNotification(`✅ Withdrawal request for $${amount.toFixed(4)} USDT submitted!\nProcessing may take 24-48 hours.`);
             
             // Clear form
             document.getElementById('withdrawAmount').value = '';
             document.getElementById('walletAddress').value = '';
+            
+            // In real app, send to backend:
+            // fetch('/api/withdraw', {
+            //     method: 'POST',
+            //     body: JSON.stringify({ amount, wallet, userId: userData.id })
+            // });
         }
         
         // Notification
@@ -1017,31 +1047,56 @@
             }, 3000);
         }
         
+        // Add daily bonus system
+        function checkDailyBonus() {
+            const lastBonusDate = localStorage.getItem('lastBonusDate');
+            const today = new Date().toDateString();
+            
+            if (lastBonusDate !== today && userData.adsToday >= 10) {
+                // Give bonus for watching 10+ ads today
+                const bonus = 0.0005;
+                userData.balance += bonus;
+                showNotification(`🎁 Daily bonus! +$${bonus.toFixed(4)} USDT for watching 10+ ads today!`);
+                localStorage.setItem('lastBonusDate', today);
+                saveData();
+                updateDisplay();
+            }
+        }
+        
         // Initialize
         loadData();
         
-        // Check Adexium status on load
-        window.addEventListener('load', function() {
-            setTimeout(checkAdexiumStatus, 1000);
-            
-            // Also check if Adexium is defined
-            setTimeout(() => {
-                if (!window.AdexiumWidget) {
-                    document.getElementById('adexiumStatus').innerHTML = 
-                        '<span id="statusIcon">❌</span> Adexium failed to load. Please refresh.';
-                }
-            }, 5000);
-        });
-        
         // Try to get Telegram username
-        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+        if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
             const tgUser = tg.initDataUnsafe.user;
             userData.username = tgUser.username || 
                               `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 
                               userData.username;
-            userData.telegramId = tgUser.id;
+            userData.userId = tgUser.id;
             updateDisplay();
         }
+        
+        // Check for daily bonus every minute
+        setInterval(checkDailyBonus, 60000);
+        
+        // Add keyboard shortcut (Space to watch ad when on watch tab)
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && document.getElementById('watch-tab').classList.contains('active')) {
+                e.preventDefault();
+                if (!adInProgress && !currentAdLoaded) {
+                    startAd();
+                }
+            }
+        });
+        
+        // Add page visibility check (pause timer when tab is hidden)
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && adTimer) {
+                // Tab hidden, pause the timer logic
+                // In real implementation, you might want to pause/resume timer
+                console.log('Tab hidden - ad watching paused');
+            }
+        });
     </script>
 </body>
 </html>
