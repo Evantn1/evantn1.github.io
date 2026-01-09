@@ -187,19 +187,6 @@
             margin-top: 5px;
         }
         
-        /* Adexium Ad Container */
-        #adexium-ad-container {
-            width: 100%;
-            min-height: 250px;
-            margin: 20px 0;
-            background: #f8f9fa;
-            border-radius: 10px;
-            border: 2px dashed #667eea;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
         .ad-status {
             background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
             border-left: 4px solid #f59e0b;
@@ -392,15 +379,28 @@
             transition: width 0.3s;
         }
         
-        .empty-ad-container {
+        .ad-info-box {
+            background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%);
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
             text-align: center;
-            padding: 40px 20px;
-            color: #666;
+            border: 2px solid #667eea;
         }
         
-        .empty-ad-icon {
+        .ad-icon {
             font-size: 3em;
             margin-bottom: 15px;
+        }
+        
+        .fullscreen-note {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #f59e0b;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            font-size: 0.9em;
+            color: #92400e;
         }
         
         @media (max-width: 600px) {
@@ -419,6 +419,11 @@
                 margin: 0 10px;
             }
         }
+        
+        /* Hide ad container - Adexium ads are fullscreen */
+        #adexium-ad-container {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -428,7 +433,7 @@
         <div class="popup-content">
             <div class="popup-icon">🎉</div>
             <div class="popup-title">Ad Watched!</div>
-            <div class="popup-message">You successfully watched the ad</div>
+            <div class="popup-message">You successfully watched the full-screen ad</div>
             <div class="popup-message" style="font-size: 1.2em; font-weight: bold; color: #667eea;">
                 Earn $0.0001 USDT
             </div>
@@ -455,55 +460,58 @@
         <!-- Watch Ads Tab -->
         <div id="watch-tab" class="tab-content active">
             <h2>Watch & Earn USDT</h2>
-            <p>Click "Watch Ad" to load an ad, then click "Claim Reward"</p>
+            <p>Click "Watch Ad" to watch a full-screen ad and earn USDT</p>
             
             <div class="ad-instructions">
                 <h4>📺 How it works:</h4>
                 <p>1. Click <strong>"Watch Ad"</strong> button</p>
-                <p>2. Watch the real ad for <strong>10 seconds</strong></p>
-                <p>3. <strong>"Claim Reward"</strong> button will appear</p>
-                <p>4. Click it to earn $0.0001 USDT</p>
+                <p>2. Watch the <strong>full-screen ad</strong> that appears</p>
+                <p>3. Close the ad when finished</p>
+                <p>4. Click <strong>"Claim Reward"</strong> to earn $0.0001 USDT</p>
             </div>
             
-            <div class="ad-container">
-                <!-- Adexium Ad Container - Only real ads will appear here -->
-                <div id="adexium-ad-container" class="empty-ad-container">
-                    <div class="empty-ad-icon">📺</div>
-                    <div>Real ads will load here</div>
-                    <div style="font-size: 0.8em; margin-top: 10px; color: #999;">Powered by Adexium</div>
+            <div class="fullscreen-note">
+                ⚠️ <strong>Note:</strong> Ads will open in full-screen mode. 
+                You need to watch the entire ad to earn rewards.
+            </div>
+            
+            <div class="ad-info-box">
+                <div class="ad-icon">📱</div>
+                <h3>Full-Screen Ads</h3>
+                <p>Real ads from Adexium network</p>
+                <p>Watch complete ads to earn USDT</p>
+            </div>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            
+            <div class="ad-status" id="adStatus">
+                ✅ Ready - Click "Watch Ad" to start
+            </div>
+            
+            <div class="timer" id="timer">Click "Watch Ad" to begin</div>
+            
+            <button class="watch-btn" id="watchButton" onclick="startAd()">
+                WATCH AD
+            </button>
+            
+            <button class="claim-btn" id="claimButton" onclick="showRewardPopup()" style="display: none;">
+                CLAIM REWARD - $0.0001 USDT
+            </button>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="todayCount">0</div>
+                    <div class="stat-label">Today</div>
                 </div>
-                
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
+                <div class="stat-item">
+                    <div class="stat-value" id="totalCount">0</div>
+                    <div class="stat-label">Total Ads</div>
                 </div>
-                
-                <div class="ad-status" id="adStatus">
-                    ✅ Ready - Click "Watch Ad" to load real ads
-                </div>
-                
-                <div class="timer" id="timer">Click "Watch Ad" to begin</div>
-                
-                <button class="watch-btn" id="watchButton" onclick="startAd()">
-                    WATCH AD
-                </button>
-                
-                <button class="claim-btn" id="claimButton" onclick="showRewardPopup()" style="display: none;">
-                    CLAIM REWARD - $0.0001 USDT
-                </button>
-                
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-value" id="todayCount">0</div>
-                        <div class="stat-label">Today</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="totalCount">0</div>
-                        <div class="stat-label">Total Ads</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-value" id="earnedToday">$0.0000</div>
-                        <div class="stat-label">Earned Today</div>
-                    </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="earnedToday">$0.0000</div>
+                    <div class="stat-label">Earned Today</div>
                 </div>
             </div>
         </div>
@@ -549,6 +557,9 @@
         </div>
     </div>
     
+    <!-- Hidden container for Adexium (it will create its own fullscreen container) -->
+    <div id="adexium-ad-container" style="display: none;"></div>
+    
     <div class="notification" id="notification"></div>
     
     <script>
@@ -559,6 +570,7 @@
         
         // Adexium Widget instance
         let adexiumWidget = null;
+        let adStartTime = null;
         
         // User data
         let userData = {
@@ -573,9 +585,9 @@
         let adInProgress = false;
         let adTimer = null;
         let timeLeft = 0;
-        const AD_DURATION = 10; // seconds to watch ad
+        const MIN_AD_TIME = 10; // minimum seconds to watch ad
         
-        // Initialize Adexium Widget
+        // Initialize Adexium Widget for fullscreen interstitial ads
         function initAdexiumWidget() {
             try {
                 if (typeof AdexiumWidget === 'undefined') {
@@ -585,12 +597,12 @@
                 
                 const widget = new AdexiumWidget({
                     wid: 'dbccb9bb-6b6a-45e4-b459-95017c843220',
-                    adFormat: 'interstitial',
+                    adFormat: 'interstitial', // This creates full-screen ads
                     container: 'adexium-ad-container',
-                    autoShow: false // We'll show manually
+                    autoShow: true // Show immediately when loaded
                 });
                 
-                console.log('Adexium Widget initialized successfully');
+                console.log('Adexium Widget initialized successfully (fullscreen interstitial)');
                 return widget;
             } catch (error) {
                 console.error('Error initializing Adexium Widget:', error);
@@ -644,11 +656,12 @@
                 return;
             }
             
-            // Check cooldown (5 seconds between ads)
+            // Check cooldown (10 seconds between ads)
             const lastAdTime = localStorage.getItem('lastAdTime');
             const now = Date.now();
-            if (lastAdTime && (now - parseInt(lastAdTime)) < 5000) {
-                showNotification('⏳ Please wait 5 seconds between ads', 'error');
+            if (lastAdTime && (now - parseInt(lastAdTime)) < 10000) {
+                const secondsLeft = Math.ceil((10000 - (now - parseInt(lastAdTime))) / 1000);
+                showNotification(`⏳ Please wait ${secondsLeft} seconds before next ad`, 'error');
                 return;
             }
             
@@ -656,90 +669,107 @@
             
             // Update UI
             document.getElementById('watchButton').disabled = true;
-            document.getElementById('watchButton').textContent = 'LOADING AD...';
-            document.getElementById('timer').textContent = 'Loading advertisement...';
-            document.getElementById('adStatus').innerHTML = '⏳ Loading ad from Adexium...';
+            document.getElementById('watchButton').textContent = 'LOADING FULL-SCREEN AD...';
+            document.getElementById('timer').textContent = 'Preparing full-screen ad...';
+            document.getElementById('adStatus').innerHTML = '⏳ Loading full-screen ad from Adexium...';
+            
+            // Start progress timer (for UX, not for ad timing)
+            startProgressTimer();
             
             // Initialize Adexium widget if not already done
             if (!adexiumWidget) {
                 adexiumWidget = initAdexiumWidget();
+                if (!adexiumWidget) {
+                    // If Adexium fails, reset UI
+                    resetAdUI();
+                    showNotification('Ad system not available. Please try again later.', 'error');
+                    return;
+                }
+                
+                // Set up event listeners for the first time
+                setupAdexiumListeners();
             }
             
-            if (adexiumWidget) {
-                try {
-                    // Set up event listeners
-                    adexiumWidget.on('adLoaded', () => {
-                        console.log('Adexium: Ad loaded');
-                        document.getElementById('adStatus').innerHTML = '✅ Ad loaded! Watch for 10 seconds';
-                        
-                        // Start countdown timer
-                        startCountdown();
-                    });
-                    
-                    adexiumWidget.on('adError', (error) => {
-                        console.error('Adexium: Ad error:', error);
-                        document.getElementById('adStatus').innerHTML = '⚠️ Ad failed to load. Try again.';
-                        document.getElementById('watchButton').disabled = false;
-                        document.getElementById('watchButton').textContent = 'WATCH AD';
-                        adInProgress = false;
-                        showNotification('Failed to load ad. Please try again.', 'error');
-                    });
-                    
-                    adexiumWidget.on('adClosed', () => {
-                        console.log('Adexium: Ad closed');
-                        onAdWatched();
-                    });
-                    
-                    // Load the ad
-                    adexiumWidget.loadAd();
-                    
-                } catch (error) {
-                    console.error('Error with Adexium:', error);
-                    document.getElementById('adStatus').innerHTML = '⚠️ Ad system error. Try again.';
-                    document.getElementById('watchButton').disabled = false;
-                    document.getElementById('watchButton').textContent = 'WATCH AD';
-                    adInProgress = false;
-                    showNotification('Ad system error. Please try again.', 'error');
-                }
-            } else {
-                // Adexium not available
-                document.getElementById('adStatus').innerHTML = '⚠️ Ad system not available';
-                document.getElementById('watchButton').disabled = false;
-                document.getElementById('watchButton').textContent = 'WATCH AD';
-                adInProgress = false;
-                showNotification('Ad system not available. Please try again later.', 'error');
+            // Record ad start time
+            adStartTime = Date.now();
+            
+            try {
+                // Load and show the ad (autoShow is true, so it will show automatically)
+                adexiumWidget.loadAd();
+            } catch (error) {
+                console.error('Error loading Adexium ad:', error);
+                document.getElementById('adStatus').innerHTML = '⚠️ Ad failed to load. Try again.';
+                resetAdUI();
+                showNotification('Failed to load ad. Please try again.', 'error');
             }
         }
         
-        // Start countdown timer
-        function startCountdown() {
-            timeLeft = AD_DURATION;
-            document.getElementById('progressFill').style.width = '0%';
+        // Set up Adexium event listeners
+        function setupAdexiumListeners() {
+            if (!adexiumWidget) return;
             
-            // Update timer display
-            document.getElementById('timer').textContent = `Watch ad: ${timeLeft} seconds remaining`;
+            adexiumWidget.on('adLoaded', () => {
+                console.log('Adexium: Full-screen ad loaded and showing');
+                document.getElementById('adStatus').innerHTML = '✅ Full-screen ad loaded - Please watch the ad';
+                document.getElementById('timer').textContent = 'Ad is showing - Watch it completely';
+            });
+            
+            adexiumWidget.on('adError', (error) => {
+                console.error('Adexium: Ad error:', error);
+                document.getElementById('adStatus').innerHTML = '⚠️ Ad failed to load. Try again.';
+                resetAdUI();
+                showNotification('Failed to load ad. Please try again.', 'error');
+            });
+            
+            adexiumWidget.on('adClosed', () => {
+                console.log('Adexium: Full-screen ad closed');
+                
+                // Calculate how long the ad was watched
+                const adWatchTime = adStartTime ? (Date.now() - adStartTime) / 1000 : 0;
+                
+                if (adWatchTime >= MIN_AD_TIME) {
+                    // Ad was watched for sufficient time
+                    onAdWatched();
+                } else {
+                    // Ad was closed too quickly
+                    document.getElementById('adStatus').innerHTML = '⚠️ Ad closed too quickly. Watch complete ads to earn.';
+                    resetAdUI();
+                    showNotification('Please watch ads completely to earn rewards.', 'error');
+                }
+            });
+        }
+        
+        // Start progress timer (for UX only)
+        function startProgressTimer() {
+            timeLeft = MIN_AD_TIME;
+            document.getElementById('progressFill').style.width = '0%';
             
             // Start interval
             adTimer = setInterval(() => {
                 timeLeft--;
                 
                 // Update progress bar
-                const progressPercent = ((AD_DURATION - timeLeft) / AD_DURATION) * 100;
+                const progressPercent = ((MIN_AD_TIME - timeLeft) / MIN_AD_TIME) * 100;
                 document.getElementById('progressFill').style.width = `${progressPercent}%`;
                 
                 // Update timer text
                 if (timeLeft > 0) {
-                    document.getElementById('timer').textContent = `Watch ad: ${timeLeft} seconds remaining`;
+                    document.getElementById('timer').textContent = `Minimum watch time: ${timeLeft} seconds`;
                 } else {
-                    // Countdown finished
+                    // Timer finished, but user might still be watching ad
                     clearInterval(adTimer);
-                    onAdWatched();
+                    document.getElementById('timer').textContent = 'Ad is ready - Close ad to claim reward';
                 }
             }, 1000);
         }
         
         // When ad is fully watched
         function onAdWatched() {
+            // Clear progress timer
+            if (adTimer) {
+                clearInterval(adTimer);
+            }
+            
             // Save ad time for cooldown
             localStorage.setItem('lastAdTime', Date.now().toString());
             
@@ -753,6 +783,7 @@
             
             // Mark ad as completed
             adInProgress = false;
+            adStartTime = null;
         }
         
         // Show reward popup
@@ -790,6 +821,7 @@
             // Clear any running timer
             if (adTimer) {
                 clearInterval(adTimer);
+                adTimer = null;
             }
             
             // Reset buttons
@@ -804,16 +836,10 @@
                 '✅ Ready for next ad - Click "Watch Ad"';
             document.getElementById('progressFill').style.width = '0%';
             
-            // Clear Adexium container
-            document.getElementById('adexium-ad-container').innerHTML = `
-                <div class="empty-ad-icon">📺</div>
-                <div>Real ads will load here</div>
-                <div style="font-size: 0.8em; margin-top: 10px; color: #999;">Powered by Adexium</div>
-            `;
-            
             // Reset flag
             adInProgress = false;
             timeLeft = 0;
+            adStartTime = null;
         }
         
         // Tab navigation
@@ -972,12 +998,13 @@
                 updateDisplay();
             }
             
-            // Initialize Adexium widget
+            // Initialize Adexium widget in background
             setTimeout(() => {
                 adexiumWidget = initAdexiumWidget();
                 if (adexiumWidget) {
-                    console.log('Adexium ready');
-                    document.getElementById('adStatus').innerHTML = '✅ Ready - Click "Watch Ad" to load real ads from Adexium';
+                    setupAdexiumListeners();
+                    console.log('Adexium ready for full-screen ads');
+                    document.getElementById('adStatus').innerHTML = '✅ Ready - Click "Watch Ad" for full-screen ads';
                 } else {
                     console.log('Adexium not available');
                     document.getElementById('adStatus').innerHTML = '⚠️ Ad system temporarily unavailable';
