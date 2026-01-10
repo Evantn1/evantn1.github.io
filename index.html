@@ -8,9 +8,6 @@
     <!-- Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js?56"></script>
     
-    <!-- Adexium Widget -->
-    <script type="text/javascript" src="https://cdn.tgads.space/assets/js/adexium-widget.min.js"></script>
-    
     <style>
         * {
             margin: 0;
@@ -187,13 +184,57 @@
             margin-top: 5px;
         }
         
-        .ad-status {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border-left: 4px solid #f59e0b;
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
+        /* Ad Container */
+        #ad-container {
+            width: 100%;
+            min-height: 250px;
+            margin: 20px 0;
+            background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+            border-radius: 10px;
+            border: 2px solid #e5e7eb;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        
+        .ad-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+            opacity: 0.8;
+        }
+        
+        .ad-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+        
+        .ad-message {
             font-size: 0.9em;
+            color: #666;
+            padding: 0 20px;
+            text-align: center;
+        }
+        
+        .ad-loading {
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading-spinner {
+            font-size: 2em;
+            margin-bottom: 15px;
+            animation: pulse 1.5s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 0.3; }
+            50% { opacity: 1; }
+            100% { opacity: 0.3; }
         }
         
         .reward-popup {
@@ -256,6 +297,15 @@
             background: rgba(0,0,0,0.5);
             z-index: 999;
             display: none;
+        }
+        
+        .ad-status {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 12px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-size: 0.9em;
         }
         
         .leaderboard-item {
@@ -363,46 +413,6 @@
             background: #ef4444;
         }
         
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #e5e7eb;
-            border-radius: 4px;
-            margin: 20px 0;
-            overflow: hidden;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            width: 0%;
-            transition: width 0.3s;
-        }
-        
-        .ad-info-box {
-            background: linear-gradient(135deg, #e0e7ff 0%, #dbeafe 100%);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
-            border: 2px solid #667eea;
-        }
-        
-        .ad-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
-        }
-        
-        .fullscreen-note {
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #f59e0b;
-            border-radius: 10px;
-            padding: 15px;
-            margin: 15px 0;
-            font-size: 0.9em;
-            color: #92400e;
-        }
-        
         @media (max-width: 600px) {
             .container {
                 margin: 10px;
@@ -418,11 +428,10 @@
                 padding: 20px;
                 margin: 0 10px;
             }
-        }
-        
-        /* Hide ad container - Adexium ads are fullscreen */
-        #adexium-ad-container {
-            display: none;
+            
+            #ad-container {
+                min-height: 200px;
+            }
         }
     </style>
 </head>
@@ -433,7 +442,7 @@
         <div class="popup-content">
             <div class="popup-icon">🎉</div>
             <div class="popup-title">Ad Watched!</div>
-            <div class="popup-message">You successfully watched the full-screen ad</div>
+            <div class="popup-message">You successfully watched the ad</div>
             <div class="popup-message" style="font-size: 1.2em; font-weight: bold; color: #667eea;">
                 Earn $0.0001 USDT
             </div>
@@ -460,58 +469,55 @@
         <!-- Watch Ads Tab -->
         <div id="watch-tab" class="tab-content active">
             <h2>Watch & Earn USDT</h2>
-            <p>Click "Watch Ad" to watch a full-screen ad and earn USDT</p>
+            <p>Click "Watch Ad" to watch an ad and earn USDT</p>
             
             <div class="ad-instructions">
                 <h4>📺 How it works:</h4>
                 <p>1. Click <strong>"Watch Ad"</strong> button</p>
-                <p>2. Watch the <strong>full-screen ad</strong> that appears</p>
-                <p>3. Close the ad when finished</p>
-                <p>4. Click <strong>"Claim Reward"</strong> to earn $0.0001 USDT</p>
+                <p>2. Watch the full ad from Adexora</p>
+                <p>3. Click <strong>"Claim Reward"</strong> button</p>
+                <p>4. Earn $0.0001 USDT per ad</p>
             </div>
             
-            <div class="fullscreen-note">
-                ⚠️ <strong>Note:</strong> Ads will open in full-screen mode. 
-                You need to watch the entire ad to earn rewards.
-            </div>
-            
-            <div class="ad-info-box">
-                <div class="ad-icon">📱</div>
-                <h3>Full-Screen Ads</h3>
-                <p>Real ads from Adexium network</p>
-                <p>Watch complete ads to earn USDT</p>
-            </div>
-            
-            <div class="progress-bar">
-                <div class="progress-fill" id="progressFill"></div>
-            </div>
-            
-            <div class="ad-status" id="adStatus">
-                ✅ Ready - Click "Watch Ad" to start
-            </div>
-            
-            <div class="timer" id="timer">Click "Watch Ad" to begin</div>
-            
-            <button class="watch-btn" id="watchButton" onclick="startAd()">
-                WATCH AD
-            </button>
-            
-            <button class="claim-btn" id="claimButton" onclick="showRewardPopup()" style="display: none;">
-                CLAIM REWARD - $0.0001 USDT
-            </button>
-            
-            <div class="stats">
-                <div class="stat-item">
-                    <div class="stat-value" id="todayCount">0</div>
-                    <div class="stat-label">Today</div>
+            <div class="ad-container">
+                <!-- Ad Display Area -->
+                <div id="ad-container">
+                    <div class="ad-icon" id="adIcon">📺</div>
+                    <div class="ad-title" id="adTitle">Ready to Watch Ads</div>
+                    <div class="ad-message" id="adMessage">Click "Watch Ad" to start watching real ads from Adexora</div>
+                    <div class="ad-loading" id="adLoading" style="display: none;">
+                        <div class="loading-spinner">⏳</div>
+                        <div>Loading ad...</div>
+                    </div>
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="totalCount">0</div>
-                    <div class="stat-label">Total Ads</div>
+                
+                <div class="ad-status" id="adStatus">
+                    ✅ Ready - Click "Watch Ad" to load ad
                 </div>
-                <div class="stat-item">
-                    <div class="stat-value" id="earnedToday">$0.0000</div>
-                    <div class="stat-label">Earned Today</div>
+                
+                <div class="timer" id="timer">Click "Watch Ad" to begin</div>
+                
+                <button class="watch-btn" id="watchButton" onclick="startAd()">
+                    WATCH AD
+                </button>
+                
+                <button class="claim-btn" id="claimButton" onclick="showRewardPopup()" style="display: none;">
+                    CLAIM REWARD - $0.0001 USDT
+                </button>
+                
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value" id="todayCount">0</div>
+                        <div class="stat-label">Today</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">Total Ads</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="earnedToday">$0.0000</div>
+                        <div class="stat-label">Earned Today</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -557,20 +563,16 @@
         </div>
     </div>
     
-    <!-- Hidden container for Adexium (it will create its own fullscreen container) -->
-    <div id="adexium-ad-container" style="display: none;"></div>
-    
     <div class="notification" id="notification"></div>
+    
+    <!-- Adexora Ad Script -->
+    <script src="https://adexora.com/cdn/ads.js?id=1729"></script>
     
     <script>
         // Initialize Telegram
         let tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
-        
-        // Adexium Widget instance
-        let adexiumWidget = null;
-        let adStartTime = null;
         
         // User data
         let userData = {
@@ -581,32 +583,21 @@
             username: 'User' + Math.floor(Math.random() * 10000)
         };
         
-        // Ad system variables
+        // Ad status
         let adInProgress = false;
-        let adTimer = null;
-        let timeLeft = 0;
-        const MIN_AD_TIME = 10; // minimum seconds to watch ad
+        let adWatchTimer = null;
+        let secondsLeft = 0;
+        let adexoraLoaded = false;
         
-        // Initialize Adexium Widget for fullscreen interstitial ads
-        function initAdexiumWidget() {
-            try {
-                if (typeof AdexiumWidget === 'undefined') {
-                    console.error('AdexiumWidget is not defined. Make sure the script is loaded.');
-                    return null;
-                }
-                
-                const widget = new AdexiumWidget({
-                    wid: 'dbccb9bb-6b6a-45e4-b459-95017c843220',
-                    adFormat: 'interstitial', // This creates full-screen ads
-                    container: 'adexium-ad-container',
-                    autoShow: true // Show immediately when loaded
-                });
-                
-                console.log('Adexium Widget initialized successfully (fullscreen interstitial)');
-                return widget;
-            } catch (error) {
-                console.error('Error initializing Adexium Widget:', error);
-                return null;
+        // Check if Adexora is loaded
+        function checkAdexora() {
+            if (typeof showAdexora !== 'undefined') {
+                adexoraLoaded = true;
+                document.getElementById('adStatus').innerHTML = 
+                    '✅ Adexora ready - Click "Watch Ad" to watch ads';
+                console.log('Adexora script loaded successfully');
+            } else {
+                setTimeout(checkAdexora, 1000);
             }
         }
         
@@ -646,148 +637,84 @@
             generateLeaderboard();
         }
         
-        // Start ad watching process
+        // Start watching ad with Adexora
         function startAd() {
-            if (adInProgress) return;
-            
-            // Check daily limit (50 ads per day)
-            if (userData.adsToday >= 50) {
-                showNotification('⚠️ Daily limit reached! Come back tomorrow.', 'error');
+            if (adInProgress) {
+                showNotification('⚠️ Already watching an ad. Please wait.', 'error');
                 return;
             }
             
-            // Check cooldown (10 seconds between ads)
-            const lastAdTime = localStorage.getItem('lastAdTime');
-            const now = Date.now();
-            if (lastAdTime && (now - parseInt(lastAdTime)) < 10000) {
-                const secondsLeft = Math.ceil((10000 - (now - parseInt(lastAdTime))) / 1000);
-                showNotification(`⏳ Please wait ${secondsLeft} seconds before next ad`, 'error');
+            if (!adexoraLoaded) {
+                showNotification('⚠️ Ad service not ready yet. Please wait.', 'error');
                 return;
             }
             
             adInProgress = true;
             
-            // Update UI
+            // Update UI for loading
             document.getElementById('watchButton').disabled = true;
-            document.getElementById('watchButton').textContent = 'LOADING FULL-SCREEN AD...';
-            document.getElementById('timer').textContent = 'Preparing full-screen ad...';
-            document.getElementById('adStatus').innerHTML = '⏳ Loading full-screen ad from Adexium...';
+            document.getElementById('watchButton').textContent = 'LOADING AD...';
+            document.getElementById('adStatus').innerHTML = '⏳ Loading ad from Adexora...';
+            document.getElementById('timer').textContent = 'Loading ad...';
             
-            // Start progress timer (for UX, not for ad timing)
-            startProgressTimer();
+            // Show loading state
+            document.getElementById('adIcon').style.display = 'none';
+            document.getElementById('adTitle').style.display = 'none';
+            document.getElementById('adMessage').style.display = 'none';
+            document.getElementById('adLoading').style.display = 'block';
             
-            // Initialize Adexium widget if not already done
-            if (!adexiumWidget) {
-                adexiumWidget = initAdexiumWidget();
-                if (!adexiumWidget) {
-                    // If Adexium fails, reset UI
+            // Show Adexora ad with proper promise handling
+            window.showAdexora()
+                .then(() => {
+                    // ✅ Ad was successfully watched
+                    console.log('Adexora ad completed successfully');
+                    
+                    // Update UI
+                    document.getElementById('watchButton').style.display = 'none';
+                    document.getElementById('claimButton').style.display = 'block';
+                    document.getElementById('adStatus').innerHTML = '✅ Ad watched successfully! Click "Claim Reward"';
+                    document.getElementById('timer').textContent = 'Ad complete! Click "Claim Reward"';
+                    
+                    // Show success state
+                    document.getElementById('adLoading').style.display = 'none';
+                    document.getElementById('adIcon').style.display = 'block';
+                    document.getElementById('adTitle').style.display = 'block';
+                    document.getElementById('adMessage').style.display = 'block';
+                    
+                    document.getElementById('adIcon').textContent = '✅';
+                    document.getElementById('adTitle').textContent = 'Ad Completed!';
+                    document.getElementById('adMessage').textContent = 'Click "Claim Reward" to earn $0.0001 USDT';
+                    
+                })
+                .catch(e => {
+                    // ❌ Handle errors
+                    console.error('Adexora ad error:', e);
+                    
+                    // Update UI for error
+                    document.getElementById('adLoading').style.display = 'none';
+                    document.getElementById('adIcon').style.display = 'block';
+                    document.getElementById('adTitle').style.display = 'block';
+                    document.getElementById('adMessage').style.display = 'block';
+                    
+                    document.getElementById('adIcon').textContent = '❌';
+                    document.getElementById('adTitle').textContent = 'Ad Failed';
+                    document.getElementById('adMessage').textContent = 'Failed to load ad. Please try again.';
+                    
+                    showNotification('⚠️ Failed to load ad. Please try again.', 'error');
+                    
+                    // Reset UI
                     resetAdUI();
-                    showNotification('Ad system not available. Please try again later.', 'error');
-                    return;
-                }
-                
-                // Set up event listeners for the first time
-                setupAdexiumListeners();
-            }
-            
-            // Record ad start time
-            adStartTime = Date.now();
-            
-            try {
-                // Load and show the ad (autoShow is true, so it will show automatically)
-                adexiumWidget.loadAd();
-            } catch (error) {
-                console.error('Error loading Adexium ad:', error);
-                document.getElementById('adStatus').innerHTML = '⚠️ Ad failed to load. Try again.';
-                resetAdUI();
-                showNotification('Failed to load ad. Please try again.', 'error');
-            }
-        }
-        
-        // Set up Adexium event listeners
-        function setupAdexiumListeners() {
-            if (!adexiumWidget) return;
-            
-            adexiumWidget.on('adLoaded', () => {
-                console.log('Adexium: Full-screen ad loaded and showing');
-                document.getElementById('adStatus').innerHTML = '✅ Full-screen ad loaded - Please watch the ad';
-                document.getElementById('timer').textContent = 'Ad is showing - Watch it completely';
-            });
-            
-            adexiumWidget.on('adError', (error) => {
-                console.error('Adexium: Ad error:', error);
-                document.getElementById('adStatus').innerHTML = '⚠️ Ad failed to load. Try again.';
-                resetAdUI();
-                showNotification('Failed to load ad. Please try again.', 'error');
-            });
-            
-            adexiumWidget.on('adClosed', () => {
-                console.log('Adexium: Full-screen ad closed');
-                
-                // Calculate how long the ad was watched
-                const adWatchTime = adStartTime ? (Date.now() - adStartTime) / 1000 : 0;
-                
-                if (adWatchTime >= MIN_AD_TIME) {
-                    // Ad was watched for sufficient time
-                    onAdWatched();
-                } else {
-                    // Ad was closed too quickly
-                    document.getElementById('adStatus').innerHTML = '⚠️ Ad closed too quickly. Watch complete ads to earn.';
-                    resetAdUI();
-                    showNotification('Please watch ads completely to earn rewards.', 'error');
-                }
-            });
-        }
-        
-        // Start progress timer (for UX only)
-        function startProgressTimer() {
-            timeLeft = MIN_AD_TIME;
-            document.getElementById('progressFill').style.width = '0%';
-            
-            // Start interval
-            adTimer = setInterval(() => {
-                timeLeft--;
-                
-                // Update progress bar
-                const progressPercent = ((MIN_AD_TIME - timeLeft) / MIN_AD_TIME) * 100;
-                document.getElementById('progressFill').style.width = `${progressPercent}%`;
-                
-                // Update timer text
-                if (timeLeft > 0) {
-                    document.getElementById('timer').textContent = `Minimum watch time: ${timeLeft} seconds`;
-                } else {
-                    // Timer finished, but user might still be watching ad
-                    clearInterval(adTimer);
-                    document.getElementById('timer').textContent = 'Ad is ready - Close ad to claim reward';
-                }
-            }, 1000);
-        }
-        
-        // When ad is fully watched
-        function onAdWatched() {
-            // Clear progress timer
-            if (adTimer) {
-                clearInterval(adTimer);
-            }
-            
-            // Save ad time for cooldown
-            localStorage.setItem('lastAdTime', Date.now().toString());
-            
-            document.getElementById('timer').textContent = 'Ad watched! Click "Claim Reward"';
-            document.getElementById('adStatus').innerHTML = '✅ Ad completed! Click "Claim Reward" below';
-            document.getElementById('progressFill').style.width = '100%';
-            
-            // Show claim button
-            document.getElementById('watchButton').style.display = 'none';
-            document.getElementById('claimButton').style.display = 'block';
-            
-            // Mark ad as completed
-            adInProgress = false;
-            adStartTime = null;
+                });
         }
         
         // Show reward popup
         function showRewardPopup() {
+            // Validate that ad was actually watched
+            if (!adInProgress) {
+                showNotification('⚠️ Please watch an ad first', 'error');
+                return;
+            }
+            
             document.getElementById('popupOverlay').style.display = 'block';
             document.getElementById('rewardPopup').style.display = 'block';
         }
@@ -799,18 +726,17 @@
             document.getElementById('rewardPopup').style.display = 'none';
             
             // Add earnings
-            const earnings = 0.0001;
-            userData.balance += earnings;
+            userData.balance += 0.0001;
             userData.adsToday++;
             userData.totalAds++;
-            userData.earnedToday += earnings;
+            userData.earnedToday += 0.0001;
             
             // Update display
             updateDisplay();
             saveData();
             
             // Show notification
-            showNotification(`🎉 Successfully claimed $${earnings.toFixed(4)} USDT!`);
+            showNotification('🎉 Successfully claimed $0.0001 USDT!');
             
             // Reset UI for next ad
             resetAdUI();
@@ -818,10 +744,10 @@
         
         // Reset ad UI
         function resetAdUI() {
-            // Clear any running timer
-            if (adTimer) {
-                clearInterval(adTimer);
-                adTimer = null;
+            // Clear timer
+            if (adWatchTimer) {
+                clearInterval(adWatchTimer);
+                adWatchTimer = null;
             }
             
             // Reset buttons
@@ -831,15 +757,22 @@
             document.getElementById('watchButton').textContent = 'WATCH AD';
             
             // Reset timer and status
+            secondsLeft = 0;
             document.getElementById('timer').textContent = 'Click "Watch Ad" to begin';
-            document.getElementById('adStatus').innerHTML = 
-                '✅ Ready for next ad - Click "Watch Ad"';
-            document.getElementById('progressFill').style.width = '0%';
+            document.getElementById('adStatus').innerHTML = '✅ Ready - Click "Watch Ad" to start';
+            
+            // Reset ad display
+            document.getElementById('adLoading').style.display = 'none';
+            document.getElementById('adIcon').style.display = 'block';
+            document.getElementById('adTitle').style.display = 'block';
+            document.getElementById('adMessage').style.display = 'block';
+            
+            document.getElementById('adIcon').textContent = '📺';
+            document.getElementById('adTitle').textContent = 'Ready to Watch Ads';
+            document.getElementById('adMessage').textContent = 'Click "Watch Ad" to start watching real ads from Adexora';
             
             // Reset flag
             adInProgress = false;
-            timeLeft = 0;
-            adStartTime = null;
         }
         
         // Tab navigation
@@ -859,11 +792,6 @@
             
             // Activate clicked tab button
             event.target.classList.add('active');
-            
-            // Reset ad UI when switching away from watch tab
-            if (tabName !== 'watch') {
-                resetAdUI();
-            }
         }
         
         // Leaderboard
@@ -892,17 +820,10 @@
                                 index === 1 ? 'rank-2' : 
                                 index === 2 ? 'rank-3' : 'rank-other';
                 
-                // Highlight current user
-                const isCurrentUser = user.username === userData.username;
-                if (isCurrentUser) {
-                    item.style.background = '#e0e7ff';
-                    item.style.border = '2px solid #667eea';
-                }
-                
                 item.innerHTML = `
                     <div class="rank ${rankClass}">${index + 1}</div>
                     <div class="user-info">
-                        <div class="username">${user.username} ${isCurrentUser ? '(You)' : ''}</div>
+                        <div class="username">${user.username}</div>
                         <div class="ads-count">${user.ads} ads watched</div>
                     </div>
                     <div class="reward">${user.reward}</div>
@@ -933,23 +854,12 @@
                 return;
             }
             
-            // Basic wallet validation
-            if (!/^0x[a-fA-F0-9]{40}$/.test(wallet)) {
-                showNotification('⚠️ Invalid Polygon wallet address', 'error');
-                return;
-            }
-            
-            // Confirm withdrawal
-            if (!confirm(`Withdraw $${amount.toFixed(4)} USDT to ${wallet.substring(0, 10)}...?`)) {
-                return;
-            }
-            
             // Process withdrawal
             userData.balance -= amount;
             saveData();
             updateDisplay();
             
-            showNotification(`✅ Withdrawal request for $${amount.toFixed(4)} USDT submitted!\nProcessing may take 24-48 hours.`);
+            showNotification(`✅ Withdrawal request for $${amount.toFixed(4)} USDT submitted!`);
             
             // Clear form
             document.getElementById('withdrawAmount').value = '';
@@ -968,62 +878,31 @@
             }, 3000);
         }
         
-        // Add daily bonus system
-        function checkDailyBonus() {
-            const lastBonusDate = localStorage.getItem('lastBonusDate');
-            const today = new Date().toDateString();
-            
-            if (lastBonusDate !== today && userData.adsToday >= 10) {
-                // Give bonus for watching 10+ ads today
-                const bonus = 0.0005;
-                userData.balance += bonus;
-                showNotification(`🎁 Daily bonus! +$${bonus.toFixed(4)} USDT for watching 10+ ads today!`);
-                localStorage.setItem('lastBonusDate', today);
-                saveData();
-                updateDisplay();
-            }
-        }
+        // Initialize
+        loadData();
         
-        // Initialize the app
-        document.addEventListener('DOMContentLoaded', () => {
-            loadData();
+        // Check Adexora on load
+        window.addEventListener('load', function() {
+            setTimeout(checkAdexora, 1000);
             
-            // Try to get Telegram username
-            if (tg.initDataUnsafe && tg.initDataUnsafe.user) {
-                const tgUser = tg.initDataUnsafe.user;
-                userData.username = tgUser.username || 
-                                  `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 
-                                  userData.username;
-                userData.userId = tgUser.id;
-                updateDisplay();
-            }
-            
-            // Initialize Adexium widget in background
+            // If Adexora doesn't load in 5 seconds, show message
             setTimeout(() => {
-                adexiumWidget = initAdexiumWidget();
-                if (adexiumWidget) {
-                    setupAdexiumListeners();
-                    console.log('Adexium ready for full-screen ads');
-                    document.getElementById('adStatus').innerHTML = '✅ Ready - Click "Watch Ad" for full-screen ads';
-                } else {
-                    console.log('Adexium not available');
-                    document.getElementById('adStatus').innerHTML = '⚠️ Ad system temporarily unavailable';
+                if (!adexoraLoaded) {
+                    document.getElementById('adStatus').innerHTML = 
+                        '⚠️ Ad service loading... Please wait or refresh';
                 }
-            }, 1000);
-            
-            // Check for daily bonus every minute
-            setInterval(checkDailyBonus, 60000);
+            }, 5000);
         });
         
-        // Add keyboard shortcut (Space to watch ad when on watch tab)
-        document.addEventListener('keydown', (e) => {
-            if (e.code === 'Space' && document.getElementById('watch-tab').classList.contains('active')) {
-                e.preventDefault();
-                if (!adInProgress) {
-                    startAd();
-                }
-            }
-        });
+        // Try to get Telegram username
+        if (tg && tg.initDataUnsafe && tg.initDataUnsafe.user) {
+            const tgUser = tg.initDataUnsafe.user;
+            userData.username = tgUser.username || 
+                              `${tgUser.first_name || ''} ${tgUser.last_name || ''}`.trim() || 
+                              userData.username;
+            userData.telegramId = tgUser.id;
+            updateDisplay();
+        }
     </script>
 </body>
 </html>
