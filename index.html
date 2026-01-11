@@ -5,354 +5,159 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://adexora.com/cdn/ads.js?id=1729"></script>
     <style>
-        /* ===== GLOBAL STYLES ===== */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
+        /* SIMPLE STYLES */
         body {
+            font-family: Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            margin: 0;
             padding: 20px;
-            transition: background 0.3s ease;
         }
-
+        
         .container {
             max-width: 500px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
+            border-radius: 15px;
             padding: 20px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            animation: slideUp 0.5s ease;
         }
-
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* ===== HEADER ===== */
+        
         header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 2px solid #f0f0f0;
         }
-
-        header h1 {
+        
+        h1 {
             color: #333;
-            font-size: 2.2rem;
-            margin-bottom: 10px;
+            margin: 10px 0;
         }
-
-        header p {
+        
+        h2 {
+            color: #444;
+            margin: 15px 0;
+        }
+        
+        p {
             color: #666;
-            font-size: 1.1rem;
+            line-height: 1.5;
         }
-
-        .back-btn {
-            display: inline-block;
-            padding: 8px 16px;
-            background: #6c757d;
-            color: white;
-            text-decoration: none;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            font-size: 0.9rem;
-            transition: all 0.3s ease;
-        }
-
-        .back-btn:hover {
-            background: #5a6268;
-            transform: translateX(-3px);
-        }
-
-        /* ===== USER INFO ===== */
-        .user-info {
+        
+        /* USER INFO */
+        .user-card {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
             padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
         }
-
-        .balance-card h3 {
-            font-size: 1rem;
-            opacity: 0.9;
-            margin-bottom: 5px;
-        }
-
-        .balance-card h2 {
+        
+        .balance {
             font-size: 2.5rem;
             font-weight: bold;
+            margin: 10px 0;
         }
-
-        .user-details {
-            margin-top: 15px;
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.9rem;
-        }
-
-        /* ===== MAIN MENU ===== */
-        .main-menu {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-
-        .menu-item {
-            background: #f8f9fa;
-            border-radius: 15px;
-            padding: 20px;
-            text-decoration: none;
-            color: #333;
-            text-align: center;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            cursor: pointer;
-        }
-
-        .menu-item:hover {
-            transform: translateY(-5px);
-            border-color: #667eea;
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
-        }
-
-        .menu-icon {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .menu-item h3 {
-            margin-bottom: 5px;
-            font-size: 1.2rem;
-        }
-
-        .menu-item p {
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* ===== BUTTONS ===== */
+        
+        /* BUTTONS */
         .btn {
             display: block;
             width: 100%;
             padding: 18px;
             border: none;
             border-radius: 10px;
-            font-size: 1.1rem;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin: 15px 0;
             text-align: center;
-            text-decoration: none;
-            margin: 20px 0;
         }
-
+        
         .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
         }
-
+        
         .btn-primary:hover {
             transform: translateY(-3px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
         }
-
+        
         .btn-success {
             background: linear-gradient(135deg, #28a745, #20c997);
             color: white;
         }
-
+        
         .btn-warning {
             background: linear-gradient(135deg, #ffc107, #fd7e14);
             color: white;
         }
-
+        
         .btn-secondary {
             background: #6c757d;
             color: white;
         }
-
-        .btn-danger {
-            background: linear-gradient(135deg, #dc3545, #c82333);
-            color: white;
-        }
-
-        .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none !important;
-        }
-
-        /* ===== WATCH AD PAGE ===== */
+        
+        /* AD CONTAINER */
         .ad-container {
-            text-align: center;
-            margin: 30px 0;
-        }
-
-        .ad-box {
-            background: #f5f5f5;
-            border-radius: 15px;
-            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 25px;
             margin: 20px 0;
+            text-align: center;
+            border: 2px dashed #ddd;
             min-height: 300px;
             display: flex;
             flex-direction: column;
             justify-content: center;
             align-items: center;
         }
-
-        .ad-placeholder {
-            width: 100%;
-            height: 250px;
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            border-radius: 10px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            margin-bottom: 20px;
-            padding: 20px;
-        }
-
-        .ad-placeholder .icon {
+        
+        .ad-icon {
             font-size: 4rem;
-            margin-bottom: 20px;
+            margin: 20px 0;
         }
-
+        
         .timer {
-            font-size: 3rem;
+            font-size: 3.5rem;
             font-weight: bold;
             color: #f5576c;
             margin: 20px 0;
         }
-
-        .ad-reward {
-            background: #d4edda;
-            color: #155724;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 4px solid #28a745;
-        }
-
-        .stats-grid {
+        
+        /* STATS */
+        .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
             margin: 20px 0;
         }
-
-        .stat-item {
+        
+        .stat-box {
             background: #f8f9fa;
             padding: 15px;
             border-radius: 10px;
             text-align: center;
         }
-
-        .stat-item span {
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #333;
             display: block;
+            margin: 5px 0;
+        }
+        
+        .stat-label {
             font-size: 0.9rem;
             color: #666;
-            margin-bottom: 5px;
         }
-
-        .stat-item strong {
-            font-size: 1.3rem;
-            color: #333;
-        }
-
-        .ad-tips {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border-left: 4px solid #ffc107;
-        }
-
-        .ad-tips ul {
-            text-align: left;
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-
-        .ad-tips li {
-            margin-bottom: 8px;
-            color: #856404;
-        }
-
-        /* ===== LEADERBOARD PAGE ===== */
-        .weekly-rewards {
-            background: #e3f2fd;
-            padding: 20px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-        }
-
-        .rewards-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .reward-item {
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            color: white;
-        }
-
-        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
-        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); }
-        .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
-
-        .reward-rank {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .reward-amount {
-            font-size: 1.1rem;
-        }
-
-        .reward-note {
-            font-size: 0.9rem;
-            color: #1976d2;
-            margin-top: 10px;
-            text-align: center;
-        }
-
-        .time-remaining {
-            background: #fff3cd;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-            font-weight: bold;
-            color: #856404;
-        }
-
-        .your-position {
-            margin: 20px 0;
-        }
-
-        .leaderboard-list {
-            margin: 20px 0;
-        }
-
+        
+        /* LEADERBOARD */
         .leaderboard-item {
             display: flex;
             align-items: center;
@@ -360,14 +165,8 @@
             margin: 10px 0;
             background: #f8f9fa;
             border-radius: 10px;
-            transition: all 0.3s ease;
         }
-
-        .leaderboard-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-        }
-
+        
         .rank {
             width: 40px;
             height: 40px;
@@ -378,163 +177,14 @@
             font-weight: bold;
             margin-right: 15px;
             color: white;
-            font-size: 1.1rem;
         }
-
-        .user-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            margin-right: 15px;
-            font-size: 1.2rem;
-        }
-
-        .leaderboard-details {
-            flex-grow: 1;
-        }
-
-        .leaderboard-name {
-            font-weight: bold;
-            margin-bottom: 5px;
-            font-size: 1.1rem;
-        }
-
-        .leaderboard-stats {
-            font-size: 0.9rem;
-            color: #666;
-        }
-
-        .leaderboard-reward {
-            font-weight: bold;
-            color: #28a745;
-            font-size: 1.1rem;
-        }
-
-        .leaderboard-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .leaderboard-info ul {
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-
-        .leaderboard-info li {
-            margin-bottom: 8px;
-            color: #1976d2;
-        }
-
-        /* ===== WITHDRAWAL PAGE ===== */
-        .withdrawal-form {
-            margin: 30px 0;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #ddd;
-            border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .withdrawal-info {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-
-        .info-item {
-            display: flex;
-            justify-content: space-between;
-            margin: 10px 0;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #bbdefb;
-        }
-
-        .amount-options {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 20px 0;
-        }
-
-        .amount-option {
-            padding: 15px;
-            text-align: center;
-            background: #f8f9fa;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-        }
-
-        .amount-option:hover {
-            border-color: #667eea;
-            background: white;
-        }
-
-        .amount-option.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        .polygon-info {
-            background: #8247e5;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            text-align: center;
-        }
-
-        .polygon-info img {
-            width: 30px;
-            height: 30px;
-            margin-right: 10px;
-            vertical-align: middle;
-        }
-
-        /* ===== NOTICES ===== */
-        .notice {
-            background: #e3f2fd;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            color: #1976d2;
-            font-weight: bold;
-            border-left: 4px solid #1976d2;
-            margin: 20px 0;
-        }
-
-        /* ===== MODAL ===== */
+        
+        .rank-1 { background: gold; }
+        .rank-2 { background: silver; }
+        .rank-3 { background: #cd7f32; }
+        .rank-other { background: #6c757d; }
+        
+        /* MODAL */
         .modal {
             display: none;
             position: fixed;
@@ -547,92 +197,94 @@
             align-items: center;
             justify-content: center;
         }
-
+        
         .modal-content {
             background: white;
             padding: 30px;
-            border-radius: 20px;
+            border-radius: 15px;
             max-width: 400px;
             width: 90%;
             text-align: center;
-            animation: modalSlide 0.3s ease;
         }
-
-        @keyframes modalSlide {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
+        
         .modal-icon {
             font-size: 4rem;
             margin-bottom: 20px;
         }
-
-        .success { color: #28a745; }
-        .error { color: #dc3545; }
-        .warning { color: #ffc107; }
-
-        /* ===== RESPONSIVE ===== */
+        
+        /* NAVIGATION */
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 10px;
+            margin-bottom: 15px;
+        }
+        
+        /* NOTICES */
+        .notice {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            color: #1976d2;
+            text-align: center;
+        }
+        
+        /* RESPONSIVE */
         @media (max-width: 480px) {
-            .main-menu, .stats-grid, .rewards-grid, .amount-options {
+            .stats {
                 grid-template-columns: 1fr;
             }
             
-            .balance-card h2 {
+            .balance {
                 font-size: 2rem;
-            }
-            
-            header h1 {
-                font-size: 1.8rem;
-            }
-            
-            .container {
-                padding: 15px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Main Container (Dynamically changes based on page) -->
-    <div id="app-container" class="container">
-        <!-- Content will be loaded here dynamically -->
+    <div id="app" class="container">
+        <!-- Content will be loaded here -->
     </div>
 
     <!-- Success Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content">
-            <div class="modal-icon success">✅</div>
-            <h3 id="modalTitle">Success!</h3>
-            <p id="modalMessage">Operation completed successfully.</p>
-            <button onclick="closeModal()" class="btn btn-primary">Close</button>
+            <div class="modal-icon" style="color: #28a745;">✅</div>
+            <h2>Success!</h2>
+            <p id="successMessage">Reward claimed successfully!</p>
+            <button onclick="closeModal()" class="btn btn-primary">Continue</button>
         </div>
     </div>
 
     <!-- Error Modal -->
     <div id="errorModal" class="modal">
         <div class="modal-content">
-            <div class="modal-icon error">❌</div>
-            <h3>Error!</h3>
-            <p id="errorMessage">Something went wrong.</p>
-            <button onclick="closeModal()" class="btn btn-danger">Close</button>
+            <div class="modal-icon" style="color: #dc3545;">❌</div>
+            <h2>Error</h2>
+            <p id="errorMessage">Something went wrong. Please try again.</p>
+            <button onclick="closeModal()" class="btn btn-secondary">Close</button>
         </div>
     </div>
 
+    <!-- Adexora Ads Script - IMPORTANT: Placed before closing body tag -->
+    <script src="https://adexora.com/cdn/ads.js?id=1729"></script>
+
     <script>
-        // ===== GLOBAL VARIABLES =====
-        let currentPage = 'home';
+        // ===== APP STATE =====
         let userData = {
-            balance: 0,
+            balance: 0.00,
             totalAds: 0,
             todayAds: 0,
-            todayEarnings: 0,
             weeklyAds: 0,
-            polygonAddress: '',
-            userId: null,
-            userName: 'User'
+            userName: "User",
+            polygonAddress: ""
         };
 
-        // ===== INITIALIZATION =====
+        // ===== INITIALIZE =====
         document.addEventListener('DOMContentLoaded', function() {
             initializeApp();
         });
@@ -642,380 +294,309 @@
             if (typeof Telegram !== 'undefined') {
                 const tg = window.Telegram.WebApp;
                 tg.expand();
-                tg.enableClosingConfirmation();
                 
                 // Get user info from Telegram
                 if (tg.initDataUnsafe?.user) {
-                    userData.userId = tg.initDataUnsafe.user.id;
-                    userData.userName = tg.initDataUnsafe.user.first_name || 'User';
+                    userData.userName = tg.initDataUnsafe.user.first_name || "User";
+                    if (tg.initDataUnsafe.user.username) {
+                        userData.userName = "@" + tg.initDataUnsafe.user.username;
+                    }
                 }
             }
             
-            // Load user data from localStorage
+            // Load user data
             loadUserData();
             
-            // Load home page
-            loadPage('home');
+            // Show home page
+            showHomePage();
         }
 
         // ===== DATA MANAGEMENT =====
         function loadUserData() {
-            const savedData = localStorage.getItem('adEarnUser');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                userData = { ...userData, ...parsed };
+            const saved = localStorage.getItem('adEarnUser');
+            if (saved) {
+                const data = JSON.parse(saved);
+                
+                // Check if daily reset is needed
+                const today = new Date().toDateString();
+                const lastLogin = data.lastLogin || today;
+                
+                if (lastLogin !== today) {
+                    data.todayAds = 0;
+                }
+                
+                userData = { ...userData, ...data };
+                userData.lastLogin = today;
             }
+            saveUserData();
         }
 
         function saveUserData() {
             localStorage.setItem('adEarnUser', JSON.stringify(userData));
         }
 
-        function resetDailyStats() {
-            const now = new Date();
-            const lastReset = localStorage.getItem('lastReset');
-            const today = now.toDateString();
-            
-            if (lastReset !== today) {
-                userData.todayAds = 0;
-                userData.todayEarnings = 0;
-                localStorage.setItem('lastReset', today);
-                saveUserData();
-            }
-        }
-
         // ===== PAGE MANAGEMENT =====
-        function loadPage(page) {
-            currentPage = page;
-            resetDailyStats();
-            
-            switch(page) {
-                case 'home':
-                    showHomePage();
-                    break;
-                case 'watch':
-                    showWatchPage();
-                    break;
-                case 'leaderboard':
-                    showLeaderboardPage();
-                    break;
-                case 'withdraw':
-                    showWithdrawPage();
-                    break;
-            }
-        }
-
         function showHomePage() {
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
+            const app = document.getElementById('app');
+            app.innerHTML = `
                 <header>
                     <h1>🤑 AdEarn</h1>
                     <p>Watch ads & earn USDT rewards!</p>
                 </header>
 
-                <div class="user-info">
-                    <div class="balance-card">
-                        <h3>Your Balance</h3>
-                        <h2>${userData.balance.toFixed(2)} USDT</h2>
+                <div class="user-card">
+                    <h3>Your Balance</h3>
+                    <div class="balance">${userData.balance.toFixed(2)} USDT</div>
+                    <p>Welcome, ${userData.userName}!</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">Today's Ads</span>
+                        <span class="stat-value">${userData.todayAds}</span>
                     </div>
-                    <div class="user-details">
-                        <p>Welcome, ${userData.userName}!</p>
-                        <p>Total Ads: ${userData.totalAds}</p>
+                    <div class="stat-box">
+                        <span class="stat-label">Total Ads</span>
+                        <span class="stat-value">${userData.totalAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Weekly Ads</span>
+                        <span class="stat-value">${userData.weeklyAds}</span>
                     </div>
                 </div>
 
-                <div class="main-menu">
-                    <a onclick="loadPage('watch')" class="menu-item">
-                        <div class="menu-icon">📺</div>
-                        <h3>Watch Ads</h3>
-                        <p>Watch ads to earn USDT</p>
-                    </a>
+                <button onclick="showWatchPage()" class="btn btn-primary">
+                    📺 Watch Ads & Earn
+                </button>
 
-                    <a onclick="loadPage('leaderboard')" class="menu-item">
-                        <div class="menu-icon">🏆</div>
-                        <h3>Leaderboard</h3>
-                        <p>Weekly rewards ranking</p>
-                    </a>
+                <button onclick="showLeaderboardPage()" class="btn btn-warning">
+                    🏆 Weekly Leaderboard
+                </button>
 
-                    <a onclick="loadPage('withdraw')" class="menu-item">
-                        <div class="menu-icon">💸</div>
-                        <h3>Withdraw</h3>
-                        <p>Withdraw USDT to Polygon</p>
-                    </a>
-
-                    <div class="menu-item">
-                        <div class="menu-icon">📊</div>
-                        <h3>Your Stats</h3>
-                        <p>Today: ${userData.todayAds} ads<br>Earnings: $${userData.todayEarnings.toFixed(2)}</p>
-                    </div>
-                </div>
+                <button onclick="showWithdrawPage()" class="btn btn-success">
+                    💸 Withdraw USDT
+                </button>
 
                 <div class="notice">
-                    <p>💰 Weekly Rewards: 1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
+                    <p><strong>💰 Weekly Prizes:</strong> 1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
                 </div>
             `;
         }
 
         // ===== WATCH AD PAGE =====
         function showWatchPage() {
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
+            const app = document.getElementById('app');
+            app.innerHTML = `
                 <header>
-                    <a onclick="loadPage('home')" class="back-btn">← Back to Home</a>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
                     <h1>📺 Watch Ads</h1>
-                    <p>Watch complete ads to earn USDT</p>
+                    <p>Watch ads and earn USDT rewards</p>
                 </header>
 
-                <div class="ad-container">
-                    <div class="ad-reward">
-                        <h3>💰 Reward per ad: $0.01 USDT</h3>
-                        <p>Watch the full ad to earn reward</p>
-                    </div>
+                <div class="ad-container" id="adContainer">
+                    <div class="ad-icon">📱</div>
+                    <h2>Ready to Watch Ads</h2>
+                    <p>Click the button below to watch an ad and earn $0.01 USDT</p>
+                    <p><strong>Make sure to watch the complete ad!</strong></p>
+                </div>
 
-                    <div class="ad-box">
-                        <div class="ad-placeholder" id="adDisplay">
-                            <div class="icon">📱</div>
-                            <h3>Ready to Watch Ads</h3>
-                            <p>Click below to start earning</p>
-                        </div>
-                        
-                        <button id="watchAdBtn" class="btn btn-primary">▶️ Watch Ad & Earn $0.01 USDT</button>
-                        <button id="claimRewardBtn" class="btn btn-success" style="display: none;">💰 Claim $0.01 USDT</button>
-                    </div>
+                <button onclick="startAdexoraAd()" class="btn btn-primary" id="watchBtn">
+                    ▶️ Watch Ad & Earn $0.01
+                </button>
 
-                    <div class="today-stats">
-                        <h3>📊 Today's Earnings</h3>
-                        <div class="stats-grid">
-                            <div class="stat-item">
-                                <span>Ads Watched</span>
-                                <strong>${userData.todayAds}</strong>
-                            </div>
-                            <div class="stat-item">
-                                <span>Earnings</span>
-                                <strong>$${userData.todayEarnings.toFixed(2)}</strong>
-                            </div>
-                            <div class="stat-item">
-                                <span>Available</span>
-                                <strong>$${userData.balance.toFixed(2)}</strong>
-                            </div>
-                        </div>
-                    </div>
+                <button onclick="claimReward()" class="btn btn-success" id="claimBtn" style="display: none;">
+                    💰 Claim $0.01 USDT
+                </button>
 
-                    <div class="ad-tips">
-                        <h4>💡 Tips:</h4>
-                        <ul>
-                            <li>Watch the ad completely to earn reward</li>
-                            <li>Click "Claim Reward" to add to your balance</li>
-                            <li>No limit on daily ads</li>
-                            <li>Earn more by watching more ads</li>
-                        </ul>
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">Today</span>
+                        <span class="stat-value">${userData.todayAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Total</span>
+                        <span class="stat-value">${userData.totalAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Balance</span>
+                        <span class="stat-value">$${userData.balance.toFixed(2)}</span>
                     </div>
                 </div>
-            `;
 
-            // Add event listeners
-            document.getElementById('watchAdBtn').onclick = startAdexoraAd;
+                <div class="notice">
+                    <p><strong>💡 Tips:</strong> Watch complete ads • Claim rewards immediately • No daily limits</p>
+                </div>
+            `;
         }
 
         // ===== ADEXORA AD INTEGRATION =====
         async function startAdexoraAd() {
-            const watchBtn = document.getElementById('watchAdBtn');
-            const claimBtn = document.getElementById('claimRewardBtn');
-            const adDisplay = document.getElementById('adDisplay');
+            const watchBtn = document.getElementById('watchBtn');
+            const claimBtn = document.getElementById('claimBtn');
+            const adContainer = document.getElementById('adContainer');
             
             try {
-                // Disable button during ad loading
+                // Show loading state
                 watchBtn.disabled = true;
-                watchBtn.textContent = '⏳ Loading Ad...';
-                
-                // Show ad loading state
-                adDisplay.innerHTML = `
-                    <div class="icon">⏳</div>
-                    <h3>Loading Advertisement</h3>
-                    <p>Please wait...</p>
+                watchBtn.innerHTML = '⏳ Loading Ad...';
+                adContainer.innerHTML = `
+                    <div class="ad-icon">⏳</div>
+                    <h2>Loading Advertisement</h2>
+                    <p>Please wait while we load the ad...</p>
                 `;
 
-                // Call Adexora ad
+                // Wait a moment to ensure Adexora is loaded
+                await new Promise(resolve => setTimeout(resolve, 500));
+
+                // IMPORTANT: Check if Adexora is available
+                if (typeof window.showAdexora === 'undefined') {
+                    throw new Error('Adexora not loaded. Please refresh the page.');
+                }
+
+                // Show the ad
                 await window.showAdexora();
                 
                 // Ad completed successfully
-                adDisplay.innerHTML = `
-                    <div class="icon">✅</div>
-                    <h3>Ad Completed!</h3>
-                    <p>You can now claim your reward</p>
+                adContainer.innerHTML = `
+                    <div class="ad-icon">✅</div>
+                    <h2>Ad Completed!</h2>
+                    <p>Great! You watched the ad completely.</p>
+                    <p>Now claim your $0.01 USDT reward!</p>
                 `;
                 
                 watchBtn.style.display = 'none';
                 claimBtn.style.display = 'block';
                 
-                // Add claim functionality
-                claimBtn.onclick = function() {
-                    claimAdReward();
-                };
-                
             } catch (error) {
                 console.error('Ad error:', error);
                 
-                adDisplay.innerHTML = `
-                    <div class="icon">❌</div>
-                    <h3>Ad Failed to Load</h3>
-                    <p>Please try again</p>
+                adContainer.innerHTML = `
+                    <div class="ad-icon">❌</div>
+                    <h2>Ad Failed to Load</h2>
+                    <p>Error: ${error.message || 'Unknown error'}</p>
+                    <p>Please try again or contact support.</p>
                 `;
                 
                 watchBtn.disabled = false;
-                watchBtn.textContent = '▶️ Retry Watching Ad';
+                watchBtn.innerHTML = '🔄 Try Again';
+                watchBtn.style.display = 'block';
+                claimBtn.style.display = 'none';
                 
-                showError('Failed to load ad. Please try again.');
+                showError('Failed to load ad: ' + (error.message || 'Please try again.'));
             }
         }
 
-        function claimAdReward() {
-            const rewardAmount = 0.01;
+        function claimReward() {
+            const reward = 0.01;
             
             // Update user data
-            userData.balance += rewardAmount;
+            userData.balance += reward;
             userData.totalAds += 1;
             userData.todayAds += 1;
-            userData.todayEarnings += rewardAmount;
             userData.weeklyAds += 1;
             
             // Save data
             saveUserData();
             
             // Show success
-            showSuccess(`$${rewardAmount.toFixed(2)} USDT added to your balance!`);
+            showSuccess(`✅ You earned $${reward.toFixed(2)} USDT!<br>New balance: $${userData.balance.toFixed(2)} USDT`);
             
-            // Reset for next ad
+            // Return to watch page after delay
             setTimeout(() => {
-                loadPage('watch');
-            }, 1500);
+                showWatchPage();
+            }, 2000);
         }
 
         // ===== LEADERBOARD PAGE =====
         function showLeaderboardPage() {
-            // Generate sample leaderboard data
-            const leaderboardData = generateLeaderboardData();
+            const app = document.getElementById('app');
+            const leaderboardData = generateLeaderboard();
             
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
+            app.innerHTML = `
                 <header>
-                    <a onclick="loadPage('home')" class="back-btn">← Back to Home</a>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
                     <h1>🏆 Weekly Leaderboard</h1>
-                    <p>Top earners this week - Updated daily</p>
+                    <p>Top earners this week • Resets every Monday</p>
                 </header>
 
-                <div class="weekly-rewards">
-                    <h3>🎁 Weekly Prizes (Resets every Monday)</h3>
-                    <div class="rewards-grid">
-                        <div class="reward-item rank-1">
-                            <div class="reward-rank">1st</div>
-                            <div class="reward-amount">0.5 USDT</div>
-                        </div>
-                        <div class="reward-item rank-2">
-                            <div class="reward-rank">2nd</div>
-                            <div class="reward-amount">0.3 USDT</div>
-                        </div>
-                        <div class="reward-item rank-3">
-                            <div class="reward-rank">3rd</div>
-                            <div class="reward-amount">0.1 USDT</div>
-                        </div>
-                    </div>
-                    <p class="reward-note">Rewards are distributed every Monday at 12:00 UTC</p>
+                <div class="notice">
+                    <h3>🎁 Weekly Prizes</h3>
+                    <p>1st: 0.5 USDT • 2nd: 0.3 USDT • 3rd: 0.1 USDT</p>
                 </div>
 
-                <div class="time-remaining">
-                    <p>⏳ Time until reset: <span id="resetTimer">${getTimeUntilReset()}</span></p>
-                </div>
-
-                <div class="your-position">
+                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0;">
                     <h3>Your Position</h3>
                     ${generateUserPosition()}
                 </div>
 
-                <div class="leaderboard-list">
-                    ${generateLeaderboardList(leaderboardData)}
-                </div>
+                <h3>Top 10 This Week</h3>
+                ${leaderboardData}
 
-                <div class="leaderboard-info">
-                    <h4>📈 How Leaderboard Works:</h4>
-                    <ul>
-                        <li>Rank is based on number of ads watched this week</li>
-                        <li>1 ad = 1 point on leaderboard</li>
-                        <li>Weekly reset every Monday</li>
-                        <li>Rewards automatically sent to your balance</li>
-                        <li>Minimum 10 ads required to qualify for rewards</li>
-                    </ul>
-                </div>
+                <button onclick="refreshLeaderboard()" class="btn btn-secondary">
+                    🔄 Refresh
+                </button>
 
-                <button onclick="refreshLeaderboard()" class="btn btn-secondary">🔄 Refresh Leaderboard</button>
+                <div class="notice">
+                    <p><strong>📊 How it works:</strong> 1 ad = 1 point • Weekly reset • Minimum 10 ads to qualify</p>
+                </div>
             `;
         }
 
-        function generateLeaderboardData() {
-            // Sample data - in real app, this would come from a server
-            return [
-                { id: 1, name: "CryptoKing", ads: 156, reward: "0.5 USDT", isCurrentUser: false },
-                { id: 2, name: "AdMaster", ads: 128, reward: "0.3 USDT", isCurrentUser: false },
-                { id: 3, name: "EarnPro", ads: 97, reward: "0.1 USDT", isCurrentUser: false },
-                { id: 4, name: userData.userName, ads: userData.weeklyAds, reward: "-", isCurrentUser: true },
-                { id: 5, name: "BitcoinBuddy", ads: 45, reward: "-", isCurrentUser: false },
-                { id: 6, name: "AdWatcher", ads: 38, reward: "-", isCurrentUser: false },
-                { id: 7, name: "EarnDaily", ads: 32, reward: "-", isCurrentUser: false },
-                { id: 8, name: "CryptoEarn", ads: 28, reward: "-", isCurrentUser: false },
-                { id: 9, name: "AdHunter", ads: 25, reward: "-", isCurrentUser: false },
-                { id: 10, name: "MoneyMaker", ads: 21, reward: "-", isCurrentUser: false }
+        function generateLeaderboard() {
+            const users = [
+                { name: "CryptoKing", ads: 156 },
+                { name: "AdMaster", ads: 128 },
+                { name: "EarnPro", ads: 97 },
+                { name: userData.userName, ads: userData.weeklyAds },
+                { name: "BitcoinBuddy", ads: 45 },
+                { name: "AdWatcher", ads: 38 },
+                { name: "EarnDaily", ads: 32 },
+                { name: "CryptoEarn", ads: 28 },
+                { name: "AdHunter", ads: 25 },
+                { name: "MoneyMaker", ads: 21 }
             ];
+
+            return users.map((user, index) => {
+                const rank = index + 1;
+                const isCurrentUser = user.name === userData.userName;
+                
+                return `
+                    <div class="leaderboard-item" style="${isCurrentUser ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
+                        <div class="rank ${rank <= 3 ? 'rank-' + rank : 'rank-other'}">
+                            ${rank}
+                        </div>
+                        <div style="flex: 1;">
+                            <strong>${user.name} ${isCurrentUser ? '(You)' : ''}</strong>
+                            <div style="color: #666; font-size: 0.9rem;">${user.ads} ads watched</div>
+                        </div>
+                        <div style="font-weight: bold; color: #28a745;">
+                            ${rank === 1 ? '0.5 USDT' : rank === 2 ? '0.3 USDT' : rank === 3 ? '0.1 USDT' : '-'}
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
         function generateUserPosition() {
-            const rank = userData.weeklyAds > 100 ? 4 : 8; // Simplified ranking
+            let rank = 4;
+            if (userData.weeklyAds > 150) rank = 1;
+            else if (userData.weeklyAds > 120) rank = 2;
+            else if (userData.weeklyAds > 90) rank = 3;
+            
             return `
-                <div class="leaderboard-item">
-                    <div class="rank ${rank <= 3 ? 'rank-' + rank : 'rank-other'}">${rank}</div>
-                    <div class="user-avatar">${userData.userName.charAt(0)}</div>
-                    <div class="leaderboard-details">
-                        <div class="leaderboard-name">${userData.userName} (You)</div>
-                        <div class="leaderboard-stats">${userData.weeklyAds} ads this week</div>
+                <div style="display: flex; align-items: center; padding: 15px; background: white; border-radius: 10px;">
+                    <div class="rank ${rank <= 3 ? 'rank-' + rank : 'rank-other'}" style="margin-right: 15px;">
+                        ${rank}
                     </div>
-                    <div class="leaderboard-reward">${rank <= 3 ? getRewardForRank(rank) : 'Keep going!'}</div>
+                    <div style="flex: 1;">
+                        <strong>${userData.userName}</strong>
+                        <div style="color: #666;">${userData.weeklyAds} ads this week</div>
+                    </div>
+                    <div style="font-weight: bold; color: #28a745;">
+                        ${rank <= 3 ? (rank === 1 ? '0.5' : rank === 2 ? '0.3' : '0.1') + ' USDT' : 'Keep going!'}
+                    </div>
                 </div>
             `;
-        }
-
-        function generateLeaderboardList(data) {
-            return data.map((user, index) => `
-                <div class="leaderboard-item" style="${user.isCurrentUser ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                    <div class="rank ${index < 3 ? 'rank-' + (index + 1) : 'rank-other'}">${index + 1}</div>
-                    <div class="user-avatar">${user.name.charAt(0)}</div>
-                    <div class="leaderboard-details">
-                        <div class="leaderboard-name">${user.name} ${user.isCurrentUser ? '(You)' : ''}</div>
-                        <div class="leaderboard-stats">${user.ads} ads watched</div>
-                    </div>
-                    <div class="leaderboard-reward">${user.reward}</div>
-                </div>
-            `).join('');
-        }
-
-        function getRewardForRank(rank) {
-            switch(rank) {
-                case 1: return "0.5 USDT";
-                case 2: return "0.3 USDT";
-                case 3: return "0.1 USDT";
-                default: return "-";
-            }
-        }
-
-        function getTimeUntilReset() {
-            const now = new Date();
-            const nextMonday = new Date(now);
-            nextMonday.setDate(now.getDate() + ((7 - now.getDay() + 1) % 7 || 7));
-            nextMonday.setHours(12, 0, 0, 0);
-            
-            const diff = nextMonday - now;
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            
-            return `${days} days, ${hours} hours`;
         }
 
         function refreshLeaderboard() {
@@ -1023,143 +604,93 @@
             showLeaderboardPage();
         }
 
-        // ===== WITHDRAWAL PAGE =====
+        // ===== WITHDRAW PAGE =====
         function showWithdrawPage() {
-            const container = document.getElementById('app-container');
-            container.innerHTML = `
+            const app = document.getElementById('app');
+            app.innerHTML = `
                 <header>
-                    <a onclick="loadPage('home')" class="back-btn">← Back to Home</a>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
                     <h1>💸 Withdraw USDT</h1>
-                    <p>Withdraw your earnings to Polygon network</p>
+                    <p>Withdraw to Polygon network</p>
                 </header>
 
-                <div class="polygon-info">
+                <div style="background: #8247e5; color: white; padding: 20px; border-radius: 10px; margin: 20px 0; text-align: center;">
                     <h3>🌐 Polygon Network</h3>
                     <p>Fast & low-cost USDT withdrawals</p>
                 </div>
 
-                <div class="withdrawal-info">
-                    <h3>💎 Withdrawal Details</h3>
-                    <div class="info-item">
+                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin: 20px 0;">
+                    <h3>Withdrawal Details</h3>
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
                         <span>Available Balance:</span>
                         <strong>${userData.balance.toFixed(2)} USDT</strong>
                     </div>
-                    <div class="info-item">
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-bottom: 10px; border-bottom: 1px solid #ddd;">
                         <span>Minimum Withdrawal:</span>
                         <strong>1.00 USDT</strong>
                     </div>
-                    <div class="info-item">
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
                         <span>Withdrawal Fee:</span>
                         <strong>0.10 USDT</strong>
                     </div>
-                    <div class="info-item">
-                        <span>Processing Time:</span>
-                        <strong>5-15 minutes</strong>
-                    </div>
                 </div>
 
-                <div class="withdrawal-form">
-                    <div class="form-group">
-                        <label for="polygonAddress">Polygon Wallet Address:</label>
-                        <input type="text" 
-                               id="polygonAddress" 
-                               placeholder="Enter your Polygon (MATIC) wallet address"
-                               value="${userData.polygonAddress || ''}">
-                        <small style="color: #666; display: block; margin-top: 5px;">
-                            Ensure this is a Polygon-compatible USDT wallet address
-                        </small>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Withdrawal Amount (USDT):</label>
-                        <div class="amount-options">
-                            <div class="amount-option" onclick="selectAmount(1)">1.00</div>
-                            <div class="amount-option" onclick="selectAmount(5)">5.00</div>
-                            <div class="amount-option" onclick="selectAmount(10)">10.00</div>
-                            <div class="amount-option" onclick="selectAmount(userData.balance)">ALL</div>
-                        </div>
-                        <input type="number" 
-                               id="withdrawAmount" 
-                               placeholder="Enter amount"
-                               min="1"
-                               max="${userData.balance.toFixed(2)}"
-                               step="0.01"
-                               value="1.00">
-                    </div>
-
-                    <div class="info-item">
+                <div>
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Polygon Wallet Address:</label>
+                    <input type="text" id="walletAddress" 
+                           placeholder="Enter your Polygon (MATIC) wallet address"
+                           value="${userData.polygonAddress || ''}"
+                           style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 15px;">
+                    
+                    <label style="display: block; margin-bottom: 8px; font-weight: bold;">Amount (USDT):</label>
+                    <input type="number" id="withdrawAmount" 
+                           value="1.00" min="1" max="${userData.balance.toFixed(2)}" step="0.01"
+                           style="width: 100%; padding: 15px; border: 2px solid #ddd; border-radius: 10px; margin-bottom: 15px;"
+                           oninput="updateWithdrawInfo()">
+                    
+                    <div style="display: flex; justify-content: space-between; margin: 15px 0; padding: 15px; background: #e3f2fd; border-radius: 10px;">
                         <span>You will receive:</span>
                         <strong id="receiveAmount">0.90 USDT</strong>
                     </div>
+                </div>
 
-                    <button onclick="processWithdrawal()" class="btn btn-success" id="withdrawBtn">
-                        💸 Withdraw USDT
-                    </button>
+                <button onclick="processWithdrawal()" class="btn btn-success" id="withdrawBtn">
+                    💸 Withdraw USDT
+                </button>
 
-                    <div class="notice">
-                        <h4>⚠️ Important Notes:</h4>
-                        <ul style="text-align: left; margin-top: 10px;">
-                            <li>Ensure your wallet supports Polygon USDT</li>
-                            <li>Withdrawal fee: 0.10 USDT per transaction</li>
-                            <li>Minimum withdrawal: 1.00 USDT</li>
-                            <li>Processing time: 5-15 minutes</li>
-                            <li>Double-check your wallet address</li>
-                        </ul>
-                    </div>
+                <div class="notice">
+                    <p><strong>⚠️ Important:</strong> Ensure your wallet supports Polygon USDT • Double-check address</p>
                 </div>
             `;
-
-            // Initialize amount input
-            document.getElementById('withdrawAmount').oninput = updateReceiveAmount;
-            updateReceiveAmount();
+            
+            // Initialize withdrawal info
+            updateWithdrawInfo();
         }
 
-        function selectAmount(amount) {
-            const input = document.getElementById('withdrawAmount');
-            const maxAmount = userData.balance;
-            
-            if (amount === userData.balance) {
-                input.value = maxAmount.toFixed(2);
-            } else {
-                input.value = Math.min(amount, maxAmount).toFixed(2);
-            }
-            
-            updateReceiveAmount();
-            
-            // Update active class
-            document.querySelectorAll('.amount-option').forEach(option => {
-                option.classList.remove('active');
-            });
-            event.target.classList.add('active');
-        }
-
-        function updateReceiveAmount() {
-            const input = document.getElementById('withdrawAmount');
-            const amount = parseFloat(input.value) || 0;
+        function updateWithdrawInfo() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
             const receiveAmount = Math.max(0, amount - 0.10).toFixed(2);
-            
-            document.getElementById('receiveAmount').textContent = 
-                `${receiveAmount} USDT`;
-            
-            // Update button text
             const withdrawBtn = document.getElementById('withdrawBtn');
+            
+            document.getElementById('receiveAmount').textContent = `${receiveAmount} USDT`;
+            
             if (amount > userData.balance) {
                 withdrawBtn.disabled = true;
-                withdrawBtn.textContent = '❌ Insufficient Balance';
+                withdrawBtn.innerHTML = '❌ Insufficient Balance';
             } else if (amount < 1) {
                 withdrawBtn.disabled = true;
-                withdrawBtn.textContent = '❌ Minimum 1.00 USDT';
+                withdrawBtn.innerHTML = '❌ Minimum 1.00 USDT';
             } else {
                 withdrawBtn.disabled = false;
-                withdrawBtn.textContent = `💸 Withdraw ${amount.toFixed(2)} USDT`;
+                withdrawBtn.innerHTML = `💸 Withdraw ${amount.toFixed(2)} USDT`;
             }
         }
 
         function processWithdrawal() {
-            const address = document.getElementById('polygonAddress').value.trim();
+            const address = document.getElementById('walletAddress').value.trim();
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
             
-            // Validation
+            // Validate
             if (!address) {
                 showError('Please enter your Polygon wallet address');
                 return;
@@ -1182,36 +713,34 @@
             
             // Save address
             userData.polygonAddress = address;
-            saveUserData();
             
-            // Simulate withdrawal processing
-            const withdrawBtn = document.getElementById('withdrawBtn');
-            withdrawBtn.disabled = true;
-            withdrawBtn.textContent = '⏳ Processing...';
+            // Process withdrawal
+            const btn = document.getElementById('withdrawBtn');
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Processing...';
             
-            // In real app, this would call your backend
             setTimeout(() => {
                 // Update balance
                 userData.balance -= amount;
                 saveUserData();
                 
                 showSuccess(
-                    `Withdrawal of ${amount.toFixed(2)} USDT processed!<br>` +
+                    `Withdrawal successful!<br><br>` +
+                    `Amount: ${amount.toFixed(2)} USDT<br>` +
                     `Transaction ID: POLY-${Date.now()}<br>` +
                     `Funds will arrive in 5-15 minutes.`
                 );
                 
-                // Return to home after delay
+                // Return to home
                 setTimeout(() => {
-                    loadPage('home');
+                    showHomePage();
                 }, 3000);
             }, 2000);
         }
 
         // ===== MODAL FUNCTIONS =====
         function showSuccess(message) {
-            document.getElementById('modalTitle').textContent = 'Success!';
-            document.getElementById('modalMessage').innerHTML = message;
+            document.getElementById('successMessage').innerHTML = message;
             document.getElementById('successModal').style.display = 'flex';
         }
 
@@ -1223,11 +752,6 @@
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
-        }
-
-        // ===== UTILITY FUNCTIONS =====
-        function formatUSDT(amount) {
-            return amount.toFixed(2);
         }
     </script>
 </body>
