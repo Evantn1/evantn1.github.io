@@ -306,13 +306,32 @@
             padding: 20px;
             border-radius: 10px;
             margin: 20px 0;
-            border: 2px solid #dc3545;
+            border: 2px solid #28a745;
         }
         
         .admin-title {
-            color: #dc3545;
+            color: #28a745;
             text-align: center;
             margin-bottom: 15px;
+        }
+        
+        .bot-status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .bot-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .bot-disconnected {
+            background: #f8d7da;
+            color: #721c24;
         }
         
         /* RESPONSIVE */
@@ -354,22 +373,29 @@
             <div style="text-align: left; margin: 20px 0;">
                 <div style="margin-bottom: 15px;">
                     <strong>Bot Token:</strong>
-                    <input type="password" id="botToken" placeholder="Enter Telegram Bot Token" style="margin-top: 5px;">
+                    <input type="password" id="botToken" placeholder="Enter Telegram Bot Token" style="margin-top: 5px;" value="8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY">
                 </div>
                 <div style="margin-bottom: 15px;">
                     <strong>Chat ID:</strong>
-                    <input type="text" id="chatId" placeholder="Enter Your Chat ID" style="margin-top: 5px;">
+                    <input type="text" id="chatId" placeholder="Enter Your Chat ID" style="margin-top: 5px;" value="6450016040">
                 </div>
                 <div style="font-size: 0.9rem; color: #666; margin: 10px 0;">
-                    <p>To get your Chat ID:</p>
-                    <ol>
-                        <li>Message @userinfobot on Telegram</li>
-                        <li>Copy your numeric Chat ID</li>
-                        <li>Paste it above</li>
-                    </ol>
+                    <p><strong>✅ Bot is already configured!</strong></p>
+                    <p>You will receive notifications for every withdrawal.</p>
                 </div>
             </div>
             <button onclick="saveAdminSettings()" class="btn btn-success">Save Settings</button>
+            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Test Notification Modal -->
+    <div id="testModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon" style="color: #ffc107;">🔔</div>
+            <h2>Test Notification</h2>
+            <p>Send a test notification to your Telegram bot?</p>
+            <button onclick="sendTestNotification()" class="btn btn-warning">Send Test</button>
             <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;">Cancel</button>
         </div>
     </div>
@@ -390,12 +416,13 @@
     <script>
         // ===== CONFIGURATION =====
         const CONFIG = {
-            AD_REWARD: 0.0001,          // Changed to 0.0001 USDT per ad
-            MIN_WITHDRAWAL: 0.015,      // Changed to 1.5 cents (0.015 USDT)
+            AD_REWARD: 0.0001,          // 0.0001 USDT per ad
+            MIN_WITHDRAWAL: 0.015,      // 1.5 cents (0.015 USDT)
             WITHDRAWAL_FEE: 0.001,      // 0.1 cent fee
             WEEKLY_PRIZES: [0.5, 0.3, 0.1],
-            ADMIN_BOT_TOKEN: "",
-            ADMIN_CHAT_ID: ""
+            ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
+            ADMIN_CHAT_ID: "6450016040",
+            BOT_USERNAME: "@AdEarn_Withdrawal_Bot" // Update this if you have a bot username
         };
 
         // ===== APP STATE =====
@@ -436,6 +463,11 @@
             
             // Show home page
             showHomePage();
+            
+            // Test bot connection on startup
+            setTimeout(() => {
+                testBotConnection();
+            }, 1000);
         }
 
         // ===== DATA MANAGEMENT =====
@@ -457,12 +489,13 @@
                 userData.lastLogin = today;
             }
             
-            // Load admin settings
+            // Load admin settings (override with hardcoded values)
             const savedAdmin = localStorage.getItem('adEarnAdmin');
             if (savedAdmin) {
                 const adminData = JSON.parse(savedAdmin);
-                CONFIG.ADMIN_BOT_TOKEN = adminData.botToken || "";
-                CONFIG.ADMIN_CHAT_ID = adminData.chatId || "";
+                // Keep hardcoded values as default
+                CONFIG.ADMIN_BOT_TOKEN = adminData.botToken || CONFIG.ADMIN_BOT_TOKEN;
+                CONFIG.ADMIN_CHAT_ID = adminData.chatId || CONFIG.ADMIN_CHAT_ID;
             }
             
             saveUserData();
@@ -478,7 +511,9 @@
                 chatId: CONFIG.ADMIN_CHAT_ID
             };
             localStorage.setItem('adEarnAdmin', JSON.stringify(adminData));
-            showSuccess('Admin settings saved!');
+            showSuccess('✅ Admin settings saved!');
+            closeModal();
+            showHomePage();
         }
 
         // ===== PAGE MANAGEMENT =====
@@ -526,17 +561,29 @@
                     💸 Withdraw USDT
                 </button>
 
-                ${CONFIG.ADMIN_BOT_TOKEN ? `
-                    <div class="admin-panel">
-                        <h3 class="admin-title">🔧 Admin Panel</h3>
-                        <button onclick="showAdminPanel()" class="btn btn-small" style="background: #dc3545; color: white;">
-                            View Withdrawals
+                <div class="admin-panel">
+                    <h3 class="admin-title">🔧 Admin Panel 
+                        <span class="bot-status ${CONFIG.ADMIN_BOT_TOKEN ? 'bot-connected' : 'bot-disconnected'}">
+                            ${CONFIG.ADMIN_BOT_TOKEN ? '✓ Bot Connected' : '✗ Bot Disabled'}
+                        </span>
+                    </h3>
+                    <div style="text-align: center; margin: 15px 0;">
+                        <button onclick="showAdminPanel()" class="btn btn-small" style="background: #28a745; color: white;">
+                            📋 View Withdrawals
                         </button>
-                        <button onclick="openAdminSettings()" class="btn btn-small" style="background: #6c757d; color: white;">
-                            Settings
+                        <button onclick="openAdminSettings()" class="btn btn-small" style="background: #007bff; color: white;">
+                            ⚙️ Bot Settings
+                        </button>
+                        <button onclick="openTestModal()" class="btn btn-small" style="background: #ffc107; color: black;">
+                            🔔 Test Notification
                         </button>
                     </div>
-                ` : ''}
+                    ${CONFIG.ADMIN_BOT_TOKEN ? `
+                        <p style="text-align: center; color: #28a745; font-size: 0.9rem; margin-top: 10px;">
+                            ✅ Telegram bot is active. You'll receive notifications for all withdrawals.
+                        </p>
+                    ` : ''}
+                </div>
 
                 <div class="notice">
                     <p><strong>💰 Weekly Prizes:</strong> 1st: ${CONFIG.WEEKLY_PRIZES[0]} USDT | 2nd: ${CONFIG.WEEKLY_PRIZES[1]} USDT | 3rd: ${CONFIG.WEEKLY_PRIZES[2]} USDT</p>
@@ -677,102 +724,6 @@
             }, 2000);
         }
 
-        // ===== LEADERBOARD PAGE =====
-        function showLeaderboardPage() {
-            const app = document.getElementById('app');
-            const leaderboardData = generateLeaderboard();
-            
-            app.innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
-                    <h1>🏆 Weekly Leaderboard</h1>
-                    <p>Top earners this week • Resets every Monday</p>
-                </header>
-
-                <div class="notice success-notice">
-                    <h3>🎁 Weekly Prizes</h3>
-                    <p>1st: ${CONFIG.WEEKLY_PRIZES[0]} USDT • 2nd: ${CONFIG.WEEKLY_PRIZES[1]} USDT • 3rd: ${CONFIG.WEEKLY_PRIZES[2]} USDT</p>
-                </div>
-
-                <div style="background: #f8f9fa; padding: 15px; border-radius: 10px; margin: 20px 0;">
-                    <h3>Your Position</h3>
-                    ${generateUserPosition()}
-                </div>
-
-                <h3>Top 10 This Week</h3>
-                ${leaderboardData}
-
-                <button onclick="refreshLeaderboard()" class="btn btn-secondary">
-                    🔄 Refresh
-                </button>
-
-                <div class="notice">
-                    <p><strong>📊 How it works:</strong> 1 ad = 1 point • Weekly reset • Minimum 10 ads to qualify</p>
-                </div>
-            `;
-        }
-
-        function generateLeaderboard() {
-            const users = [
-                { name: "CryptoKing", ads: 156, earnings: (156 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "AdMaster", ads: 128, earnings: (128 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "EarnPro", ads: 97, earnings: (97 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: userData.userName, ads: userData.weeklyAds, earnings: (userData.weeklyAds * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "BitcoinBuddy", ads: 45, earnings: (45 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "AdWatcher", ads: 38, earnings: (38 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "EarnDaily", ads: 32, earnings: (32 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "CryptoEarn", ads: 28, earnings: (28 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "AdHunter", ads: 25, earnings: (25 * CONFIG.AD_REWARD).toFixed(4) },
-                { name: "MoneyMaker", ads: 21, earnings: (21 * CONFIG.AD_REWARD).toFixed(4) }
-            ];
-
-            return users.map((user, index) => {
-                const rank = index + 1;
-                const isCurrentUser = user.name === userData.userName;
-                
-                return `
-                    <div class="leaderboard-item" style="${isCurrentUser ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                        <div class="rank ${rank <= 3 ? 'rank-' + rank : 'rank-other'}">
-                            ${rank}
-                        </div>
-                        <div style="flex: 1;">
-                            <strong>${user.name} ${isCurrentUser ? '(You)' : ''}</strong>
-                            <div style="color: #666; font-size: 0.9rem;">
-                                ${user.ads} ads • ${user.earnings} USDT
-                            </div>
-                        </div>
-                        <div style="font-weight: bold; color: #28a745;">
-                            ${rank === 1 ? CONFIG.WEEKLY_PRIZES[0] + ' USDT' : 
-                              rank === 2 ? CONFIG.WEEKLY_PRIZES[1] + ' USDT' : 
-                              rank === 3 ? CONFIG.WEEKLY_PRIZES[2] + ' USDT' : '-'}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function generateUserPosition() {
-            let rank = 4;
-            if (userData.weeklyAds > 150) rank = 1;
-            else if (userData.weeklyAds > 120) rank = 2;
-            else if (userData.weeklyAds > 90) rank = 3;
-            
-            return `
-                <div style="display: flex; align-items: center; padding: 15px; background: white; border-radius: 10px;">
-                    <div class="rank ${rank <= 3 ? 'rank-' + rank : 'rank-other'}" style="margin-right: 15px;">
-                        ${rank}
-                    </div>
-                    <div style="flex: 1;">
-                        <strong>${userData.userName}</strong>
-                        <div style="color: #666;">${userData.weeklyAds} ads • ${(userData.weeklyAds * CONFIG.AD_REWARD).toFixed(4)} USDT</div>
-                    </div>
-                    <div style="font-weight: bold; color: #28a745;">
-                        ${rank <= 3 ? (rank === 1 ? CONFIG.WEEKLY_PRIZES[0] : rank === 2 ? CONFIG.WEEKLY_PRIZES[1] : CONFIG.WEEKLY_PRIZES[2]) + ' USDT' : 'Keep going!'}
-                    </div>
-                </div>
-            `;
-        }
-
         // ===== WITHDRAW PAGE =====
         function showWithdrawPage() {
             const app = document.getElementById('app');
@@ -861,6 +812,13 @@
                     💸 Withdraw USDT
                 </button>
 
+                ${CONFIG.ADMIN_BOT_TOKEN ? `
+                    <div class="notice success-notice">
+                        <p><strong>✅ Telegram Bot Active</strong></p>
+                        <p>The admin will be notified instantly when you withdraw.</p>
+                    </div>
+                ` : ''}
+
                 <div class="notice">
                     <p><strong>⚠️ Important:</strong></p>
                     <ul style="text-align: left; margin: 10px 0 0 0; padding-left: 20px;">
@@ -868,6 +826,7 @@
                         <li>Minimum withdrawal: ${CONFIG.MIN_WITHDRAWAL.toFixed(3)} USDT (1.5¢)</li>
                         <li>Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(3)} USDT per withdrawal</li>
                         <li>Double-check your wallet address</li>
+                        <li>Funds sent within 24 hours</li>
                     </ul>
                 </div>
             `;
@@ -927,8 +886,8 @@
         // ===== TELEGRAM BOT NOTIFICATION =====
         async function sendTelegramNotification(withdrawalData) {
             if (!CONFIG.ADMIN_BOT_TOKEN || !CONFIG.ADMIN_CHAT_ID) {
-                console.log('Telegram bot not configured');
-                return false;
+                console.warn('Telegram bot not configured');
+                return { success: false, error: 'Bot not configured' };
             }
             
             try {
@@ -936,9 +895,9 @@
 🚀 *NEW WITHDRAWAL REQUEST!*
 
 👤 *User Information:*
-• Name: ${withdrawalData.userName}
-• User ID: ${withdrawalData.userId}
-• Telegram: ${userData.userName}
+• Name: ${withdrawalData.userName || 'N/A'}
+• User ID: ${withdrawalData.userId || 'N/A'}
+• Telegram: ${withdrawalData.userName || 'N/A'}
 
 💰 *Withdrawal Details:*
 • Amount: ${withdrawalData.amount} USDT
@@ -959,6 +918,7 @@
 
 ⏰ *Time:* ${new Date().toLocaleString()}
 🆔 *Withdrawal ID:* ${withdrawalData.withdrawalId}
+🔗 *App:* AdEarn Telegram Mini App
                 `;
                 
                 const url = `https://api.telegram.org/bot${CONFIG.ADMIN_BOT_TOKEN}/sendMessage`;
@@ -972,17 +932,82 @@
                         chat_id: CONFIG.ADMIN_CHAT_ID,
                         text: message,
                         parse_mode: 'Markdown',
-                        disable_web_page_preview: true
+                        disable_web_page_preview: true,
+                        disable_notification: false
                     })
                 });
                 
                 const result = await response.json();
-                return result.ok;
+                
+                if (result.ok) {
+                    console.log('✅ Telegram notification sent successfully');
+                    return { success: true, messageId: result.result.message_id };
+                } else {
+                    console.error('❌ Telegram API error:', result);
+                    return { success: false, error: result.description || 'Unknown error' };
+                }
                 
             } catch (error) {
-                console.error('Failed to send Telegram notification:', error);
-                return false;
+                console.error('❌ Failed to send Telegram notification:', error);
+                return { success: false, error: error.message };
             }
+        }
+
+        // Test bot connection
+        async function testBotConnection() {
+            if (!CONFIG.ADMIN_BOT_TOKEN) return;
+            
+            try {
+                const url = `https://api.telegram.org/bot${CONFIG.ADMIN_BOT_TOKEN}/getMe`;
+                const response = await fetch(url);
+                const result = await response.json();
+                
+                if (result.ok) {
+                    console.log('✅ Bot connected:', result.result.username);
+                    CONFIG.BOT_USERNAME = "@" + result.result.username;
+                } else {
+                    console.warn('⚠️ Bot connection test failed:', result);
+                }
+            } catch (error) {
+                console.warn('⚠️ Bot connection test failed:', error.message);
+            }
+        }
+
+        async function sendTestNotification() {
+            if (!CONFIG.ADMIN_BOT_TOKEN || !CONFIG.ADMIN_CHAT_ID) {
+                showError('Please configure bot token and chat ID first');
+                return;
+            }
+            
+            const testData = {
+                withdrawalId: 'TEST-' + Date.now(),
+                userName: 'Test User',
+                userId: 123456789,
+                amount: '0.0150',
+                fee: '0.0010',
+                netAmount: '0.0140',
+                walletAddress: '0x742d35Cc6634C0532925a3b844Bc9e...',
+                previousBalance: '0.0300',
+                newBalance: '0.0150',
+                totalAds: 150,
+                todayAds: 10,
+                weeklyAds: 50,
+                timestamp: new Date().toISOString()
+            };
+            
+            const btn = event.target;
+            btn.disabled = true;
+            btn.innerHTML = '⏳ Sending...';
+            
+            const result = await sendTelegramNotification(testData);
+            
+            if (result.success) {
+                showSuccess('✅ Test notification sent successfully!<br>Check your Telegram.');
+            } else {
+                showError(`Failed to send test: ${result.error || 'Unknown error'}`);
+            }
+            
+            closeModal();
         }
 
         function processWithdrawal() {
@@ -996,7 +1021,7 @@
             }
             
             if (!address.startsWith('0x') || address.length !== 42) {
-                showError('Please enter a valid Polygon wallet address (0x...)');
+                showError('Please enter a valid Polygon wallet address (should start with 0x and be 42 characters)');
                 return;
             }
             
@@ -1015,7 +1040,7 @@
             
             // Prepare withdrawal data
             const withdrawalData = {
-                withdrawalId: 'W' + Date.now(),
+                withdrawalId: 'W' + Date.now() + Math.floor(Math.random() * 1000),
                 userName: userData.userName,
                 userId: userData.userId,
                 amount: amount.toFixed(4),
@@ -1031,6 +1056,7 @@
             };
             
             // Add to withdrawals history
+            if (!userData.withdrawals) userData.withdrawals = [];
             userData.withdrawals.push(withdrawalData);
             
             // Process withdrawal
@@ -1038,32 +1064,38 @@
             btn.disabled = true;
             btn.innerHTML = '⏳ Processing...';
             
-            // First send Telegram notification
-            sendTelegramNotification(withdrawalData).then(sent => {
-                if (sent) {
-                    console.log('Telegram notification sent successfully');
-                } else {
-                    console.log('Failed to send Telegram notification');
-                }
-                
-                // Update balance
+            // Send Telegram notification
+            sendTelegramNotification(withdrawalData).then(result => {
+                // Update balance (regardless of notification success)
                 userData.balance -= amount;
                 saveUserData();
                 
-                // Show success message
-                showSuccess(
-                    `Withdrawal request submitted!<br><br>` +
-                    `Amount: ${amount.toFixed(4)} USDT<br>` +
-                    `Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(4)} USDT<br>` +
-                    `You receive: ${(amount - CONFIG.WITHDRAWAL_FEE).toFixed(4)} USDT<br>` +
-                    `Transaction ID: ${withdrawalData.withdrawalId}<br>` +
-                    `Funds will be sent to your Polygon wallet within 24 hours.`
-                );
+                if (result.success) {
+                    showSuccess(
+                        `✅ Withdrawal submitted!<br><br>` +
+                        `Amount: ${amount.toFixed(4)} USDT<br>` +
+                        `Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(4)} USDT<br>` +
+                        `You receive: ${(amount - CONFIG.WITHDRAWAL_FEE).toFixed(4)} USDT<br>` +
+                        `Transaction ID: ${withdrawalData.withdrawalId}<br>` +
+                        `Admin notified via Telegram ✅<br>` +
+                        `Funds will be sent within 24 hours.`
+                    );
+                } else {
+                    showSuccess(
+                        `⚠️ Withdrawal submitted (notification failed)<br><br>` +
+                        `Amount: ${amount.toFixed(4)} USDT<br>` +
+                        `Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(4)} USDT<br>` +
+                        `You receive: ${(amount - CONFIG.WITHDRAWAL_FEE).toFixed(4)} USDT<br>` +
+                        `Transaction ID: ${withdrawalData.withdrawalId}<br>` +
+                        `Funds will be sent within 24 hours.<br>` +
+                        `Note: Admin notification failed (${result.error})`
+                    );
+                }
                 
                 // Return to home
                 setTimeout(() => {
                     showHomePage();
-                }, 3000);
+                }, 4000);
             });
         }
 
@@ -1074,58 +1106,107 @@
             document.getElementById('adminModal').style.display = 'flex';
         }
 
-        function saveAdminSettings() {
-            CONFIG.ADMIN_BOT_TOKEN = document.getElementById('botToken').value.trim();
-            CONFIG.ADMIN_CHAT_ID = document.getElementById('chatId').value.trim();
-            saveAdminSettings();
-            closeModal();
+        function openTestModal() {
+            document.getElementById('testModal').style.display = 'flex';
         }
 
         function showAdminPanel() {
             const app = document.getElementById('app');
             const withdrawals = userData.withdrawals || [];
+            const totalWithdrawals = withdrawals.reduce((sum, w) => sum + parseFloat(w.amount), 0);
+            const totalFees = withdrawals.reduce((sum, w) => sum + parseFloat(w.fee), 0);
             
             app.innerHTML = `
                 <header>
                     <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
                     <h1>🔧 Admin Panel</h1>
-                    <p>Withdrawal Management</p>
+                    <p>Withdrawal Management System</p>
                 </header>
 
                 <div class="admin-panel">
-                    <h3>Bot Configuration</h3>
-                    <p><strong>Bot Token:</strong> ${CONFIG.ADMIN_BOT_TOKEN ? '✓ Configured' : '✗ Not configured'}</p>
-                    <p><strong>Chat ID:</strong> ${CONFIG.ADMIN_CHAT_ID || 'Not set'}</p>
-                    <button onclick="openAdminSettings()" class="btn btn-small">Edit Settings</button>
+                    <h3>📊 Bot Status & Statistics</h3>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 15px 0;">
+                        <div class="stat-box">
+                            <span class="stat-label">Bot Status</span>
+                            <span class="stat-value" style="color: #28a745;">✅ Active</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Total Withdrawals</span>
+                            <span class="stat-value">${withdrawals.length}</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Total Amount</span>
+                            <span class="stat-value">${totalWithdrawals.toFixed(4)}</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-label">Total Fees</span>
+                            <span class="stat-value">${totalFees.toFixed(4)}</span>
+                        </div>
+                    </div>
+                    
+                    <div style="text-align: center; margin: 20px 0;">
+                        <button onclick="openAdminSettings()" class="btn btn-small" style="background: #007bff; color: white;">
+                            ⚙️ Edit Bot Settings
+                        </button>
+                        <button onclick="openTestModal()" class="btn btn-small" style="background: #ffc107; color: black;">
+                            🔔 Test Notification
+                        </button>
+                        <button onclick="exportWithdrawals()" class="btn btn-small" style="background: #6c757d; color: white;">
+                            📥 Export Data
+                        </button>
+                    </div>
                 </div>
 
-                <h3>Recent Withdrawals (${withdrawals.length})</h3>
+                <h3>📋 Recent Withdrawals (${withdrawals.length})</h3>
                 
                 ${withdrawals.length === 0 ? `
                     <div class="notice">
                         <p>No withdrawals yet</p>
                     </div>
                 ` : `
-                    ${withdrawals.slice().reverse().map(w => `
-                        <div class="leaderboard-item" style="background: #f8f9fa; margin: 10px 0;">
-                            <div style="flex: 1;">
-                                <strong>${w.userName}</strong>
-                                <div style="color: #666; font-size: 0.9rem;">
-                                    ID: ${w.withdrawalId}<br>
-                                    Amount: ${w.amount} USDT • Net: ${w.netAmount} USDT<br>
-                                    Wallet: <code style="font-size: 0.8rem;">${w.walletAddress.substring(0, 20)}...</code><br>
-                                    Time: ${new Date(w.timestamp).toLocaleString()}
+                    <div style="max-height: 400px; overflow-y: auto; margin: 20px 0;">
+                        ${withdrawals.slice().reverse().map((w, index) => `
+                            <div class="leaderboard-item" style="background: ${index % 2 === 0 ? '#f8f9fa' : 'white'}; margin: 10px 0;">
+                                <div style="flex: 1;">
+                                    <strong>${w.userName}</strong>
+                                    <div style="color: #666; font-size: 0.9rem;">
+                                        <strong>ID:</strong> ${w.withdrawalId}<br>
+                                        <strong>Amount:</strong> ${w.amount} USDT • 
+                                        <strong>Net:</strong> ${w.netAmount} USDT • 
+                                        <strong>Fee:</strong> ${w.fee} USDT<br>
+                                        <strong>Wallet:</strong> <code style="font-size: 0.8rem;">${w.walletAddress.substring(0, 20)}...</code><br>
+                                        <strong>Time:</strong> ${new Date(w.timestamp).toLocaleString()}
+                                    </div>
+                                </div>
+                                <div style="font-weight: bold; color: #28a745; text-align: right;">
+                                    ${w.netAmount} USDT
                                 </div>
                             </div>
-                            <div style="font-weight: bold; color: #28a745;">
-                                ${w.netAmount} USDT
-                            </div>
-                        </div>
-                    `).join('')}
+                        `).join('')}
+                    </div>
                 `}
 
                 <button onclick="showHomePage()" class="btn btn-secondary">Back to Home</button>
             `;
+        }
+
+        function exportWithdrawals() {
+            if (!userData.withdrawals || userData.withdrawals.length === 0) {
+                showError('No withdrawal data to export');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(userData.withdrawals, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            
+            const exportFileDefaultName = `adearn-withdrawals-${new Date().toISOString().split('T')[0]}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            showSuccess('Withdrawal data exported successfully!');
         }
 
         // ===== UTILITY FUNCTIONS =====
@@ -1148,6 +1229,7 @@
             document.getElementById('successModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
             document.getElementById('adminModal').style.display = 'none';
+            document.getElementById('testModal').style.display = 'none';
         }
     </script>
 </body>
