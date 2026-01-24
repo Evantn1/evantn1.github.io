@@ -109,6 +109,12 @@
             color: white;
         }
         
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
         /* AD CONTAINER */
         .ad-container {
             background: #f8f9fa;
@@ -318,6 +324,7 @@
             border-top: 3px solid #667eea;
             border-radius: 50%;
             animation: spin 1s linear infinite;
+            margin-right: 10px;
         }
         
         @keyframes spin {
@@ -330,11 +337,30 @@
             background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
             background-size: 200% 100%;
             animation: loading 1.5s infinite;
+            border-radius: 10px;
         }
         
         @keyframes loading {
             0% { background-position: 200% 0; }
             100% { background-position: -200% 0; }
+        }
+        
+        /* PROGRESS BAR */
+        .progress-container {
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
         }
     </style>
 </head>
@@ -514,12 +540,8 @@
                     </p>
                 </div>
 
-                <button onclick="startNewAd()" class="btn btn-primary" id="watchBtn">
+                <button onclick="startRewardedAd()" class="btn btn-primary" id="watchBtn">
                     ▶️ Watch Ad & Earn ${CONFIG.AD_REWARD.toFixed(4)} USDT
-                </button>
-
-                <button onclick="claimReward()" class="btn btn-success" id="claimBtn" style="display: none;">
-                    💰 Claim ${CONFIG.AD_REWARD.toFixed(4)} USDT
                 </button>
 
                 <div class="stats">
@@ -543,10 +565,9 @@
             `;
         }
 
-        // ===== NEW AD INTEGRATION =====
-        function startNewAd() {
+        // ===== REWARDED INTERSTITIAL AD =====
+        async function startRewardedAd() {
             const watchBtn = document.getElementById('watchBtn');
-            const claimBtn = document.getElementById('claimBtn');
             const adContainer = document.getElementById('adContainer');
             
             // Show loading state
@@ -559,59 +580,99 @@
                 <p class="ad-loading" style="width: 300px; height: 20px; border-radius: 5px; margin-top: 10px;"></p>
             `;
 
-            // Check if new ad SDK is available
+            // Check if ad SDK is available
             if (typeof window.show_10396104 === 'undefined') {
-                // Fallback to interstitial ads
-                showInterstitialAd();
+                setTimeout(() => {
+                    showError('Ad service not available. Please try again later.');
+                    watchBtn.disabled = false;
+                    watchBtn.innerHTML = '▶️ Watch Ad & Earn ' + CONFIG.AD_REWARD.toFixed(4) + ' USDT';
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">❌</div>
+                        <h2>Ad Service Unavailable</h2>
+                        <p>Please try again later or contact support.</p>
+                    `;
+                }, 1500);
                 return;
             }
 
-            // Try to show the new ad
             try {
-                // Show the ad using the new SDK
-                window.show_10396104({
-                    pre: 'inApp',
-                    AppSettings: {
-                        frequency: 2,
-                        capping: 0.1,
-                        interval: 30,
-                        timeout: 5,
-                        everyPage: false
-                    }
-                }, function() {
-                    // Ad completed successfully
-                    adContainer.innerHTML = `
-                        <div class="ad-icon">✅</div>
-                        <h2>Ad Completed!</h2>
-                        <p>Great! You watched the ad completely.</p>
-                        <p>Now claim your ${CONFIG.AD_REWARD.toFixed(4)} USDT reward!</p>
-                    `;
-                    
-                    watchBtn.style.display = 'none';
-                    claimBtn.style.display = 'block';
-                });
+                // Show the rewarded interstitial ad
+                await window.show_10396104();
+                
+                // Ad completed successfully - reward the user
+                rewardUserAfterAd();
                 
             } catch (error) {
                 console.error('Ad error:', error);
-                showInterstitialAd();
+                
+                // Fallback to simulated ad
+                showSimulatedAd();
             }
         }
 
-        // ===== INTERSTITIAL AD FALLBACK =====
-        function showInterstitialAd() {
+        function rewardUserAfterAd() {
             const watchBtn = document.getElementById('watchBtn');
-            const claimBtn = document.getElementById('claimBtn');
             const adContainer = document.getElementById('adContainer');
             
-            // Show interstitial ad with timer
+            // Show success state
+            adContainer.innerHTML = `
+                <div class="ad-icon">✅</div>
+                <h2>Ad Completed Successfully!</h2>
+                <p>Processing your ${CONFIG.AD_REWARD.toFixed(4)} USDT reward...</p>
+                <div class="progress-container">
+                    <div class="progress-bar" id="rewardProgress"></div>
+                </div>
+            `;
+            
+            // Animate progress bar
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += 10;
+                document.getElementById('rewardProgress').style.width = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(progressInterval);
+                    
+                    // Update user data
+                    userData.balance += CONFIG.AD_REWARD;
+                    userData.totalAds += 1;
+                    userData.todayAds += 1;
+                    userData.weeklyAds += 1;
+                    
+                    // Save data
+                    saveUserData();
+                    
+                    // Show success message
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">🎉</div>
+                        <h2>Reward Added!</h2>
+                        <p>✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!</p>
+                        <p>New balance: ${userData.balance.toFixed(4)} USDT</p>
+                    `;
+                    
+                    // Reset button
+                    setTimeout(() => {
+                        watchBtn.disabled = false;
+                        watchBtn.innerHTML = '▶️ Watch Ad & Earn ' + CONFIG.AD_REWARD.toFixed(4) + ' USDT';
+                        showWatchPage();
+                    }, 2000);
+                }
+            }, 100);
+        }
+
+        function showSimulatedAd() {
+            const watchBtn = document.getElementById('watchBtn');
+            const adContainer = document.getElementById('adContainer');
+            
+            // Show simulated ad with timer
             adContainer.innerHTML = `
                 <div class="ad-icon">📺</div>
                 <h2>Advertisement Playing</h2>
                 <p>Please watch the ad for <span id="adTimer">30</span> seconds</p>
                 <div class="timer" id="timerDisplay">30</div>
                 <p>Do not close this page while ad is playing</p>
-                <div style="width: 100%; height: 5px; background: #ddd; border-radius: 5px; margin: 20px 0;">
-                    <div id="progressBar" style="width: 0%; height: 100%; background: #667eea; border-radius: 5px; transition: width 1s linear;"></div>
+                <div class="progress-container">
+                    <div id="progressBar" class="progress-bar"></div>
                 </div>
             `;
             
@@ -628,41 +689,10 @@
                 if (secondsLeft <= 0) {
                     clearInterval(timerInterval);
                     
-                    // Ad completed
-                    adContainer.innerHTML = `
-                        <div class="ad-icon">✅</div>
-                        <h2>Ad Completed!</h2>
-                        <p>Great! You watched the ad completely.</p>
-                        <p>Now claim your ${CONFIG.AD_REWARD.toFixed(4)} USDT reward!</p>
-                    `;
-                    
-                    watchBtn.style.display = 'none';
-                    claimBtn.style.display = 'block';
+                    // Ad completed - reward the user
+                    rewardUserAfterAd();
                 }
             }, 1000);
-        }
-
-        function claimReward() {
-            // Update user data
-            userData.balance += CONFIG.AD_REWARD;
-            userData.totalAds += 1;
-            userData.todayAds += 1;
-            userData.weeklyAds += 1;
-            
-            // Save data
-            saveUserData();
-            
-            // Show success
-            showSuccess(
-                `✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!<br><br>` +
-                `New balance: ${userData.balance.toFixed(4)} USDT<br>` +
-                `Total ads watched: ${userData.totalAds}`
-            );
-            
-            // Return to watch page after delay
-            setTimeout(() => {
-                showWatchPage();
-            }, 2000);
         }
 
         // ===== LEADERBOARD PAGE =====
