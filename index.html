@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <!-- MonetaG Ads Script - REPLACE YOUR_PUBLISHER_ID with your actual ID -->
-    <script src="https://publishers.monetag.com/YOUR_PUBLISHER_ID.js" async></script>
+    <!-- New Ad SDK -->
+    <script src="//libtl.com/sdk.js" data-zone="10396104" data-sdk="show_10396104"></script>
     <style>
         /* SIMPLE STYLES */
         body {
@@ -134,25 +134,6 @@
             font-weight: bold;
             color: #f5576c;
             margin: 20px 0;
-        }
-        
-        /* Progress Bar */
-        .progress-container {
-            width: 100%;
-            background: #e0e0e0;
-            border-radius: 10px;
-            margin: 20px 0;
-            height: 10px;
-            overflow: hidden;
-            display: none;
-        }
-        
-        .progress-bar {
-            height: 100%;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            border-radius: 10px;
-            width: 0%;
-            transition: width 0.3s ease;
         }
         
         /* STATS */
@@ -327,6 +308,34 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
+        
+        /* LOADING ANIMATION */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* AD LOADING STATES */
+        .ad-loading {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+        }
+        
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
     </style>
 </head>
 <body>
@@ -362,16 +371,8 @@
             WITHDRAWAL_FEE: 0.001,      // 0.1 cent fee
             WEEKLY_PRIZES: [0.5, 0.3, 0.1],
             ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
-            ADMIN_CHAT_ID: "6450016040"
-        };
-
-        // ===== MONETAG CONFIGURATION =====
-        // REPLACE THESE WITH YOUR ACTUAL MONETAG IDs
-        const MONETAG_CONFIG = {
-            PUBLISHER_ID: 'YOUR_PUBLISHER_ID_HERE', // Get from monetag.com
-            INTERSTITIAL_ZONE_ID: '10396104', // Your zone ID from monetag dashboard
-            REWARDED_ZONE_ID: 'YOUR_REWARDED_ZONE_ID', // Optional: for rewarded videos
-            BANNER_ZONE_ID: 'YOUR_BANNER_ZONE_ID' // Optional: for banner ads
+            ADMIN_CHAT_ID: "6450016040",
+            AD_ZONE_ID: "10396104"
         };
 
         // ===== APP STATE =====
@@ -384,11 +385,6 @@
             userId: null,
             polygonAddress: ""
         };
-
-        // MonetaG Ad State
-        let monetagInitialized = false;
-        let adCompleted = false;
-        let currentAdType = 'interstitial'; // 'interstitial' or 'rewarded'
 
         // ===== INITIALIZE =====
         document.addEventListener('DOMContentLoaded', function() {
@@ -414,177 +410,8 @@
             // Load saved data
             loadUserData();
             
-            // Initialize MonetaG
-            initializeMonetag();
-            
             // Show home page
             showHomePage();
-        }
-
-        // ===== MONETAG FUNCTIONS =====
-        function initializeMonetag() {
-            if (typeof monetag === 'undefined') {
-                console.warn('MonetaG not loaded yet. Will initialize when ad is requested.');
-                return false;
-            }
-            
-            try {
-                // Initialize MonetaG with settings from your example
-                monetag.load();
-                
-                // Set up MonetaG interstitial with your settings
-                monetag.showAd('interstitial', MONETAG_CONFIG.INTERSTITIAL_ZONE_ID, {
-                    frequency: 2,
-                    capping: 0.1,
-                    interval: 30,
-                    timeout: 5,
-                    everyPage: false
-                });
-                
-                monetagInitialized = true;
-                console.log('✅ MonetaG initialized successfully');
-                return true;
-            } catch (error) {
-                console.error('❌ MonetaG initialization failed:', error);
-                return false;
-            }
-        }
-
-        async function startMonetagAd() {
-            const watchBtn = document.getElementById('watchBtn');
-            const claimBtn = document.getElementById('claimBtn');
-            const adContainer = document.getElementById('adContainer');
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBar = document.getElementById('progressBar');
-            
-            // Reset state
-            adCompleted = false;
-            
-            try {
-                // Show loading state
-                watchBtn.disabled = true;
-                watchBtn.innerHTML = '⏳ Loading Ad...';
-                progressContainer.style.display = 'block';
-                progressBar.style.width = '0%';
-                
-                adContainer.innerHTML = `
-                    <div class="ad-icon">⏳</div>
-                    <h2>Loading Advertisement</h2>
-                    <p>Please wait while we load the ad...</p>
-                    <div class="progress-container" id="progressContainer">
-                        <div class="progress-bar" id="progressBar"></div>
-                    </div>
-                    <div style="margin-top: 20px; font-size: 0.9rem; color: #666;">
-                        Powered by MonetaG • Premium ad network
-                    </div>
-                `;
-
-                // Ensure MonetaG is loaded
-                if (typeof monetag === 'undefined') {
-                    // Try to load MonetaG dynamically
-                    const script = document.createElement('script');
-                    script.src = `https://publishers.monetag.com/${MONETAG_CONFIG.PUBLISHER_ID}.js`;
-                    script.async = true;
-                    document.head.appendChild(script);
-                    
-                    // Wait for script to load
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    if (typeof monetag === 'undefined') {
-                        throw new Error('MonetaG not loaded. Please check your internet connection.');
-                    }
-                }
-
-                // Initialize if needed
-                if (!monetagInitialized) {
-                    if (!initializeMonetag()) {
-                        throw new Error('Failed to initialize ad network.');
-                    }
-                }
-
-                // Show loading progress
-                let progress = 0;
-                const progressInterval = setInterval(() => {
-                    progress += 5;
-                    progressBar.style.width = Math.min(progress, 95) + '%';
-                    if (progress >= 95) clearInterval(progressInterval);
-                }, 300);
-
-                // Show interstitial ad
-                monetag.showAd('interstitial', MONETAG_CONFIG.INTERSTITIAL_ZONE_ID);
-                
-                // Wait for ad to complete
-                await waitForAdCompletion();
-                
-                clearInterval(progressInterval);
-                progressBar.style.width = '100%';
-                
-                // Ad completed successfully
-                setTimeout(() => {
-                    adContainer.innerHTML = `
-                        <div class="ad-icon">✅</div>
-                        <h2>Ad Completed!</h2>
-                        <p>Great! You watched the ad completely.</p>
-                        <p>Now claim your ${CONFIG.AD_REWARD.toFixed(4)} USDT reward!</p>
-                        <div style="margin-top: 15px; padding: 10px; background: #e8f5e9; border-radius: 8px; color: #2e7d32;">
-                            <strong>✓ Ad verified by MonetaG</strong>
-                        </div>
-                    `;
-                    
-                    progressContainer.style.display = 'none';
-                    watchBtn.style.display = 'none';
-                    claimBtn.style.display = 'block';
-                }, 500);
-                
-            } catch (error) {
-                console.error('Ad error:', error);
-                
-                adContainer.innerHTML = `
-                    <div class="ad-icon">❌</div>
-                    <h2>Ad Failed to Load</h2>
-                    <p>Error: ${error.message || 'Unknown error'}</p>
-                    <p>Please try again or contact support.</p>
-                    <button onclick="showWatchPage()" class="btn btn-secondary" style="margin-top: 15px;">
-                        🔄 Retry
-                    </button>
-                `;
-                
-                progressContainer.style.display = 'none';
-                watchBtn.disabled = false;
-                watchBtn.innerHTML = '▶️ Watch Ad & Earn USDT';
-                watchBtn.style.display = 'block';
-                claimBtn.style.display = 'none';
-                
-                showError('Failed to load ad: ' + (error.message || 'Please try again.'));
-            }
-        }
-
-        function waitForAdCompletion() {
-            return new Promise((resolve, reject) => {
-                let checks = 0;
-                const maxChecks = 120; // 60 seconds timeout
-                
-                const checkInterval = setInterval(() => {
-                    checks++;
-                    
-                    // Simulate ad completion for demo (in production, use MonetaG callbacks)
-                    // Remove this simulation when using real MonetaG callbacks
-                    if (checks >= 30) { // 15 seconds for demo
-                        adCompleted = true;
-                    }
-                    
-                    if (adCompleted || checks >= maxChecks) {
-                        clearInterval(checkInterval);
-                        
-                        if (adCompleted) {
-                            resolve();
-                        } else {
-                            reject(new Error('Ad timeout - please watch the full ad'));
-                        }
-                    }
-                    
-                }, 500);
-            });
         }
 
         // ===== DATA MANAGEMENT =====
@@ -682,15 +509,12 @@
                     <div class="ad-icon">📱</div>
                     <h2>Ready to Watch Ads</h2>
                     <p>Click below to watch an ad and earn <strong>${CONFIG.AD_REWARD.toFixed(4)} USDT</strong></p>
-                    <div class="progress-container" id="progressContainer">
-                        <div class="progress-bar" id="progressBar"></div>
-                    </div>
-                    <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">
-                        Powered by MonetaG • Premium ad network
+                    <p style="color: #666; font-size: 0.9rem;">
+                        Each ad gives you ${CONFIG.AD_REWARD.toFixed(4)} USDT
                     </p>
                 </div>
 
-                <button onclick="startMonetagAd()" class="btn btn-primary" id="watchBtn">
+                <button onclick="startNewAd()" class="btn btn-primary" id="watchBtn">
                     ▶️ Watch Ad & Earn ${CONFIG.AD_REWARD.toFixed(4)} USDT
                 </button>
 
@@ -717,6 +541,105 @@
                     <p><strong>💡 Tips:</strong> Watch complete ads • Claim rewards immediately • No daily limits</p>
                 </div>
             `;
+        }
+
+        // ===== NEW AD INTEGRATION =====
+        function startNewAd() {
+            const watchBtn = document.getElementById('watchBtn');
+            const claimBtn = document.getElementById('claimBtn');
+            const adContainer = document.getElementById('adContainer');
+            
+            // Show loading state
+            watchBtn.disabled = true;
+            watchBtn.innerHTML = '<span class="loading"></span> Loading Ad...';
+            adContainer.innerHTML = `
+                <div class="ad-icon ad-loading" style="width: 100px; height: 100px; border-radius: 10px;"></div>
+                <h2 class="ad-loading" style="width: 200px; height: 30px; border-radius: 5px;"></h2>
+                <p class="ad-loading" style="width: 250px; height: 20px; border-radius: 5px;"></p>
+                <p class="ad-loading" style="width: 300px; height: 20px; border-radius: 5px; margin-top: 10px;"></p>
+            `;
+
+            // Check if new ad SDK is available
+            if (typeof window.show_10396104 === 'undefined') {
+                // Fallback to interstitial ads
+                showInterstitialAd();
+                return;
+            }
+
+            // Try to show the new ad
+            try {
+                // Show the ad using the new SDK
+                window.show_10396104({
+                    pre: 'inApp',
+                    AppSettings: {
+                        frequency: 2,
+                        capping: 0.1,
+                        interval: 30,
+                        timeout: 5,
+                        everyPage: false
+                    }
+                }, function() {
+                    // Ad completed successfully
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">✅</div>
+                        <h2>Ad Completed!</h2>
+                        <p>Great! You watched the ad completely.</p>
+                        <p>Now claim your ${CONFIG.AD_REWARD.toFixed(4)} USDT reward!</p>
+                    `;
+                    
+                    watchBtn.style.display = 'none';
+                    claimBtn.style.display = 'block';
+                });
+                
+            } catch (error) {
+                console.error('Ad error:', error);
+                showInterstitialAd();
+            }
+        }
+
+        // ===== INTERSTITIAL AD FALLBACK =====
+        function showInterstitialAd() {
+            const watchBtn = document.getElementById('watchBtn');
+            const claimBtn = document.getElementById('claimBtn');
+            const adContainer = document.getElementById('adContainer');
+            
+            // Show interstitial ad with timer
+            adContainer.innerHTML = `
+                <div class="ad-icon">📺</div>
+                <h2>Advertisement Playing</h2>
+                <p>Please watch the ad for <span id="adTimer">30</span> seconds</p>
+                <div class="timer" id="timerDisplay">30</div>
+                <p>Do not close this page while ad is playing</p>
+                <div style="width: 100%; height: 5px; background: #ddd; border-radius: 5px; margin: 20px 0;">
+                    <div id="progressBar" style="width: 0%; height: 100%; background: #667eea; border-radius: 5px; transition: width 1s linear;"></div>
+                </div>
+            `;
+            
+            let secondsLeft = 30;
+            const timerInterval = setInterval(() => {
+                secondsLeft--;
+                document.getElementById('adTimer').textContent = secondsLeft;
+                document.getElementById('timerDisplay').textContent = secondsLeft;
+                
+                // Update progress bar
+                const progress = ((30 - secondsLeft) / 30) * 100;
+                document.getElementById('progressBar').style.width = progress + '%';
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(timerInterval);
+                    
+                    // Ad completed
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">✅</div>
+                        <h2>Ad Completed!</h2>
+                        <p>Great! You watched the ad completely.</p>
+                        <p>Now claim your ${CONFIG.AD_REWARD.toFixed(4)} USDT reward!</p>
+                    `;
+                    
+                    watchBtn.style.display = 'none';
+                    claimBtn.style.display = 'block';
+                }
+            }, 1000);
         }
 
         function claimReward() {
