@@ -6,8 +6,8 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- AdsGram SDK with your Platform ID 21649 -->
-    <script src="https://adsgram.ai/js/sdk.min.js?platform=21649"></script>
+    <!-- ✅ CORRECT AdsGram SDK - sad.min.js -->
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
     <style>
         /* ===== MODERN STYLES ===== */
@@ -426,11 +426,9 @@
             ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
             ADMIN_CHAT_ID: "6450016040",
             
-            // 🎯 YOUR ADSGRAM CONFIGURATION
+            // 🎯 YOUR ADSGRAM BLOCK ID
             ADSGRAM: {
-                ENABLED: true,
-                PLATFORM_ID: "21649",
-                BLOCK_ID: "23020"  // Your Block ID
+                BLOCK_ID: "23020"  // Your Block ID from dashboard
             }
         };
 
@@ -451,9 +449,6 @@
         });
 
         function initializeApp() {
-            // Check for reward callback FIRST
-            checkForRewardCallback();
-            
             // Get Telegram user info
             if (typeof Telegram !== 'undefined') {
                 const tg = window.Telegram.WebApp;
@@ -470,55 +465,6 @@
             
             loadUserData();
             showHomePage();
-            
-            // Check if we should show reward success
-            if (sessionStorage.getItem('showRewardSuccess')) {
-                const amount = sessionStorage.getItem('rewardAmount') || '0.0001';
-                sessionStorage.removeItem('showRewardSuccess');
-                sessionStorage.removeItem('rewardAmount');
-                showRewardNotification(`💰 ${amount} USDT has been added to your balance!`);
-            }
-        }
-
-        // ===== CHECK FOR ADSGRAM REWARD CALLBACK =====
-        function checkForRewardCallback() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const isReward = urlParams.get('reward_callback');
-            const userId = urlParams.get('user');        // Comes as [userId]
-            const amount = urlParams.get('amount');      // Comes as [reward]
-            const transactionId = urlParams.get('transaction_id');
-            
-            if (isReward === '1' && userId && amount) {
-                console.log('✅ Reward callback received:', {userId, amount, transactionId});
-                
-                // Load current user data
-                const users = JSON.parse(localStorage.getItem('adEarnUser') || '{}');
-                
-                // Try to find the user
-                let userFound = false;
-                if (users.userId && users.userId.toString() === userId) {
-                    users.balance = (users.balance || 0) + parseFloat(amount);
-                    users.totalAds = (users.totalAds || 0) + 1;
-                    users.todayAds = (users.todayAds || 0) + 1;
-                    users.weeklyAds = (users.weeklyAds || 0) + 1;
-                    userFound = true;
-                } else if (users.userName && users.userName.replace('@', '') === userId) {
-                    users.balance = (users.balance || 0) + parseFloat(amount);
-                    users.totalAds = (users.totalAds || 0) + 1;
-                    users.todayAds = (users.todayAds || 0) + 1;
-                    users.weeklyAds = (users.weeklyAds || 0) + 1;
-                    userFound = true;
-                }
-                
-                if (userFound) {
-                    localStorage.setItem('adEarnUser', JSON.stringify(users));
-                    sessionStorage.setItem('showRewardSuccess', 'true');
-                    sessionStorage.setItem('rewardAmount', amount);
-                }
-                
-                // Clean URL - remove parameters
-                window.history.replaceState({}, document.title, window.location.pathname);
-            }
         }
 
         function loadUserData() {
@@ -582,8 +528,8 @@
                 </button>
 
                 <div class="adsgram-badge">
-                    <strong>✅ AdsGram Active</strong><br>
-                    Platform: ${CONFIG.ADSGRAM.PLATFORM_ID} | Block: ${CONFIG.ADSGRAM.BLOCK_ID}
+                    <strong>✅ AdsGram Ready</strong><br>
+                    Block ID: ${CONFIG.ADSGRAM.BLOCK_ID}
                 </div>
 
                 <div class="notice">
@@ -651,15 +597,13 @@
 
             try {
                 // Check if AdsGram SDK is loaded
-                if (typeof window.AdsGram === 'undefined') {
+                if (typeof window.Adsgram === 'undefined') {
                     throw new Error('AdsGram SDK not loaded');
                 }
 
-                // Initialize AdsGram with your Block ID
-                const adsGram = window.AdsGram.init({
-                    platformId: CONFIG.ADSGRAM.PLATFORM_ID,
-                    blockId: CONFIG.ADSGRAM.BLOCK_ID,  // Your Block ID 23020
-                    userId: userData.userId || userData.userName || 'guest_' + Date.now()
+                // ✅ CORRECT: Initialize AdsGram with just blockId
+                const AdController = window.Adsgram.init({ 
+                    blockId: CONFIG.ADSGRAM.BLOCK_ID  // Your Block ID 23020
                 });
 
                 adContainer.innerHTML = `
@@ -671,26 +615,45 @@
                     </div>
                 `;
 
-                // Show rewarded ad
-                await adsGram.showRewardedAd({
-                    onAdLoaded: () => console.log('Ad loaded'),
-                    onAdStarted: () => console.log('Ad started'),
-                    onAdCompleted: () => console.log('Ad completed'),
-                    onAdError: (error) => { throw error; }
+                // ✅ CORRECT: Show rewarded ad with promise
+                AdController.show().then((result) => {
+                    // User watched ad till the end - REWARD THEM!
+                    console.log('✅ Ad completed:', result);
+                    
+                    // Add reward to user balance
+                    userData.balance += CONFIG.AD_REWARD;
+                    userData.totalAds++;
+                    userData.todayAds++;
+                    userData.weeklyAds++;
+                    saveUserData();
+                    
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">🎉</div>
+                        <h2>Ad Completed!</h2>
+                        <p>✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!</p>
+                        <p>New balance: ${userData.balance.toFixed(4)} USDT</p>
+                    `;
+                    
+                    setTimeout(() => showWatchPage(), 2000);
+                    
+                }).catch((result) => {
+                    // User got error during ad
+                    console.error('❌ Ad error:', result);
+                    
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">❌</div>
+                        <h2>Ad Error</h2>
+                        <p>Failed to load ad. Please try again.</p>
+                    `;
+                    
+                    watchBtn.disabled = false;
+                    watchBtn.innerHTML = '▶️ Try Again';
                 });
-
-                adContainer.innerHTML = `
-                    <div class="ad-icon">✅</div>
-                    <h2>Ad Completed!</h2>
-                    <p>Your reward is being processed...</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 100%"></div>
-                    </div>
-                `;
 
             } catch (error) {
                 console.error('AdsGram error:', error);
                 
+                // Fallback to simulated ad
                 adContainer.innerHTML = `
                     <div class="ad-icon">⚠️</div>
                     <h2>Using Test Ad</h2>
@@ -702,6 +665,7 @@
         }
 
         function showSimulatedAd() {
+            const watchBtn = document.getElementById('watchBtn');
             const adContainer = document.getElementById('adContainer');
             let secondsLeft = 5;
             
@@ -729,13 +693,21 @@
                 
                 if (secondsLeft <= 0) {
                     clearInterval(timer);
+                    
+                    // Add reward for simulated ad
                     userData.balance += CONFIG.AD_REWARD;
                     userData.totalAds++;
                     userData.todayAds++;
                     userData.weeklyAds++;
                     saveUserData();
                     
-                    showSuccess(`✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!`);
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">🎉</div>
+                        <h2>Test Ad Completed!</h2>
+                        <p>✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!</p>
+                        <p>New balance: ${userData.balance.toFixed(4)} USDT</p>
+                    `;
+                    
                     setTimeout(() => showWatchPage(), 2000);
                 }
             }, 1000);
@@ -910,14 +882,8 @@
             }
         }
 
-        function showRewardNotification(message) {
-            document.getElementById('rewardMessage').innerHTML = message;
-            document.getElementById('rewardModal').style.display = 'flex';
-        }
-
         function closeRewardModal() {
             document.getElementById('rewardModal').style.display = 'none';
-            showWatchPage();
         }
 
         function showSuccess(message) {
