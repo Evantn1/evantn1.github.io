@@ -6,7 +6,7 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- 🎯 AdsGram SDK with your Platform ID -->
+    <!-- AdsGram SDK with your Platform ID 21649 -->
     <script src="https://adsgram.ai/js/sdk.min.js?platform=21649"></script>
     
     <style>
@@ -39,7 +39,6 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* ===== HEADER ===== */
         header {
             text-align: center;
             margin-bottom: 24px;
@@ -72,7 +71,6 @@
             transform: translateX(-3px);
         }
 
-        /* ===== USER CARD ===== */
         .user-card {
             background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
             color: white;
@@ -90,7 +88,6 @@
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
-        /* ===== STATS GRID ===== */
         .stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -124,7 +121,6 @@
             margin-top: 5px;
         }
 
-        /* ===== BUTTONS ===== */
         .btn {
             display: block;
             width: 100%;
@@ -170,7 +166,6 @@
             transform: none !important;
         }
 
-        /* ===== AD CONTAINER ===== */
         .ad-container {
             background: #f8f9fa;
             border-radius: 20px;
@@ -197,7 +192,6 @@
             margin: 20px 0;
         }
 
-        /* ===== LEADERBOARD ===== */
         .leaderboard-item {
             display: flex;
             align-items: center;
@@ -231,7 +225,6 @@
         .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
         .rank-other { background: #6c757d; }
 
-        /* ===== WITHDRAWAL ===== */
         .amount-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -276,7 +269,6 @@
             border-color: #667eea;
         }
 
-        /* ===== NOTICES ===== */
         .notice {
             background: #e3f2fd;
             padding: 16px;
@@ -299,7 +291,6 @@
             border-left: 4px solid #ffc107;
         }
 
-        /* ===== MODAL ===== */
         .modal {
             display: none;
             position: fixed;
@@ -333,7 +324,6 @@
             margin-bottom: 20px;
         }
 
-        /* ===== LOADING ===== */
         .loading-spinner {
             display: inline-block;
             width: 24px;
@@ -365,23 +355,17 @@
             transition: width 0.3s ease;
         }
 
-        /* ===== ADSGRAM SUCCESS ===== */
-        .adsgram-success {
-            background: #d4edda;
-            border: 2px solid #28a745;
+        .adsgram-badge {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
             border-radius: 12px;
-            padding: 16px;
-            margin: 20px 0;
+            padding: 12px;
+            margin: 10px 0;
             text-align: center;
-            color: #155724;
+            font-size: 0.9rem;
+            color: #1976d2;
         }
 
-        .adsgram-success h3 {
-            margin-bottom: 10px;
-            color: #155724;
-        }
-
-        /* ===== RESPONSIVE ===== */
         @media (max-width: 480px) {
             .stats {
                 grid-template-columns: 1fr;
@@ -422,24 +406,31 @@
         </div>
     </div>
 
+    <!-- Reward Modal -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">🎉</div>
+            <h2>Reward Received!</h2>
+            <p id="rewardMessage"></p>
+            <button onclick="closeRewardModal()" class="btn btn-success">Awesome!</button>
+        </div>
+    </div>
+
     <script>
-        // ===== CONFIGURATION WITH YOUR ADSGRAM PLATFORM ID =====
+        // ===== CONFIGURATION - YOUR ADSGRAM DETAILS =====
         const CONFIG = {
-            AD_REWARD: 0.0001,                    // 0.0001 USDT per ad
-            MIN_WITHDRAWAL: 0.015,                 // 1.5 cents
-            WITHDRAWAL_FEE: 0.001,                 // 0.1 cent fee
-            WEEKLY_PRIZES: [0.5, 0.3, 0.1],        // Weekly rewards
+            AD_REWARD: 0.0001,
+            MIN_WITHDRAWAL: 0.015,
+            WITHDRAWAL_FEE: 0.001,
+            WEEKLY_PRIZES: [0.5, 0.3, 0.1],
             ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
             ADMIN_CHAT_ID: "6450016040",
             
-            // 🎯 AdsGram Configuration - Platform ID 21649 is set in SDK URL
+            // 🎯 YOUR ADSGRAM CONFIGURATION
             ADSGRAM: {
-                ENABLED: true,                      // Enabled with your platform ID
-                PLATFORM_ID: "21649",               // Your platform ID
-                // You may need to add these from your AdsGram dashboard
-                APP_ID: "YOUR_APP_ID",              // Get from AdsGram dashboard
-                AD_UNIT_ID: "YOUR_AD_UNIT_ID",       // Get from AdsGram dashboard
-                PLACEMENT_ID: "YOUR_PLACEMENT_ID"    // Get from AdsGram dashboard
+                ENABLED: true,
+                PLATFORM_ID: "21649",
+                BLOCK_ID: "23020"  // Your Block ID
             }
         };
 
@@ -460,6 +451,9 @@
         });
 
         function initializeApp() {
+            // Check for reward callback FIRST
+            checkForRewardCallback();
+            
             // Get Telegram user info
             if (typeof Telegram !== 'undefined') {
                 const tg = window.Telegram.WebApp;
@@ -475,12 +469,58 @@
             }
             
             loadUserData();
-            
-            // Show home page
             showHomePage();
+            
+            // Check if we should show reward success
+            if (sessionStorage.getItem('showRewardSuccess')) {
+                const amount = sessionStorage.getItem('rewardAmount') || '0.0001';
+                sessionStorage.removeItem('showRewardSuccess');
+                sessionStorage.removeItem('rewardAmount');
+                showRewardNotification(`💰 ${amount} USDT has been added to your balance!`);
+            }
         }
 
-        // ===== DATA MANAGEMENT =====
+        // ===== CHECK FOR ADSGRAM REWARD CALLBACK =====
+        function checkForRewardCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const isReward = urlParams.get('reward_callback');
+            const userId = urlParams.get('user');        // Comes as [userId]
+            const amount = urlParams.get('amount');      // Comes as [reward]
+            const transactionId = urlParams.get('transaction_id');
+            
+            if (isReward === '1' && userId && amount) {
+                console.log('✅ Reward callback received:', {userId, amount, transactionId});
+                
+                // Load current user data
+                const users = JSON.parse(localStorage.getItem('adEarnUser') || '{}');
+                
+                // Try to find the user
+                let userFound = false;
+                if (users.userId && users.userId.toString() === userId) {
+                    users.balance = (users.balance || 0) + parseFloat(amount);
+                    users.totalAds = (users.totalAds || 0) + 1;
+                    users.todayAds = (users.todayAds || 0) + 1;
+                    users.weeklyAds = (users.weeklyAds || 0) + 1;
+                    userFound = true;
+                } else if (users.userName && users.userName.replace('@', '') === userId) {
+                    users.balance = (users.balance || 0) + parseFloat(amount);
+                    users.totalAds = (users.totalAds || 0) + 1;
+                    users.todayAds = (users.todayAds || 0) + 1;
+                    users.weeklyAds = (users.weeklyAds || 0) + 1;
+                    userFound = true;
+                }
+                
+                if (userFound) {
+                    localStorage.setItem('adEarnUser', JSON.stringify(users));
+                    sessionStorage.setItem('showRewardSuccess', 'true');
+                    sessionStorage.setItem('rewardAmount', amount);
+                }
+                
+                // Clean URL - remove parameters
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
         function loadUserData() {
             const saved = localStorage.getItem('adEarnUser');
             if (saved) {
@@ -501,7 +541,6 @@
             localStorage.setItem('adEarnUser', JSON.stringify(userData));
         }
 
-        // ===== HOME PAGE =====
         function showHomePage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -542,10 +581,9 @@
                     💸 Withdraw USDT
                 </button>
 
-                <div class="adsgram-success">
-                    <h3>✅ AdsGram Active</h3>
-                    <p>Platform ID: ${CONFIG.ADSGRAM.PLATFORM_ID}</p>
-                    <p style="font-size: 0.9rem;">Ready to serve ads</p>
+                <div class="adsgram-badge">
+                    <strong>✅ AdsGram Active</strong><br>
+                    Platform: ${CONFIG.ADSGRAM.PLATFORM_ID} | Block: ${CONFIG.ADSGRAM.BLOCK_ID}
                 </div>
 
                 <div class="notice">
@@ -554,7 +592,6 @@
             `;
         }
 
-        // ===== WATCH PAGE =====
         function showWatchPage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -565,6 +602,7 @@
 
                 <div class="notice success-notice">
                     <p><strong>💰 Reward per ad:</strong> ${CONFIG.AD_REWARD.toFixed(4)} USDT</p>
+                    <p><strong>🆔 Your User ID:</strong> ${userData.userId || userData.userName || 'guest'}</p>
                 </div>
 
                 <div class="ad-container" id="adContainer">
@@ -594,7 +632,7 @@
             `;
         }
 
-        // ===== ADSGRAM AD FUNCTION WITH PLATFORM ID 21649 =====
+        // ===== ADSGRAM AD FUNCTION WITH BLOCK ID 23020 =====
         async function startAd() {
             const watchBtn = document.getElementById('watchBtn');
             const adContainer = document.getElementById('adContainer');
@@ -617,17 +655,13 @@
                     throw new Error('AdsGram SDK not loaded');
                 }
 
-                // Initialize AdsGram with platform ID
+                // Initialize AdsGram with your Block ID
                 const adsGram = window.AdsGram.init({
                     platformId: CONFIG.ADSGRAM.PLATFORM_ID,
-                    userId: userData.userId || 'user_' + Date.now(),
-                    // Add these if required by your dashboard
-                    appId: CONFIG.ADSGRAM.APP_ID,
-                    adUnitId: CONFIG.ADSGRAM.AD_UNIT_ID,
-                    placementId: CONFIG.ADSGRAM.PLACEMENT_ID
+                    blockId: CONFIG.ADSGRAM.BLOCK_ID,  // Your Block ID 23020
+                    userId: userData.userId || userData.userName || 'guest_' + Date.now()
                 });
 
-                // Update UI
                 adContainer.innerHTML = `
                     <div class="ad-icon">🎬</div>
                     <h2>Ad Started</h2>
@@ -638,37 +672,35 @@
                 `;
 
                 // Show rewarded ad
-                const result = await adsGram.showRewardedAd({
-                    onAdLoaded: () => {
-                        console.log('Ad loaded successfully');
-                    },
-                    onAdStarted: () => {
-                        console.log('Ad started playing');
-                    },
-                    onAdCompleted: () => {
-                        console.log('Ad completed');
-                    }
+                await adsGram.showRewardedAd({
+                    onAdLoaded: () => console.log('Ad loaded'),
+                    onAdStarted: () => console.log('Ad started'),
+                    onAdCompleted: () => console.log('Ad completed'),
+                    onAdError: (error) => { throw error; }
                 });
 
-                // Ad completed - reward user
-                rewardUser();
+                adContainer.innerHTML = `
+                    <div class="ad-icon">✅</div>
+                    <h2>Ad Completed!</h2>
+                    <p>Your reward is being processed...</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 100%"></div>
+                    </div>
+                `;
 
             } catch (error) {
                 console.error('AdsGram error:', error);
                 
-                // Show error and fallback to simulated ad
                 adContainer.innerHTML = `
                     <div class="ad-icon">⚠️</div>
-                    <h2>Ad Error</h2>
-                    <p>${error.message || 'Failed to load ad'}</p>
-                    <p style="color: #666; font-size: 0.9rem;">Using simulated ad instead</p>
+                    <h2>Using Test Ad</h2>
+                    <p>${error.message || 'Failed to load real ad'}</p>
                 `;
                 
-                setTimeout(() => showSimulatedAd(), 2000);
+                setTimeout(() => showSimulatedAd(), 1500);
             }
         }
 
-        // ===== SIMULATED AD (FALLBACK) =====
         function showSimulatedAd() {
             const adContainer = document.getElementById('adContainer');
             let secondsLeft = 5;
@@ -697,24 +729,18 @@
                 
                 if (secondsLeft <= 0) {
                     clearInterval(timer);
-                    rewardUser();
+                    userData.balance += CONFIG.AD_REWARD;
+                    userData.totalAds++;
+                    userData.todayAds++;
+                    userData.weeklyAds++;
+                    saveUserData();
+                    
+                    showSuccess(`✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!`);
+                    setTimeout(() => showWatchPage(), 2000);
                 }
             }, 1000);
         }
 
-        function rewardUser() {
-            userData.balance += CONFIG.AD_REWARD;
-            userData.totalAds++;
-            userData.todayAds++;
-            userData.weeklyAds++;
-            saveUserData();
-            
-            showSuccess(`✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!`);
-            
-            setTimeout(() => showWatchPage(), 2000);
-        }
-
-        // ===== LEADERBOARD PAGE =====
         function showLeaderboardPage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -762,7 +788,6 @@
             `).join('');
         }
 
-        // ===== WITHDRAW PAGE =====
         function showWithdrawPage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -856,7 +881,6 @@
             setTimeout(() => showHomePage(), 2000);
         }
 
-        // ===== TELEGRAM NOTIFICATION =====
         async function sendTelegramNotification(data) {
             if (!CONFIG.ADMIN_BOT_TOKEN || !CONFIG.ADMIN_CHAT_ID) return;
             
@@ -886,7 +910,16 @@
             }
         }
 
-        // ===== MODAL FUNCTIONS =====
+        function showRewardNotification(message) {
+            document.getElementById('rewardMessage').innerHTML = message;
+            document.getElementById('rewardModal').style.display = 'flex';
+        }
+
+        function closeRewardModal() {
+            document.getElementById('rewardModal').style.display = 'none';
+            showWatchPage();
+        }
+
         function showSuccess(message) {
             document.getElementById('successMessage').innerHTML = message;
             document.getElementById('successModal').style.display = 'flex';
@@ -900,6 +933,7 @@
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
+            document.getElementById('rewardModal').style.display = 'none';
         }
     </script>
 </body>
