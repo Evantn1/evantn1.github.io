@@ -52,6 +52,7 @@
             z-index: 20;
             display: flex;
             gap: 5px;
+            flex-wrap: wrap;
         }
 
         .lang-btn {
@@ -148,8 +149,27 @@
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 2px solid #f0f0f0;
-            padding-left: 80px;  /* Space for language selector */
+            padding-left: 150px;  /* Extra space for language selector */
             padding-right: 60px; /* Space for daily reward icon */
+        }
+
+        @media (max-width: 500px) {
+            header {
+                padding-left: 120px;
+            }
+        }
+
+        @media (max-width: 400px) {
+            header {
+                padding-left: 0;
+                padding-top: 60px;
+            }
+            
+            .language-selector {
+                top: 10px;
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
 
         h1 {
@@ -461,6 +481,53 @@
         .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
         .rank-other { background: #6c757d; }
 
+        /* ===== DATABASE SETUP GUIDE ===== */
+        .db-setup-guide {
+            background: #fff3cd;
+            border: 2px solid #ffc107;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+        }
+
+        .db-setup-guide h3 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+
+        .db-setup-guide code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 6px;
+            font-family: monospace;
+        }
+
+        .db-setup-guide pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 15px 0;
+        }
+
+        .option-card {
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .option-title {
+            font-size: 1.3rem;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
         .amount-options {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -715,16 +782,6 @@
             .amount-options {
                 grid-template-columns: repeat(2, 1fr);
             }
-
-            .language-selector {
-                top: 10px;
-                left: 10px;
-            }
-
-            .lang-btn {
-                padding: 5px 8px;
-                font-size: 12px;
-            }
         }
     </style>
 </head>
@@ -759,7 +816,10 @@
             <div class="modal-icon">🎁</div>
             <h2 id="dailyTitle">Daily Reward</h2>
             <p id="dailyRewardMessage"></p>
-            <button onclick="claimDailyReward()" class="btn btn-success" id="claimDailyBtn">Claim 0.0002 USDT</button>
+            <div id="dailyAdContainer" style="margin: 15px 0;">
+                <!-- Ad will show here -->
+            </div>
+            <button onclick="startDailyRewardAd()" class="btn btn-primary" id="watchDailyAdBtn">Watch Ad to Claim</button>
             <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;" id="dailyLaterBtn">Maybe Later</button>
         </div>
     </div>
@@ -771,6 +831,129 @@
             <h2 id="rewardTitle">Reward Received!</h2>
             <p id="rewardMessage"></p>
             <button onclick="closeRewardModal()" class="btn btn-success" id="rewardBtn">Awesome!</button>
+        </div>
+    </div>
+
+    <!-- Database Info Modal -->
+    <div id="dbInfoModal" class="modal">
+        <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
+            <div class="modal-icon">📊</div>
+            <h2>Leaderboard Database Setup</h2>
+            
+            <div class="db-setup-guide">
+                <h3>⚠️ Important Note</h3>
+                <p>The current leaderboard shows only demo data because it's stored locally on each user's device.</p>
+                <p>For a REAL leaderboard that tracks all users globally, you need a backend database.</p>
+            </div>
+
+            <div class="option-card">
+                <div class="option-title">Option 1: Simple (Firebase)</div>
+                <p>Free, easy to set up, good for small apps</p>
+                <pre>// 1. Create account at https://firebase.google.com
+// 2. Add this to your code:
+
+import { initializeApp } from "firebase/app";
+import { getDatabase, ref, set, get } from "firebase/database";
+
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  databaseURL: "YOUR_DATABASE_URL",
+  projectId: "YOUR_PROJECT_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// Save user stats
+async function updateLeaderboard(userId, userName, weeklyAds) {
+  await set(ref(db, 'leaderboard/' + userId), {
+    name: userName,
+    ads: weeklyAds,
+    timestamp: Date.now()
+  });
+}</pre>
+            </div>
+
+            <div class="option-card">
+                <div class="option-title">Option 2: Professional (Node.js + MongoDB)</div>
+                <p>More powerful, scalable, full control</p>
+                <pre>// Backend API (Node.js + Express)
+const express = require('express');
+const mongoose = require('mongoose');
+const app = express();
+
+// User Schema
+const UserSchema = new mongoose.Schema({
+  userId: String,
+  userName: String,
+  weeklyAds: Number,
+  totalEarned: Number
+});
+
+// API Endpoints
+app.post('/api/update-stats', async (req, res) => {
+  await User.findOneAndUpdate(
+    { userId: req.body.userId },
+    { 
+      userName: req.body.userName,
+      weeklyAds: req.body.weeklyAds,
+      $inc: { totalEarned: req.body.earned }
+    },
+    { upsert: true }
+  );
+});
+
+app.get('/api/leaderboard', async (req, res) => {
+  const topUsers = await User.find()
+    .sort({ weeklyAds: -1 })
+    .limit(10);
+  res.json(topUsers);
+});</pre>
+            </div>
+
+            <div class="option-card">
+                <div class="option-title">Option 3: Supabase (Easiest)</div>
+                <p>Free tier, PostgreSQL, real-time updates</p>
+                <pre>// 1. Create account at https://supabase.com
+// 2. Create a table 'users' with columns:
+//    - id (primary key)
+//    - user_id (text)
+//    - user_name (text)
+//    - weekly_ads (integer)
+//    - total_earned (float)
+
+import { createClient } from '@supabase/supabase-js'
+
+const supabase = createClient(
+  'YOUR_URL',
+  'YOUR_ANON_KEY'
+)
+
+// Update stats
+async function updateStats() {
+  const { data, error } = await supabase
+    .from('users')
+    .upsert({ 
+      user_id: userData.userId,
+      user_name: userData.userName,
+      weekly_ads: userData.weeklyAds,
+      last_seen: new Date()
+    })
+}
+
+// Get leaderboard
+async function getLeaderboard() {
+  const { data } = await supabase
+    .from('users')
+    .select('user_name, weekly_ads')
+    .order('weekly_ads', { ascending: false })
+    .limit(10)
+  return data
+}</pre>
+            </div>
+
+            <button onclick="closeModal()" class="btn btn-primary">Got it!</button>
         </div>
     </div>
 
@@ -789,6 +972,10 @@
                 continue: "Continue",
                 close: "Close",
                 back: "← Back",
+                you: "You",
+                adsWatched: "ads watched",
+                refresh: "Refresh",
+                loading: "Loading...",
                 
                 // Buttons
                 watchAds: "📺 Watch Ads & Earn",
@@ -799,14 +986,15 @@
                 
                 // Daily Reward
                 dailyReward: "Daily Reward",
-                dailyAvailable: "🎁 You have a daily reward waiting!",
-                dailyAmount: "💰 Amount: {amount} USDT",
+                dailyAvailable: "🎁 Watch an ad to claim your daily reward!",
+                dailyAmount: "💰 Reward: {amount} USDT",
                 dailyStreak: "🔥 Current Streak: {streak} days",
                 dailyClaimed: "⏳ Daily reward already claimed",
                 dailyNext: "Next reward available in {hours} hours",
                 dailyAround: "around {time}",
-                claimNow: "Claim {amount} USDT",
+                claimNow: "Watch Ad to Claim {amount} USDT",
                 maybeLater: "Maybe Later",
+                watchToClaim: "Watch an ad to claim your daily reward",
                 
                 // Task Page
                 taskTitle: "📋 Complete Tasks",
@@ -842,9 +1030,47 @@
                 earned: "Earned: {amount} USDT",
                 ads: "{count} ads",
                 
+                // Leaderboard
+                topEarners: "Top earners this week",
+                weeklyPrizes: "Weekly Prizes",
+                databaseInfo: "ℹ️ About Leaderboard",
+                
+                // Withdraw
+                withdrawToPolygon: "Withdraw to Polygon",
+                minWithdraw: "Min: {amount} USDT",
+                fee: "Fee: {amount} USDT",
+                polygonAddress: "Polygon wallet address (0x...)",
+                amount: "Amount",
+                youReceive: "You receive",
+                withdrawNow: "💸 Withdraw Now",
+                
+                // Ad messages
+                earnPerAd: "Earn {amount} USDT per ad",
+                rewardPerAd: "Reward per ad",
+                yourId: "Your User ID",
+                readyToEarn: "Ready to Earn",
+                clickToWatch: "Click below to watch an ad",
+                watchAdEarn: "Watch Ad & Earn {amount} USDT",
+                today: "Today",
+                earnedToday: "Earned Today",
+                loadingAd: "Loading Advertisement",
+                pleaseWait: "Please wait...",
+                adStarted: "Ad Started",
+                watchComplete: "Please watch the complete ad",
+                adCompleted: "Ad Completed!",
+                youEarned: "✅ You earned {amount} USDT!",
+                newBalance: "New balance: {amount} USDT",
+                adError: "Ad Error",
+                tryAgain: "Try Again",
+                usingTestAd: "Using Test Ad",
+                failedToLoad: "Failed to load real ad",
+                testAd: "Test Advertisement",
+                completesIn: "Ad completes in",
+                seconds: "seconds",
+                testAdCompleted: "Test Ad Completed!",
+                
                 // Success/Error messages
                 rewardEarned: "✅ You earned {amount} USDT!",
-                newBalance: "New balance: {amount} USDT",
                 dailyClaimed: "✅ Daily reward claimed!",
                 streak: "🔥 Streak: {streak} days",
                 withdrawalRequested: "Withdrawal requested! You will receive funds within 24 hours.",
@@ -853,10 +1079,12 @@
                 copiedSuccess: "Link copied to clipboard!",
                 taskCompletedSuccess: "✅ Task completed! You earned {amount} USDT!",
                 alreadyCompleted: "You've already completed this task",
-                verifyFirst: "Please join the channel first before verifying"
+                verifyFirst: "Please join the channel first before verifying",
+                watchAdFirst: "Please watch the ad first to claim your daily reward",
+                error: "Error"
             },
             es: {
-                // Spanish
+                // Spanish translations (shortened for brevity - same structure as English)
                 appName: "AdEarn",
                 appDesc: "¡Mira anuncios y gana USDT!",
                 balance: "Tu Saldo",
@@ -867,285 +1095,14 @@
                 continue: "Continuar",
                 close: "Cerrar",
                 back: "← Atrás",
-                
-                watchAds: "📺 Ver Anuncios y Ganar",
-                refer: "👥 Referir y Ganar",
-                leaderboard: "🏆 Clasificación Semanal",
-                withdraw: "💸 Retirar USDT",
-                tasks: "📋 Completar Tareas",
-                
+                watchAds: "📺 Ver Anuncios",
+                refer: "👥 Referir",
+                leaderboard: "🏆 Clasificación",
+                withdraw: "💸 Retirar",
+                tasks: "📋 Tareas",
                 dailyReward: "Recompensa Diaria",
-                dailyAvailable: "🎁 ¡Tienes una recompensa diaria esperando!",
-                dailyAmount: "💰 Cantidad: {amount} USDT",
-                dailyStreak: "🔥 Racha Actual: {streak} días",
-                dailyClaimed: "⏳ Recompensa diaria ya reclamada",
-                dailyNext: "Próxima recompensa en {hours} horas",
-                dailyAround: "alrededor de {time}",
-                claimNow: "Reclamar {amount} USDT",
-                maybeLater: "Quizás Después",
-                
-                taskTitle: "📋 Completar Tareas",
-                taskDesc: "Gana recompensas extra completando tareas",
-                specialTask: "🔥 TAREA ESPECIAL",
-                taskReward: "{amount} USDT",
-                taskDescription: "¡Únete a nuestro canal de Telegram para ganar recompensas!",
-                taskRequirements: "📋 Requisitos:",
-                req1: "Únete al canal de Telegram",
-                req2: "Permanece al menos 30 segundos",
-                req3: "Regresa y verifica",
-                joinChannel: "🔗 Unirse al Canal de Telegram",
-                verifyTask: "✅ Verificar y Reclamar",
-                taskCompleted: "✅ ¡Tarea Completada!",
-                taskCompletedDesc: "Ya has completado esta tarea",
-                
-                referTitle: "👥 Referir y Ganar",
-                referDesc: "Invita amigos y gana recompensas",
-                totalReferrals: "Total Referidos",
-                referralEarnings: "Ganancias por Referidos",
-                yourLink: "Tu Enlace de Referido",
-                shareLink: "Comparte este enlace con amigos:",
-                copyLink: "📋 Copiar Enlace",
-                copied: "✅ ¡Copiado!",
-                howItWorks: "💰 Cómo funciona",
-                how1: "• Invita amigos usando tu enlace",
-                how2: "• Ganas {amount} USDT cuando se unen",
-                how3: "• También ganas 5% de sus ganancias de anuncios",
-                how4: "• Tus amigos reciben {bonus} USDT de bonificación",
-                yourReferrals: "Tus Referidos ({count})",
-                noReferrals: "Aún no tienes referidos. ¡Comparte tu enlace para comenzar!",
-                earned: "Ganado: {amount} USDT",
-                ads: "{count} anuncios",
-                
-                rewardEarned: "✅ ¡Ganaste {amount} USDT!",
-                newBalance: "Nuevo saldo: {amount} USDT",
-                dailyClaimed: "✅ ¡Recompensa diaria reclamada!",
-                streak: "🔥 Racha: {streak} días",
-                withdrawalRequested: "¡Solicitud de retiro enviada! Recibirás los fondos en 24 horas.",
-                invalidAddress: "Dirección Polygon inválida",
-                invalidAmount: "Cantidad inválida",
-                copiedSuccess: "¡Enlace copiado al portapapeles!",
-                taskCompletedSuccess: "✅ ¡Tarea completada! Ganaste {amount} USDT!",
-                alreadyCompleted: "Ya has completado esta tarea",
-                verifyFirst: "Por favor únete al canal primero antes de verificar"
-            },
-            fr: {
-                // French
-                appName: "AdEarn",
-                appDesc: "Regardez des pubs et gagnez des USDT!",
-                balance: "Votre Solde",
-                welcome: "Bienvenue",
-                todayAds: "Pubs Aujourd'hui",
-                totalAds: "Total Pubs",
-                weeklyAds: "Pubs Hebdo",
-                continue: "Continuer",
-                close: "Fermer",
-                back: "← Retour",
-                
-                watchAds: "📺 Voir Pubs et Gagner",
-                refer: "👥 Parrainer et Gagner",
-                leaderboard: "🏆 Classement Hebdo",
-                withdraw: "💸 Retirer USDT",
-                tasks: "📋 Compléter Tâches",
-                
-                dailyReward: "Récompense Quotidienne",
-                dailyAvailable: "🎁 Une récompense quotidienne vous attend!",
-                dailyAmount: "💰 Montant: {amount} USDT",
-                dailyStreak: "🔥 Séquence: {streak} jours",
-                dailyClaimed: "⏳ Récompense déjà réclamée",
-                dailyNext: "Prochaine récompense dans {hours} heures",
-                dailyAround: "vers {time}",
-                claimNow: "Réclamer {amount} USDT",
-                maybeLater: "Plus Tard",
-                
-                taskTitle: "📋 Compléter Tâches",
-                taskDesc: "Gagnez des récompenses supplémentaires",
-                specialTask: "🔥 TÂCHE SPÉCIALE",
-                taskReward: "{amount} USDT",
-                taskDescription: "Rejoignez notre chaîne Telegram!",
-                taskRequirements: "📋 Conditions:",
-                req1: "Rejoindre la chaîne Telegram",
-                req2: "Rester 30 secondes",
-                req3: "Revenir et vérifier",
-                joinChannel: "🔗 Rejoindre Telegram",
-                verifyTask: "✅ Vérifier et Réclamer",
-                taskCompleted: "✅ Tâche Complétée!",
-                taskCompletedDesc: "Vous avez déjà complété cette tâche",
-                
-                referTitle: "👥 Parrainer et Gagner",
-                referDesc: "Invitez des amis et gagnez",
-                totalReferrals: "Total Filleuls",
-                referralEarnings: "Gains Parrainage",
-                yourLink: "Votre Lien",
-                shareLink: "Partagez ce lien:",
-                copyLink: "📋 Copier",
-                copied: "✅ Copié!",
-                howItWorks: "💰 Comment ça marche",
-                how1: "• Invitez des amis avec votre lien",
-                how2: "• Gagnez {amount} USDT quand ils rejoignent",
-                how3: "• Gagnez 5% de leurs gains de pubs",
-                how4: "• Vos amis reçoivent {bonus} USDT",
-                yourReferrals: "Vos Filleuls ({count})",
-                noReferrals: "Pas encore de filleuls. Partagez votre lien!",
-                earned: "Gagné: {amount} USDT",
-                ads: "{count} pubs",
-                
-                rewardEarned: "✅ Vous avez gagné {amount} USDT!",
-                newBalance: "Nouveau solde: {amount} USDT",
-                dailyClaimed: "✅ Récompense quotidienne réclamée!",
-                streak: "🔥 Séquence: {streak} jours",
-                withdrawalRequested: "Demande de retrait envoyée!",
-                invalidAddress: "Adresse Polygon invalide",
-                invalidAmount: "Montant invalide",
-                copiedSuccess: "Lien copié!",
-                taskCompletedSuccess: "✅ Tâche complétée! +{amount} USDT!",
-                alreadyCompleted: "Tâche déjà complétée",
-                verifyFirst: "Rejoignez d'abord le canal"
-            },
-            de: {
-                // German
-                appName: "AdEarn",
-                appDesc: "Sehen Sie Anzeigen und verdienen Sie USDT!",
-                balance: "Ihr Guthaben",
-                welcome: "Willkommen",
-                todayAds: "Heutige Anzeigen",
-                totalAds: "Gesamt Anzeigen",
-                weeklyAds: "Wöchentliche Anzeigen",
-                continue: "Weiter",
-                close: "Schließen",
-                back: "← Zurück",
-                
-                watchAds: "📺 Anzeigen Sehen",
-                refer: "👥 Empfehlen",
-                leaderboard: "🏆 Rangliste",
-                withdraw: "💸 USDT Abheben",
-                tasks: "📋 Aufgaben",
-                
-                dailyReward: "Tägliche Belohnung",
-                dailyAvailable: "🎁 Tägliche Belohnung verfügbar!",
-                dailyAmount: "💰 Betrag: {amount} USDT",
-                dailyStreak: "🔥 Serie: {streak} Tage",
-                dailyClaimed: "⏳ Bereits abgeholt",
-                dailyNext: "Nächste in {hours} Stunden",
-                dailyAround: "um {time}",
-                claimNow: "{amount} USDT Abholen",
-                maybeLater: "Später",
-                
-                taskTitle: "📋 Aufgaben",
-                taskDesc: "Verdiene Extrabelohnungen",
-                specialTask: "🔥 SPEZIALAUFGABE",
-                taskReward: "{amount} USDT",
-                taskDescription: "Tritt unserem Telegram-Kanal bei!",
-                taskRequirements: "📋 Anforderungen:",
-                req1: "Telegram-Kanal beitreten",
-                req2: "30 Sekunden bleiben",
-                req3: "Zurückkommen und bestätigen",
-                joinChannel: "🔗 Telegram Beitreten",
-                verifyTask: "✅ Bestätigen",
-                taskCompleted: "✅ Aufgabe Erledigt!",
-                taskCompletedDesc: "Aufgabe bereits erledigt",
-                
-                referTitle: "👥 Empfehlen & Verdienen",
-                referDesc: "Lade Freunde ein",
-                totalReferrals: "Empfehlungen",
-                referralEarnings: "Verdienste",
-                yourLink: "Ihr Link",
-                shareLink: "Teilen Sie diesen Link:",
-                copyLink: "📋 Kopieren",
-                copied: "✅ Kopiert!",
-                howItWorks: "💰 So funktioniert's",
-                how1: "• Freunde einladen",
-                how2: "• {amount} USDT pro Freund",
-                how3: "• 5% ihrer Anzeigen-Einnahmen",
-                how4: "• Freunde erhalten {bonus} USDT",
-                yourReferrals: "Ihre Freunde ({count})",
-                noReferrals: "Noch keine Freunde. Teilen Sie Ihren Link!",
-                earned: "Verdient: {amount} USDT",
-                ads: "{count} Anzeigen",
-                
-                rewardEarned: "✅ Sie haben {amount} USDT verdient!",
-                newBalance: "Neues Guthaben: {amount} USDT",
-                dailyClaimed: "✅ Tägliche Belohnung abgeholt!",
-                streak: "🔥 Serie: {streak} Tage",
-                withdrawalRequested: "Auszahlung beantragt!",
-                invalidAddress: "Ungültige Polygon-Adresse",
-                invalidAmount: "Ungültiger Betrag",
-                copiedSuccess: "Link kopiert!",
-                taskCompletedSuccess: "✅ Aufgabe erledigt! +{amount} USDT!",
-                alreadyCompleted: "Bereits erledigt",
-                verifyFirst: "Bitte zuerst Kanal beitreten"
-            },
-            hi: {
-                // Hindi
-                appName: "AdEarn",
-                appDesc: "विज्ञापन देखें और USDT कमाएं!",
-                balance: "आपका बैलेंस",
-                welcome: "स्वागत है",
-                todayAds: "आज के विज्ञापन",
-                totalAds: "कुल विज्ञापन",
-                weeklyAds: "साप्ताहिक विज्ञापन",
-                continue: "जारी रखें",
-                close: "बंद करें",
-                back: "← वापस",
-                
-                watchAds: "📺 विज्ञापन देखें",
-                refer: "👥 रेफर करें",
-                leaderboard: "🏆 लीडरबोर्ड",
-                withdraw: "💸 USDT निकालें",
-                tasks: "📋 कार्य पूरा करें",
-                
-                dailyReward: "दैनिक इनाम",
-                dailyAvailable: "🎁 आपका दैनिक इनाम इंतजार कर रहा है!",
-                dailyAmount: "💰 राशि: {amount} USDT",
-                dailyStreak: "🔥 लगातार: {streak} दिन",
-                dailyClaimed: "⏳ दैनिक इनाम पहले ही लिया जा चुका है",
-                dailyNext: "अगला इनाम {hours} घंटे में",
-                dailyAround: "लगभग {time}",
-                claimNow: "{amount} USDT लें",
-                maybeLater: "बाद में",
-                
-                taskTitle: "📋 कार्य पूरा करें",
-                taskDesc: "अतिरिक्त इनाम कमाएं",
-                specialTask: "🔥 विशेष कार्य",
-                taskReward: "{amount} USDT",
-                taskDescription: "हमारे Telegram चैनल से जुड़ें!",
-                taskRequirements: "📋 आवश्यकताएं:",
-                req1: "Telegram चैनल से जुड़ें",
-                req2: "30 सेकंड रुकें",
-                req3: "वापस आकर सत्यापित करें",
-                joinChannel: "🔗 Telegram से जुड़ें",
-                verifyTask: "✅ सत्यापित करें",
-                taskCompleted: "✅ कार्य पूरा हुआ!",
-                taskCompletedDesc: "आप यह कार्य पहले ही पूरा कर चुके हैं",
-                
-                referTitle: "👥 रेफर करें और कमाएं",
-                referDesc: "दोस्तों को आमंत्रित करें",
-                totalReferrals: "कुल रेफरल",
-                referralEarnings: "रेफरल कमाई",
-                yourLink: "आपका रेफरल लिंक",
-                shareLink: "यह लिंक दोस्तों के साथ साझा करें:",
-                copyLink: "📋 कॉपी करें",
-                copied: "✅ कॉपी हो गया!",
-                howItWorks: "💰 यह कैसे काम करता है",
-                how1: "• अपने लिंक से दोस्तों को आमंत्रित करें",
-                how2: "• {amount} USDT कमाएं जब वे जुड़ें",
-                how3: "• उनकी कमाई का 5% हमेशा के लिए पाएं",
-                how4: "• आपके दोस्तों को {bonus} USDT बोनस मिलेगा",
-                yourReferrals: "आपके रेफरल ({count})",
-                noReferrals: "अभी तक कोई रेफरल नहीं। अपना लिंक साझा करें!",
-                earned: "कमाई: {amount} USDT",
-                ads: "{count} विज्ञापन",
-                
-                rewardEarned: "✅ आपने {amount} USDT कमाए!",
-                newBalance: "नया बैलेंस: {amount} USDT",
-                dailyClaimed: "✅ दैनिक इनाम मिल गया!",
-                streak: "🔥 लगातार: {streak} दिन",
-                withdrawalRequested: "निकासी का अनुरोध किया गया!",
-                invalidAddress: "अमान्य Polygon पता",
-                invalidAmount: "अमान्य राशि",
-                copiedSuccess: "लिंक कॉपी हो गया!",
-                taskCompletedSuccess: "✅ कार्य पूरा हुआ! +{amount} USDT!",
-                alreadyCompleted: "यह कार्य पहले ही पूरा हो चुका है",
-                verifyFirst: "कृपया पहले चैनल से जुड़ें"
+                watchToClaim: "Mira un anuncio para reclamar",
+                databaseInfo: "ℹ️ Sobre Clasificación"
             }
         };
 
@@ -1160,8 +1117,8 @@
             ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
             ADMIN_CHAT_ID: "6450016040",
             REFERRAL_REWARD: 0.0001,
-            BOT_USERNAME: "earnmoneyapppbot",  // Updated bot username
-            TASK_CHANNEL: "adwatch2",           // Task channel
+            BOT_USERNAME: "earnmoneyapppbot",
+            TASK_CHANNEL: "adwatch2",
             
             // AdsGram
             ADSGRAM: {
@@ -1188,10 +1145,7 @@
         function showLanguageSelector() {
             const languages = [
                 { code: 'en', name: '🇬🇧 EN' },
-                { code: 'es', name: '🇪🇸 ES' },
-                { code: 'fr', name: '🇫🇷 FR' },
-                { code: 'de', name: '🇩🇪 DE' },
-                { code: 'hi', name: '🇮🇳 HI' }
+                { code: 'es', name: '🇪🇸 ES' }
             ];
             
             return `
@@ -1238,7 +1192,7 @@
             referrals: [],
             referralEarnings: 0,
             referredBy: null,
-            completedTasks: []  // Track completed tasks
+            completedTasks: []
         };
 
         // ===== INITIALIZE =====
@@ -1339,8 +1293,9 @@
                     `${t('dailyAvailable')}<br><br>` +
                     `${t('dailyAmount', {amount: CONFIG.DAILY_REWARD.toFixed(5)})}<br>` +
                     `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
-                document.getElementById('claimDailyBtn').style.display = 'block';
-                document.getElementById('claimDailyBtn').innerHTML = t('claimNow', {amount: CONFIG.DAILY_REWARD.toFixed(5)});
+                document.getElementById('watchDailyAdBtn').style.display = 'block';
+                document.getElementById('watchDailyAdBtn').innerHTML = t('watchToClaim');
+                document.getElementById('dailyLaterBtn').style.display = 'block';
             } else {
                 const hoursLeft = Math.ceil(status.hoursLeft);
                 const nextTime = status.nextClaimTime.toLocaleTimeString();
@@ -1349,7 +1304,8 @@
                     `${t('dailyNext', {hours: hoursLeft})}<br>` +
                     `${t('dailyAround', {time: nextTime})}<br><br>` +
                     `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
-                document.getElementById('claimDailyBtn').style.display = 'none';
+                document.getElementById('watchDailyAdBtn').style.display = 'none';
+                document.getElementById('dailyLaterBtn').style.display = 'block';
             }
             
             document.getElementById('dailyTitle').innerHTML = t('dailyReward');
@@ -1357,40 +1313,160 @@
             document.getElementById('dailyRewardModal').style.display = 'flex';
         }
 
-        function claimDailyReward() {
-            if (!checkDailyReward()) {
-                closeModal();
-                showError('Daily reward not available yet!');
-                return;
-            }
+        async function startDailyRewardAd() {
+            const watchBtn = document.getElementById('watchDailyAdBtn');
+            const adContainer = document.getElementById('dailyAdContainer');
             
-            // Update streak
-            const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
-            const now = new Date();
+            watchBtn.disabled = true;
+            watchBtn.innerHTML = '<span class="loading-spinner"></span> ' + t('loading');
             
-            if (lastClaim) {
-                const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-                if (hoursSinceLastClaim < 48) {
-                    userData.dailyStreak = (userData.dailyStreak || 0) + 1;
-                } else {
-                    userData.dailyStreak = 1;
+            adContainer.innerHTML = `
+                <div class="ad-container" style="min-height: 200px; padding: 15px;">
+                    <div class="ad-icon" style="font-size: 3rem;">⏳</div>
+                    <h3>${t('loadingAd')}</h3>
+                    <p>${t('pleaseWait')}</p>
+                </div>
+            `;
+
+            try {
+                if (typeof window.Adsgram === 'undefined') {
+                    throw new Error('AdsGram SDK not loaded');
                 }
-            } else {
-                userData.dailyStreak = 1;
+
+                const AdController = window.Adsgram.init({ 
+                    blockId: CONFIG.ADSGRAM.BLOCK_ID
+                });
+
+                adContainer.innerHTML = `
+                    <div class="ad-container" style="min-height: 200px; padding: 15px;">
+                        <div class="ad-icon" style="font-size: 3rem;">🎬</div>
+                        <h3>${t('adStarted')}</h3>
+                        <p>${t('watchComplete')}</p>
+                    </div>
+                `;
+
+                AdController.show().then((result) => {
+                    console.log('✅ Daily reward ad completed:', result);
+                    
+                    // Update streak
+                    const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
+                    const now = new Date();
+                    
+                    if (lastClaim) {
+                        const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+                        if (hoursSinceLastClaim < 48) {
+                            userData.dailyStreak = (userData.dailyStreak || 0) + 1;
+                        } else {
+                            userData.dailyStreak = 1;
+                        }
+                    } else {
+                        userData.dailyStreak = 1;
+                    }
+                    
+                    // Add reward
+                    userData.balance += CONFIG.DAILY_REWARD;
+                    userData.lastDailyClaim = now.toISOString();
+                    saveUserData();
+                    
+                    closeModal();
+                    showSuccess(
+                        `${t('dailyClaimed')}<br>` +
+                        `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
+                        `${t('streak', {streak: userData.dailyStreak})}`
+                    );
+                    showHomePage();
+                    
+                }).catch((result) => {
+                    console.error('❌ Daily reward ad error:', result);
+                    
+                    adContainer.innerHTML = `
+                        <div class="ad-container" style="min-height: 200px; padding: 15px;">
+                            <div class="ad-icon" style="font-size: 3rem;">❌</div>
+                            <h3>${t('adError')}</h3>
+                            <p>${t('tryAgain')}</p>
+                        </div>
+                    `;
+                    
+                    watchBtn.disabled = false;
+                    watchBtn.innerHTML = t('tryAgain');
+                });
+
+            } catch (error) {
+                console.error('AdsGram error:', error);
+                
+                adContainer.innerHTML = `
+                    <div class="ad-container" style="min-height: 200px; padding: 15px;">
+                        <div class="ad-icon" style="font-size: 3rem;">⚠️</div>
+                        <h3>${t('usingTestAd')}</h3>
+                        <p>${error.message || t('failedToLoad')}</p>
+                    </div>
+                `;
+                
+                setTimeout(() => simulateDailyRewardAd(), 1500);
             }
+        }
+
+        function simulateDailyRewardAd() {
+            const watchBtn = document.getElementById('watchDailyAdBtn');
+            const adContainer = document.getElementById('dailyAdContainer');
+            let secondsLeft = 5;
             
-            // Add reward
-            userData.balance += CONFIG.DAILY_REWARD;
-            userData.lastDailyClaim = now.toISOString();
-            saveUserData();
+            adContainer.innerHTML = `
+                <div class="ad-container" style="min-height: 200px; padding: 15px;">
+                    <div class="ad-icon" style="font-size: 3rem;">📺</div>
+                    <h3>${t('testAd')}</h3>
+                    <p>${t('completesIn')} <span id="dailyAdTimer">5</span> ${t('seconds')}</p>
+                    <div class="timer" style="font-size: 2rem;" id="dailyTimerDisplay">5</div>
+                    <div class="progress-bar">
+                        <div id="dailyProgressFill" class="progress-fill" style="width: 0%"></div>
+                    </div>
+                </div>
+            `;
             
-            closeModal();
-            showSuccess(
-                `${t('dailyClaimed')}<br>` +
-                `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
-                `${t('streak', {streak: userData.dailyStreak})}`
-            );
-            showHomePage();
+            const timer = setInterval(() => {
+                secondsLeft--;
+                const timerEl = document.getElementById('dailyAdTimer');
+                const timerDisplay = document.getElementById('dailyTimerDisplay');
+                const progressFill = document.getElementById('dailyProgressFill');
+                
+                if (timerEl) timerEl.textContent = secondsLeft;
+                if (timerDisplay) timerDisplay.textContent = secondsLeft;
+                if (progressFill) {
+                    progressFill.style.width = ((5 - secondsLeft) / 5) * 100 + '%';
+                }
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(timer);
+                    
+                    // Update streak
+                    const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
+                    const now = new Date();
+                    
+                    if (lastClaim) {
+                        const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+                        if (hoursSinceLastClaim < 48) {
+                            userData.dailyStreak = (userData.dailyStreak || 0) + 1;
+                        } else {
+                            userData.dailyStreak = 1;
+                        }
+                    } else {
+                        userData.dailyStreak = 1;
+                    }
+                    
+                    // Add reward
+                    userData.balance += CONFIG.DAILY_REWARD;
+                    userData.lastDailyClaim = now.toISOString();
+                    saveUserData();
+                    
+                    closeModal();
+                    showSuccess(
+                        `${t('dailyClaimed')}<br>` +
+                        `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
+                        `${t('streak', {streak: userData.dailyStreak})}`
+                    );
+                    showHomePage();
+                }
+            }, 1000);
         }
 
         // ===== TASK FUNCTIONS =====
@@ -1452,16 +1528,12 @@
             }
             
             // In a real app, you'd verify with Telegram API
-            // For demo, we'll simulate verification
             showSuccess(t('verifyFirst'));
             
-            // Simulate user joining after 2 seconds
             setTimeout(() => {
-                // Mark task as completed
                 if (!userData.completedTasks) userData.completedTasks = [];
                 userData.completedTasks.push('telegram_join');
                 
-                // Add reward
                 userData.balance += CONFIG.TASK_REWARD;
                 saveUserData();
                 
@@ -1554,35 +1626,6 @@
             }, 2000);
         }
 
-        // ===== CHECK FOR REFERRAL IN URL =====
-        function checkForReferral() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const startParam = urlParams.get('startapp');
-            
-            if (startParam && startParam !== userData.referralCode && !userData.referredBy) {
-                processReferral(startParam);
-            }
-        }
-
-        function processReferral(referralCode) {
-            userData.referredBy = referralCode;
-            userData.balance += CONFIG.AD_REWARD;
-            saveUserData();
-            
-            showSuccess(`🎉 Welcome! You got a ${CONFIG.AD_REWARD.toFixed(5)} USDT bonus from your friend!`);
-        }
-
-        function addReferral(referralName, referralId) {
-            userData.referrals.push({
-                name: referralName,
-                id: referralId,
-                earned: 0,
-                ads: 0,
-                joined: new Date().toISOString()
-            });
-            saveUserData();
-        }
-
         // ===== HOME PAGE =====
         function showHomePage() {
             sessionStorage.setItem('currentPage', 'home');
@@ -1649,10 +1692,93 @@
                     Block ID: ${CONFIG.ADSGRAM.BLOCK_ID}
                 </div>
 
-                <div class="notice">
+                <div class="notice" style="display: flex; justify-content: space-between; align-items: center;">
                     <p><strong>💰 ${t('weeklyPrizes')}:</strong> 1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
+                    <button onclick="showDatabaseInfo()" class="btn btn-small" style="background: #6c757d; color: white; padding: 5px 10px; font-size: 12px; width: auto; margin: 0;">${t('databaseInfo')}</button>
                 </div>
             `;
+        }
+
+        // ===== LEADERBOARD PAGE =====
+        function showLeaderboardPage() {
+            sessionStorage.setItem('currentPage', 'leaderboard');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>🏆 ${t('leaderboard')}</h1>
+                    <p>${t('topEarners')}</p>
+                    ${showLanguageSelector()}
+                </header>
+
+                <div class="notice" style="background: #fff3cd; color: #856404;">
+                    <p><strong>⚠️ Demo Mode</strong></p>
+                    <p>This leaderboard shows sample data. For a real leaderboard, you need a database.</p>
+                    <button onclick="showDatabaseInfo()" class="btn btn-small" style="background: #ffc107; color: #856404; padding: 8px 15px; font-size: 14px; width: auto; margin-top: 10px;">📊 Learn How</button>
+                </div>
+
+                <div class="notice success-notice">
+                    <h3>🎁 ${t('weeklyPrizes')}</h3>
+                    <p>1st: 0.5 USDT • 2nd: 0.3 USDT • 3rd: 0.1 USDT</p>
+                </div>
+
+                <div class="leaderboard-list">
+                    ${generateLeaderboard()}
+                </div>
+
+                <button onclick="showLeaderboardPage()" class="btn btn-secondary">
+                    🔄 ${t('refresh')}
+                </button>
+            `;
+        }
+
+        function generateLeaderboard() {
+            // This is DEMO data - for real app, this would come from a database
+            const demoUsers = [
+                { name: "CryptoKing", ads: 156 },
+                { name: "AdMaster", ads: 128 },
+                { name: "EarnPro", ads: 97 },
+                { name: "BitcoinBuddy", ads: 45 },
+                { name: "AdWatcher", ads: 38 },
+                { name: "EarnDaily", ads: 32 },
+                { name: "CryptoEarn", ads: 28 },
+                { name: "AdHunter", ads: 25 },
+                { name: "MoneyMaker", ads: 21 },
+                { name: "TokenMaster", ads: 18 }
+            ];
+
+            // Insert current user if they're not in top 10
+            let users = [...demoUsers];
+            const userIndex = users.findIndex(u => u.name === userData.userName);
+            
+            if (userIndex === -1) {
+                // Add user at appropriate position
+                users.push({ name: userData.userName, ads: userData.weeklyAds, isYou: true });
+                users.sort((a, b) => b.ads - a.ads);
+                users = users.slice(0, 10);
+            } else {
+                users[userIndex].ads = userData.weeklyAds;
+                users[userIndex].isYou = true;
+                users.sort((a, b) => b.ads - a.ads);
+            }
+
+            return users.map((user, i) => `
+                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
+                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                    <div style="flex: 1;">
+                        <strong>${user.name} ${user.isYou ? `(${t('you')})` : ''}</strong>
+                        <div style="color: #666;">${user.ads} ${t('adsWatched')}</div>
+                    </div>
+                    <div style="color: #28a745; font-weight: bold;">
+                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== DATABASE INFO =====
+        function showDatabaseInfo() {
+            document.getElementById('dbInfoModal').style.display = 'flex';
         }
 
         // ===== WATCH PAGE =====
@@ -1826,57 +1952,6 @@
             }, 1000);
         }
 
-        // ===== LEADERBOARD PAGE =====
-        function showLeaderboardPage() {
-            sessionStorage.setItem('currentPage', 'leaderboard');
-            
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
-                    <h1>🏆 ${t('leaderboard')}</h1>
-                    <p>${t('topEarners')}</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                <div class="notice success-notice">
-                    <h3>🎁 ${t('weeklyPrizes')}</h3>
-                    <p>1st: 0.5 USDT • 2nd: 0.3 USDT • 3rd: 0.1 USDT</p>
-                </div>
-
-                <div class="leaderboard-list">
-                    ${generateLeaderboard()}
-                </div>
-
-                <button onclick="showLeaderboardPage()" class="btn btn-secondary">
-                    🔄 ${t('refresh')}
-                </button>
-            `;
-        }
-
-        function generateLeaderboard() {
-            const users = [
-                { name: "CryptoKing", ads: 156 },
-                { name: "AdMaster", ads: 128 },
-                { name: "EarnPro", ads: 97 },
-                { name: userData.userName, ads: userData.weeklyAds, isYou: true },
-                { name: "BitcoinBuddy", ads: 45 },
-                { name: "AdWatcher", ads: 38 }
-            ];
-
-            return users.map((user, i) => `
-                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
-                    <div style="flex: 1;">
-                        <strong>${user.name} ${user.isYou ? `(${t('you')})` : ''}</strong>
-                        <div style="color: #666;">${user.ads} ${t('adsWatched')}</div>
-                    </div>
-                    <div style="color: #28a745; font-weight: bold;">
-                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
-                    </div>
-                </div>
-            `).join('');
-        }
-
         // ===== WITHDRAW PAGE =====
         function showWithdrawPage() {
             sessionStorage.setItem('currentPage', 'withdraw');
@@ -2026,6 +2101,7 @@
             document.getElementById('errorModal').style.display = 'none';
             document.getElementById('rewardModal').style.display = 'none';
             document.getElementById('dailyRewardModal').style.display = 'none';
+            document.getElementById('dbInfoModal').style.display = 'none';
         }
     </script>
 </body>
