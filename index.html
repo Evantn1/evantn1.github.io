@@ -32,6 +32,7 @@
             padding: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
             animation: slideUp 0.3s ease;
+            position: relative;
         }
 
         @keyframes slideUp {
@@ -39,11 +40,76 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
+        /* ===== DAILY REWARD ICON ===== */
+        .daily-reward-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            border: 3px solid white;
+        }
+
+        .daily-reward-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .daily-reward-icon .icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .daily-reward-icon .text {
+            font-size: 0.6rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .daily-reward-icon.claimed {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .daily-reward-icon.claimed:hover {
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .daily-reward-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
         header {
             text-align: center;
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 2px solid #f0f0f0;
+            padding-right: 60px; /* Make space for daily reward icon */
         }
 
         h1 {
@@ -155,6 +221,11 @@
             color: white;
         }
 
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
         .btn-secondary {
             background: #6c757d;
             color: white;
@@ -254,7 +325,7 @@
             border-color: #667eea;
         }
 
-        input {
+        input, textarea {
             width: 100%;
             padding: 16px;
             border: 2px solid #ddd;
@@ -264,9 +335,15 @@
             transition: border-color 0.3s;
         }
 
-        input:focus {
+        input:focus, textarea:focus {
             outline: none;
             border-color: #667eea;
+        }
+
+        textarea {
+            resize: none;
+            background: #f8f9fa;
+            font-family: monospace;
         }
 
         .notice {
@@ -289,6 +366,101 @@
             background: #fff3cd;
             color: #856404;
             border-left: 4px solid #ffc107;
+        }
+
+        /* ===== REFERRAL STYLES ===== */
+        .referral-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .referral-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .referral-box .number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .referral-link-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .friend-list {
+            margin: 20px 0;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin: 8px 0;
+        }
+
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .friend-earned {
+            color: #28a745;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            background: #ffc107;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
         }
 
         .modal {
@@ -367,7 +539,7 @@
         }
 
         @media (max-width: 480px) {
-            .stats {
+            .stats, .referral-stats {
                 grid-template-columns: 1fr;
             }
             
@@ -406,6 +578,17 @@
         </div>
     </div>
 
+    <!-- Daily Reward Modal -->
+    <div id="dailyRewardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">🎁</div>
+            <h2>Daily Reward</h2>
+            <p id="dailyRewardMessage"></p>
+            <button onclick="claimDailyReward()" class="btn btn-success" id="claimDailyBtn">Claim 0.0002 USDT</button>
+            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;">Maybe Later</button>
+        </div>
+    </div>
+
     <!-- Reward Modal -->
     <div id="rewardModal" class="modal">
         <div class="modal-content">
@@ -419,12 +602,14 @@
     <script>
         // ===== CONFIGURATION - YOUR ADSGRAM DETAILS =====
         const CONFIG = {
-            AD_REWARD: 0.0001,
+            AD_REWARD: 0.00005,                    // Changed to 0.00005 USDT per ad
+            DAILY_REWARD: 0.0002,                   // Daily reward amount
             MIN_WITHDRAWAL: 0.015,
             WITHDRAWAL_FEE: 0.001,
             WEEKLY_PRIZES: [0.5, 0.3, 0.1],
             ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
             ADMIN_CHAT_ID: "6450016040",
+            REFERRAL_REWARD: 0.0001,                 // Reward for each referral
             
             // 🎯 YOUR ADSGRAM BLOCK ID
             ADSGRAM: {
@@ -434,13 +619,21 @@
 
         // ===== APP STATE =====
         let userData = {
-            balance: 0.0000,
+            balance: 0.00000,
             totalAds: 0,
             todayAds: 0,
             weeklyAds: 0,
             userName: "User",
             userId: null,
-            polygonAddress: ""
+            polygonAddress: "",
+            // Daily reward
+            lastDailyClaim: null,
+            dailyStreak: 0,
+            // Referral
+            referralCode: null,
+            referrals: [],
+            referralEarnings: 0,
+            referredBy: null
         };
 
         // ===== INITIALIZE =====
@@ -464,7 +657,23 @@
             }
             
             loadUserData();
+            
+            // Generate referral code if not exists
+            if (!userData.referralCode) {
+                userData.referralCode = generateReferralCode();
+                saveUserData();
+            }
+            
             showHomePage();
+        }
+
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
         }
 
         function loadUserData() {
@@ -487,8 +696,217 @@
             localStorage.setItem('adEarnUser', JSON.stringify(userData));
         }
 
-        function showHomePage() {
+        // ===== DAILY REWARD FUNCTIONS =====
+        function checkDailyReward() {
+            if (!userData.lastDailyClaim) return true;
+            
+            const lastClaim = new Date(userData.lastDailyClaim);
+            const now = new Date();
+            
+            // Check if last claim was more than 24 hours ago
+            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+            return hoursSinceLastClaim >= 24;
+        }
+
+        function getDailyRewardStatus() {
+            if (!userData.lastDailyClaim) return 'available';
+            
+            const lastClaim = new Date(userData.lastDailyClaim);
+            const now = new Date();
+            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+            
+            if (hoursSinceLastClaim >= 24) return 'available';
+            
+            const hoursLeft = 24 - hoursSinceLastClaim;
+            const nextClaimTime = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
+            return { status: 'claimed', hoursLeft, nextClaimTime };
+        }
+
+        function showDailyRewardModal() {
+            const status = getDailyRewardStatus();
+            
+            if (status === 'available') {
+                document.getElementById('dailyRewardMessage').innerHTML = 
+                    `🎁 You have a daily reward waiting!<br><br>` +
+                    `💰 Amount: ${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
+                    `🔥 Current Streak: ${userData.dailyStreak || 0} days`;
+                document.getElementById('claimDailyBtn').style.display = 'block';
+            } else {
+                const hoursLeft = Math.ceil(status.hoursLeft);
+                const nextTime = status.nextClaimTime.toLocaleTimeString();
+                document.getElementById('dailyRewardMessage').innerHTML = 
+                    `⏳ Daily reward already claimed<br><br>` +
+                    `Next reward available in ${hoursLeft} hours<br>` +
+                    `(around ${nextTime})<br><br>` +
+                    `🔥 Current Streak: ${userData.dailyStreak || 0} days`;
+                document.getElementById('claimDailyBtn').style.display = 'none';
+            }
+            
+            document.getElementById('dailyRewardModal').style.display = 'flex';
+        }
+
+        function claimDailyReward() {
+            if (!checkDailyReward()) {
+                closeModal();
+                showError('Daily reward not available yet!');
+                return;
+            }
+            
+            // Update streak
+            const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
+            const now = new Date();
+            
+            if (lastClaim) {
+                const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+                if (hoursSinceLastClaim < 48) {
+                    // Claimed within 48 hours - streak continues
+                    userData.dailyStreak = (userData.dailyStreak || 0) + 1;
+                } else {
+                    // More than 48 hours - streak resets
+                    userData.dailyStreak = 1;
+                }
+            } else {
+                // First claim ever
+                userData.dailyStreak = 1;
+            }
+            
+            // Add reward
+            userData.balance += CONFIG.DAILY_REWARD;
+            userData.lastDailyClaim = now.toISOString();
+            saveUserData();
+            
+            closeModal();
+            showSuccess(`✅ Daily reward claimed!<br>💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>🔥 Streak: ${userData.dailyStreak} days`);
+            showHomePage();
+        }
+
+        // ===== REFERRAL FUNCTIONS =====
+        function showReferralPage() {
             document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
+                    <h1>👥 Refer & Earn</h1>
+                    <p>Invite friends and earn rewards</p>
+                </header>
+
+                <div class="referral-stats">
+                    <div class="referral-box">
+                        <div>Total Referrals</div>
+                        <div class="number">${userData.referrals.length}</div>
+                    </div>
+                    <div class="referral-box">
+                        <div>Referral Earnings</div>
+                        <div class="number">${userData.referralEarnings.toFixed(5)}</div>
+                    </div>
+                </div>
+
+                <div class="referral-link-box">
+                    <h3>Your Referral Link</h3>
+                    <p style="color: #666; margin: 10px 0;">Share this link with friends:</p>
+                    <textarea id="referralLink" rows="2" readonly>https://t.me/earnmoneyappbot/Open?startapp=${userData.referralCode}</textarea>
+                    <button onclick="copyReferralLink()" class="copy-btn" id="copyBtn">📋 Copy Link</button>
+                </div>
+
+                <div class="notice success-notice">
+                    <h3>💰 How it works</h3>
+                    <p>• Invite friends using your link</p>
+                    <p>• You earn ${CONFIG.REFERRAL_REWARD.toFixed(5)} USDT when they join</p>
+                    <p>• You also earn 5% of their ad earnings forever!</p>
+                    <p>• Your friends get a ${CONFIG.AD_REWARD.toFixed(5)} USDT bonus</p>
+                </div>
+
+                <h3>Your Referrals (${userData.referrals.length})</h3>
+                <div class="friend-list" id="referralList">
+                    ${generateReferralList()}
+                </div>
+
+                <button onclick="showHomePage()" class="btn btn-secondary">Back to Home</button>
+            `;
+        }
+
+        function generateReferralList() {
+            if (userData.referrals.length === 0) {
+                return `
+                    <div class="notice">
+                        <p>No referrals yet. Share your link to start earning!</p>
+                    </div>
+                `;
+            }
+            
+            return userData.referrals.map(ref => `
+                <div class="friend-item">
+                    <div class="friend-avatar">${ref.name.charAt(0)}</div>
+                    <div class="friend-info">
+                        <div class="friend-name">${ref.name}</div>
+                        <div class="friend-earned">Earned: ${ref.earned.toFixed(5)} USDT</div>
+                    </div>
+                    <span class="badge">${ref.ads || 0} ads</span>
+                </div>
+            `).join('');
+        }
+
+        function copyReferralLink() {
+            const link = document.getElementById('referralLink');
+            link.select();
+            document.execCommand('copy');
+            
+            const btn = document.getElementById('copyBtn');
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Copied!';
+            btn.style.background = '#28a745';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#28a745';
+            }, 2000);
+        }
+
+        // ===== CHECK FOR REFERRAL IN URL =====
+        function checkForReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const startParam = urlParams.get('startapp');
+            
+            if (startParam && startParam !== userData.referralCode && !userData.referredBy) {
+                // This is a referral
+                processReferral(startParam);
+            }
+        }
+
+        function processReferral(referralCode) {
+            // In a real app, you'd check this against a database
+            // For demo, we'll just simulate a successful referral
+            userData.referredBy = referralCode;
+            
+            // Give bonus to new user
+            userData.balance += CONFIG.AD_REWARD;
+            saveUserData();
+            
+            showSuccess(`🎉 Welcome! You got a ${CONFIG.AD_REWARD.toFixed(5)} USDT bonus from your friend!`);
+        }
+
+        function addReferral(referralName, referralId) {
+            userData.referrals.push({
+                name: referralName,
+                id: referralId,
+                earned: 0,
+                ads: 0,
+                joined: new Date().toISOString()
+            });
+            saveUserData();
+        }
+
+        // ===== HOME PAGE =====
+        function showHomePage() {
+            const dailyStatus = getDailyRewardStatus();
+            const isDailyAvailable = dailyStatus === 'available';
+            
+            document.getElementById('app').innerHTML = `
+                <div class="daily-reward-icon ${!isDailyAvailable ? 'claimed' : ''}" onclick="${isDailyAvailable ? 'showDailyRewardModal()' : ''}">
+                    <span class="icon">🎁</span>
+                    <span class="text">Daily</span>
+                    ${isDailyAvailable ? '<span class="daily-reward-badge">!</span>' : ''}
+                </div>
+
                 <header>
                     <h1>🤑 AdEarn</h1>
                     <p>Watch ads & earn USDT rewards!</p>
@@ -496,7 +914,7 @@
 
                 <div class="user-card">
                     <h3>Your Balance</h3>
-                    <div class="balance">${userData.balance.toFixed(4)} USDT</div>
+                    <div class="balance">${userData.balance.toFixed(5)} USDT</div>
                     <p>Welcome, ${userData.userName}!</p>
                 </div>
 
@@ -516,7 +934,11 @@
                 </div>
 
                 <button onclick="showWatchPage()" class="btn btn-primary">
-                    📺 Watch Ads & Earn
+                    📺 Watch Ads & Earn ${CONFIG.AD_REWARD.toFixed(5)} USDT
+                </button>
+
+                <button onclick="showReferralPage()" class="btn btn-info">
+                    👥 Refer & Earn (${userData.referrals.length})
                 </button>
 
                 <button onclick="showLeaderboardPage()" class="btn btn-warning">
@@ -538,16 +960,17 @@
             `;
         }
 
+        // ===== WATCH PAGE =====
         function showWatchPage() {
             document.getElementById('app').innerHTML = `
                 <header>
                     <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
                     <h1>📺 Watch Ads</h1>
-                    <p>Earn ${CONFIG.AD_REWARD.toFixed(4)} USDT per ad</p>
+                    <p>Earn ${CONFIG.AD_REWARD.toFixed(5)} USDT per ad</p>
                 </header>
 
                 <div class="notice success-notice">
-                    <p><strong>💰 Reward per ad:</strong> ${CONFIG.AD_REWARD.toFixed(4)} USDT</p>
+                    <p><strong>💰 Reward per ad:</strong> ${CONFIG.AD_REWARD.toFixed(5)} USDT</p>
                     <p><strong>🆔 Your User ID:</strong> ${userData.userId || userData.userName || 'guest'}</p>
                 </div>
 
@@ -558,7 +981,7 @@
                 </div>
 
                 <button onclick="startAd()" class="btn btn-primary" id="watchBtn">
-                    ▶️ Watch Ad & Earn ${CONFIG.AD_REWARD.toFixed(4)} USDT
+                    ▶️ Watch Ad & Earn ${CONFIG.AD_REWARD.toFixed(5)} USDT
                 </button>
 
                 <div class="stats">
@@ -568,17 +991,17 @@
                     </div>
                     <div class="stat-box">
                         <span class="stat-label">Balance</span>
-                        <span class="stat-value">${userData.balance.toFixed(4)}</span>
+                        <span class="stat-value">${userData.balance.toFixed(5)}</span>
                     </div>
                     <div class="stat-box">
                         <span class="stat-label">Earned Today</span>
-                        <span class="stat-value">${(userData.todayAds * CONFIG.AD_REWARD).toFixed(4)}</span>
+                        <span class="stat-value">${(userData.todayAds * CONFIG.AD_REWARD).toFixed(5)}</span>
                     </div>
                 </div>
             `;
         }
 
-        // ===== ADSGRAM AD FUNCTION WITH BLOCK ID 23020 =====
+        // ===== ADSGRAM AD FUNCTION =====
         async function startAd() {
             const watchBtn = document.getElementById('watchBtn');
             const adContainer = document.getElementById('adContainer');
@@ -601,7 +1024,7 @@
                     throw new Error('AdsGram SDK not loaded');
                 }
 
-                // ✅ CORRECT: Initialize AdsGram with just blockId
+                // Initialize AdsGram with just blockId
                 const AdController = window.Adsgram.init({ 
                     blockId: CONFIG.ADSGRAM.BLOCK_ID  // Your Block ID 23020
                 });
@@ -615,7 +1038,7 @@
                     </div>
                 `;
 
-                // ✅ CORRECT: Show rewarded ad with promise
+                // Show rewarded ad with promise
                 AdController.show().then((result) => {
                     // User watched ad till the end - REWARD THEM!
                     console.log('✅ Ad completed:', result);
@@ -630,8 +1053,8 @@
                     adContainer.innerHTML = `
                         <div class="ad-icon">🎉</div>
                         <h2>Ad Completed!</h2>
-                        <p>✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!</p>
-                        <p>New balance: ${userData.balance.toFixed(4)} USDT</p>
+                        <p>✅ You earned ${CONFIG.AD_REWARD.toFixed(5)} USDT!</p>
+                        <p>New balance: ${userData.balance.toFixed(5)} USDT</p>
                     `;
                     
                     setTimeout(() => showWatchPage(), 2000);
@@ -704,8 +1127,8 @@
                     adContainer.innerHTML = `
                         <div class="ad-icon">🎉</div>
                         <h2>Test Ad Completed!</h2>
-                        <p>✅ You earned ${CONFIG.AD_REWARD.toFixed(4)} USDT!</p>
-                        <p>New balance: ${userData.balance.toFixed(4)} USDT</p>
+                        <p>✅ You earned ${CONFIG.AD_REWARD.toFixed(5)} USDT!</p>
+                        <p>New balance: ${userData.balance.toFixed(5)} USDT</p>
                     `;
                     
                     setTimeout(() => showWatchPage(), 2000);
@@ -713,6 +1136,7 @@
             }, 1000);
         }
 
+        // ===== LEADERBOARD PAGE =====
         function showLeaderboardPage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -760,6 +1184,7 @@
             `).join('');
         }
 
+        // ===== WITHDRAW PAGE =====
         function showWithdrawPage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -782,7 +1207,7 @@
                 </div>
 
                 <input type="text" id="walletAddress" placeholder="Polygon wallet address (0x...)" value="${userData.polygonAddress || ''}">
-                <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL.toFixed(3)}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance.toFixed(4)}" step="0.001">
+                <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL.toFixed(3)}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance.toFixed(5)}" step="0.001">
 
                 <div class="notice" style="margin: 20px 0;">
                     <div style="display: flex; justify-content: space-between; margin: 10px 0;">
@@ -838,10 +1263,10 @@
                 withdrawalId: 'W' + Date.now(),
                 userName: userData.userName,
                 userId: userData.userId,
-                amount: amount.toFixed(4),
-                netAmount: (amount - CONFIG.WITHDRAWAL_FEE).toFixed(4),
+                amount: amount.toFixed(5),
+                netAmount: (amount - CONFIG.WITHDRAWAL_FEE).toFixed(5),
                 walletAddress: address,
-                balance: userData.balance.toFixed(4)
+                balance: userData.balance.toFixed(5)
             };
 
             await sendTelegramNotification(withdrawalData);
@@ -900,6 +1325,7 @@
             document.getElementById('successModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
             document.getElementById('rewardModal').style.display = 'none';
+            document.getElementById('dailyRewardModal').style.display = 'none';
         }
     </script>
 </body>
