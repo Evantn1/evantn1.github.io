@@ -6,8 +6,11 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- AdsGram SDK with your Platform ID -->
+    <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <!-- Supabase library - ADDED -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         /* ===== MODERN STYLES ===== */
@@ -71,14 +74,6 @@
             color: white;
         }
 
-        .lang-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .lang-btn.active:hover {
-            background: #667eea;
-        }
-
         .daily-reward-icon {
             position: absolute;
             top: 20px;
@@ -101,7 +96,6 @@
 
         .daily-reward-icon:hover {
             transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
         }
 
         .daily-reward-icon .icon {
@@ -119,11 +113,6 @@
             background: linear-gradient(135deg, #6c757d, #495057);
             opacity: 0.7;
             cursor: not-allowed;
-        }
-
-        .daily-reward-icon.claimed:hover {
-            transform: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .daily-reward-badge {
@@ -149,25 +138,6 @@
             border-bottom: 2px solid #f0f0f0;
             padding-left: 150px;
             padding-right: 60px;
-        }
-
-        @media (max-width: 500px) {
-            header {
-                padding-left: 120px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            header {
-                padding-left: 0;
-                padding-top: 60px;
-            }
-            
-            .language-selector {
-                top: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
         }
 
         h1 {
@@ -600,6 +570,23 @@
             color: #1976d2;
         }
 
+        .db-status {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .db-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .db-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         @media (max-width: 480px) {
             .stats, .referral-stats {
                 grid-template-columns: 1fr;
@@ -801,7 +788,7 @@
             `;
         }
 
-        // ===== CONFIGURATION =====
+        // ===== CONFIGURATION WITH SUPABASE CREDENTIALS =====
         const CONFIG = {
             AD_REWARD: 0.00005,
             DAILY_REWARD: 0.0002,
@@ -817,8 +804,110 @@
             
             ADSGRAM: {
                 BLOCK_ID: "23020"
+            },
+            
+            // ✅ YOUR SUPABASE CREDENTIALS - ALREADY ADDED
+            SUPABASE: {
+                URL: "https://brxygrzqrisdqpusplry.supabase.co",
+                ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyeHlncnpxcmlzZHFwdXNwbHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDMxMzIsImV4cCI6MjA4NzI3OTEzMn0.Or8lE6OMgV9wg2AJYdJP7DDpDiHhUBfB7xszlVPh8qw"
             }
         };
+
+        // ===== SUPABASE INITIALIZATION =====
+        let supabase = null;
+        let isSupabaseConnected = false;
+
+        // Initialize Supabase
+        try {
+            supabase = supabaseClient.createClient(
+                CONFIG.SUPABASE.URL, 
+                CONFIG.SUPABASE.ANON_KEY
+            );
+            console.log('✅ Supabase initialized');
+        } catch (error) {
+            console.error('❌ Supabase init error:', error.message);
+        }
+
+        // Test connection
+        async function testSupabaseConnection() {
+            if (!supabase) return false;
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    console.log('⚠️ Supabase connection failed:', error.message);
+                    return false;
+                }
+                console.log('✅ Supabase connected!');
+                return true;
+            } catch (error) {
+                console.log('⚠️ Supabase error:', error.message);
+                return false;
+            }
+        }
+
+        function showDbStatus(message, isConnected) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `db-status ${isConnected ? 'db-connected' : 'db-disconnected'}`;
+            statusDiv.textContent = message;
+            statusDiv.style.position = 'fixed';
+            statusDiv.style.bottom = '10px';
+            statusDiv.style.left = '10px';
+            statusDiv.style.zIndex = '1000';
+            statusDiv.style.padding = '5px 10px';
+            statusDiv.style.borderRadius = '20px';
+            statusDiv.style.fontSize = '12px';
+            
+            const oldStatus = document.querySelector('.db-status');
+            if (oldStatus) oldStatus.remove();
+            
+            document.body.appendChild(statusDiv);
+        }
+
+        // ===== SUPABASE DATABASE FUNCTIONS =====
+        async function saveUserToDB() {
+            if (!isSupabaseConnected || !userData.userId) return false;
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .upsert({
+                        user_id: userData.userId.toString(),
+                        user_name: userData.userName,
+                        balance: userData.balance,
+                        weekly_ads: userData.weeklyAds,
+                        total_ads: userData.totalAds,
+                        last_seen: new Date().toISOString()
+                    }, { onConflict: 'user_id' });
+                
+                if (error) throw error;
+                return true;
+            } catch (error) {
+                console.log('⚠️ DB save failed:', error.message);
+                return false;
+            }
+        }
+
+        async function getLeaderboardFromDB() {
+            if (!isSupabaseConnected) return [];
+            
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('user_name, weekly_ads')
+                    .order('weekly_ads', { ascending: false })
+                    .limit(10);
+                
+                if (error) throw error;
+                return data || [];
+            } catch (error) {
+                console.log('⚠️ DB leaderboard failed:', error.message);
+                return [];
+            }
+        }
 
         // ===== APP STATE =====
         let userData = {
@@ -839,12 +928,22 @@
         };
 
         // ===== INITIALIZE =====
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             const savedLang = localStorage.getItem('preferredLanguage');
             if (savedLang && LANGUAGES[savedLang]) {
                 currentLang = savedLang;
             }
             initializeApp();
+            
+            // Test Supabase connection
+            if (supabase) {
+                isSupabaseConnected = await testSupabaseConnection();
+                if (isSupabaseConnected) {
+                    showDbStatus('✅ Database connected', true);
+                } else {
+                    showDbStatus('⚠️ Using local storage only', false);
+                }
+            }
         });
 
         function initializeApp() {
@@ -991,6 +1090,11 @@
                     userData.lastDailyClaim = now.toISOString();
                     saveUserData();
                     
+                    // Save to database
+                    if (isSupabaseConnected) {
+                        saveUserToDB();
+                    }
+                    
                     closeModal();
                     showSuccess(
                         `${t('dailyClaimed')}<br>` +
@@ -1079,6 +1183,11 @@
                     userData.lastDailyClaim = now.toISOString();
                     saveUserData();
                     
+                    // Save to database
+                    if (isSupabaseConnected) {
+                        saveUserToDB();
+                    }
+                    
                     closeModal();
                     showSuccess(
                         `${t('dailyClaimed')}<br>` +
@@ -1156,6 +1265,11 @@
                 
                 userData.balance += CONFIG.TASK_REWARD;
                 saveUserData();
+                
+                // Save to database
+                if (isSupabaseConnected) {
+                    saveUserToDB();
+                }
                 
                 showSuccess(t('taskCompletedSuccess', {amount: CONFIG.TASK_REWARD.toFixed(5)}));
                 showTasksPage();
@@ -1397,6 +1511,11 @@
                     userData.weeklyAds++;
                     saveUserData();
                     
+                    // Save to database
+                    if (isSupabaseConnected) {
+                        saveUserToDB();
+                    }
+                    
                     adContainer.innerHTML = `
                         <div class="ad-icon">🎉</div>
                         <h2>${t('adCompleted')}</h2>
@@ -1468,6 +1587,11 @@
                     userData.weeklyAds++;
                     saveUserData();
                     
+                    // Save to database
+                    if (isSupabaseConnected) {
+                        saveUserToDB();
+                    }
+                    
                     adContainer.innerHTML = `
                         <div class="ad-icon">🎉</div>
                         <h2>${t('testAdCompleted')}</h2>
@@ -1481,8 +1605,39 @@
         }
 
         // ===== LEADERBOARD PAGE =====
-        function showLeaderboardPage() {
+        async function showLeaderboardPage() {
             sessionStorage.setItem('currentPage', 'leaderboard');
+            
+            // Show loading
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>🏆 ${t('leaderboard')}</h1>
+                    <p>${t('topEarners')}</p>
+                    ${showLanguageSelector()}
+                </header>
+                <div style="text-align: center; padding: 50px;">
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
+            
+            // Get leaderboard from database
+            let leaderboardData = [];
+            if (isSupabaseConnected) {
+                leaderboardData = await getLeaderboardFromDB();
+            }
+            
+            // If no data, use demo
+            if (leaderboardData.length === 0) {
+                leaderboardData = [
+                    { user_name: "CryptoKing", weekly_ads: 156 },
+                    { user_name: "AdMaster", weekly_ads: 128 },
+                    { user_name: "EarnPro", weekly_ads: 97 },
+                    { user_name: userData.userName, weekly_ads: userData.weeklyAds },
+                    { user_name: "BitcoinBuddy", weekly_ads: 45 },
+                    { user_name: "AdWatcher", weekly_ads: 38 }
+                ].sort((a, b) => b.weekly_ads - a.weekly_ads);
+            }
             
             document.getElementById('app').innerHTML = `
                 <header>
@@ -1492,43 +1647,35 @@
                     ${showLanguageSelector()}
                 </header>
 
+                ${isSupabaseConnected ? 
+                    '<div class="notice" style="background: #d4edda; color: #155724;">✅ Live data from database</div>' : 
+                    '<div class="notice" style="background: #fff3cd; color: #856404;">⚠️ Demo data (local storage)</div>'
+                }
+
                 <div class="notice success-notice">
                     <h3>🎁 ${t('weeklyPrizes')}</h3>
                     <p>1st: 0.5 USDT • 2nd: 0.3 USDT • 3rd: 0.1 USDT</p>
                 </div>
 
                 <div class="leaderboard-list">
-                    ${generateLeaderboard()}
+                    ${leaderboardData.map((user, i) => `
+                        <div class="leaderboard-item" style="${user.user_name === userData.userName ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
+                            <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                            <div style="flex: 1;">
+                                <strong>${user.user_name} ${user.user_name === userData.userName ? `(${t('you')})` : ''}</strong>
+                                <div style="color: #666;">${user.weekly_ads} ${t('adsWatched')}</div>
+                            </div>
+                            <div style="color: #28a745; font-weight: bold;">
+                                ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
+                            </div>
+                        </div>
+                    `).join('')}
                 </div>
 
                 <button onclick="showLeaderboardPage()" class="btn btn-secondary">
                     🔄 ${t('refresh')}
                 </button>
             `;
-        }
-
-        function generateLeaderboard() {
-            const users = [
-                { name: "CryptoKing", ads: 156 },
-                { name: "AdMaster", ads: 128 },
-                { name: "EarnPro", ads: 97 },
-                { name: userData.userName, ads: userData.weeklyAds, isYou: true },
-                { name: "BitcoinBuddy", ads: 45 },
-                { name: "AdWatcher", ads: 38 }
-            ];
-
-            return users.map((user, i) => `
-                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
-                    <div style="flex: 1;">
-                        <strong>${user.name} ${user.isYou ? `(${t('you')})` : ''}</strong>
-                        <div style="color: #666;">${user.ads} ${t('adsWatched')}</div>
-                    </div>
-                    <div style="color: #28a745; font-weight: bold;">
-                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
-                    </div>
-                </div>
-            `).join('');
         }
 
         // ===== WITHDRAW PAGE =====
@@ -1623,6 +1770,11 @@
             
             userData.balance -= amount;
             saveUserData();
+            
+            // Save to database
+            if (isSupabaseConnected) {
+                saveUserToDB();
+            }
             
             showSuccess(t('withdrawalRequested'));
             setTimeout(() => showHomePage(), 2000);
