@@ -9,16 +9,12 @@
     <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
-    <!-- Supabase library - ADDED -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
     <style>
-        /* ===== MODERN STYLES ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
         }
 
         body {
@@ -34,33 +30,433 @@
             border-radius: 24px;
             padding: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-            animation: slideUp 0.3s ease;
-            position: relative;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
         }
 
-        .language-selector {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            background: white;
-            border-radius: 30px;
-            padding: 5px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 20;
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .lang-btn {
-            padding: 8px 12px;
-            border: none;
+        .user-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 24px;
             border-radius: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .balance {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 12px 0;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-task {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .ad-container {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            border: 3px dashed #ddd;
+            min-height: 320px;
+        }
+
+        .ad-icon {
+            font-size: 5rem;
+            margin: 20px 0;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 16px;
+        }
+
+        .rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .rank-1 { background: gold; }
+        .rank-2 { background: silver; }
+        .rank-3 { background: #cd7f32; }
+        .rank-other { background: #6c757d; }
+
+        .notice {
+            background: #e3f2fd;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            color: #1976d2;
+            text-align: center;
+        }
+
+        .adsgram-badge {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            color: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <!-- Content loaded dynamically -->
+    </div>
+
+    <script>
+        // ===== CONFIGURATION =====
+        const CONFIG = {
+            AD_REWARD: 0.00005,
+            DAILY_REWARD: 0.0002,
+            TASK_REWARD: 0.0003,
+            MIN_WITHDRAWAL: 0.015,
+            WITHDRAWAL_FEE: 0.001,
+            WEEKLY_PRIZES: [0.5, 0.3, 0.1],
+            ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
+            ADMIN_CHAT_ID: "6450016040",
+            REFERRAL_REWARD: 0.0001,
+            BOT_USERNAME: "earnmoneyapppbot",
+            TASK_CHANNEL: "adwatch2",
+            
+            ADSGRAM: {
+                BLOCK_ID: "23020"
+            }
+        };
+
+        // ===== APP STATE =====
+        let userData = {
+            balance: 0.00000,
+            totalAds: 0,
+            todayAds: 0,
+            weeklyAds: 0,
+            userName: "User",
+            userId: null,
+            polygonAddress: "",
+            lastDailyClaim: null,
+            dailyStreak: 0,
+            referralCode: null,
+            referrals: [],
+            referralEarnings: 0,
+            referredBy: null,
+            completedTasks: []
+        };
+
+        // ===== INITIALIZE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            if (typeof Telegram !== 'undefined') {
+                const tg = window.Telegram.WebApp;
+                tg.expand();
+                
+                if (tg.initDataUnsafe?.user) {
+                    userData.userId = tg.initDataUnsafe.user.id.toString();
+                    userData.userName = tg.initDataUnsafe.user.first_name || "User";
+                }
+            }
+            
+            loadUserData();
+            
+            if (!userData.referralCode) {
+                userData.referralCode = generateReferralCode();
+                saveUserData();
+            }
+            
+            showHomePage();
+        }
+
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        function loadUserData() {
+            const saved = localStorage.getItem('adEarnUser');
+            if (saved) {
+                const data = JSON.parse(saved);
+                const today = new Date().toDateString();
+                
+                if (data.lastLogin !== today) {
+                    data.todayAds = 0;
+                }
+                
+                userData = { ...userData, ...data };
+                userData.lastLogin = today;
+            }
+            saveUserData();
+        }
+
+        function saveUserData() {
+            localStorage.setItem('adEarnUser', JSON.stringify(userData));
+        }
+
+        function showHomePage() {
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <h1>🤑 AdEarn</h1>
+                    <p>Watch ads & earn USDT!</p>
+                </header>
+
+                <div class="user-card">
+                    <h3>Your Balance</h3>
+                    <div class="balance">${userData.balance.toFixed(5)} USDT</div>
+                    <p>Welcome, ${userData.userName}!</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">Today</span>
+                        <span class="stat-value">${userData.todayAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Total</span>
+                        <span class="stat-value">${userData.totalAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Weekly</span>
+                        <span class="stat-value">${userData.weeklyAds}</span>
+                    </div>
+                </div>
+
+                <button onclick="showWatchPage()" class="btn btn-primary">
+                    📺 Watch Ads (${CONFIG.AD_REWARD.toFixed(5)} USDT)
+                </button>
+
+                <button onclick="showLeaderboardPage()" class="btn btn-warning">
+                    🏆 Leaderboard
+                </button>
+
+                <button onclick="showWithdrawPage()" class="btn btn-success">
+                    💸 Withdraw
+                </button>
+
+                <div class="adsgram-badge">
+                    <strong>✅ AdsGram Ready</strong><br>
+                    Block ID: ${CONFIG.ADSGRAM.BLOCK_ID}
+                </div>
+            `;
+        }
+
+        function showWatchPage() {
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn" style="color: #666; text-decoration: none;">← Back</a>
+                    <h1>📺 Watch Ads</h1>
+                </header>
+
+                <div class="ad-container" id="adContainer">
+                    <div class="ad-icon">📱</div>
+                    <h2>Ready to Earn</h2>
+                    <p>Click below to watch an ad</p>
+                </div>
+
+                <button onclick="startAd()" class="btn btn-primary" id="watchBtn">
+                    ▶️ Watch Ad & Earn ${CONFIG.AD_REWARD.toFixed(5)} USDT
+                </button>
+            `;
+        }
+
+        async function startAd() {
+            const watchBtn = document.getElementById('watchBtn');
+            
+            watchBtn.disabled = true;
+            watchBtn.innerHTML = 'Loading...';
+
+            try {
+                const AdController = Adsgram.init({ blockId: CONFIG.ADSGRAM.BLOCK_ID });
+                await AdController.show();
+                
+                userData.balance += CONFIG.AD_REWARD;
+                userData.totalAds++;
+                userData.todayAds++;
+                userData.weeklyAds++;
+                saveUserData();
+                
+                alert(`✅ You earned ${CONFIG.AD_REWARD.toFixed(5)} USDT!`);
+                showHomePage();
+                
+            } catch (error) {
+                alert('Ad failed, try again');
+                watchBtn.disabled = false;
+                watchBtn.innerHTML = '▶️ Try Again';
+            }
+        }
+
+        function showLeaderboardPage() {
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn" style="color: #666; text-decoration: none;">← Back</a>
+                    <h1>🏆 Leaderboard</h1>
+                </header>
+
+                <div class="notice">
+                    <h3>🎁 Weekly Prizes</h3>
+                    <p>1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
+                </div>
+
+                <div class="leaderboard-list">
+                    ${generateLeaderboard()}
+                </div>
+
+                <button onclick="showLeaderboardPage()" class="btn btn-secondary">Refresh</button>
+            `;
+        }
+
+        function generateLeaderboard() {
+            const users = [
+                { name: "CryptoKing", ads: 156 },
+                { name: "AdMaster", ads: 128 },
+                { name: "EarnPro", ads: 97 },
+                { name: userData.userName, ads: userData.weeklyAds, isYou: true },
+                { name: "BitcoinBuddy", ads: 45 }
+            ];
+
+            return users.map((user, i) => `
+                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd;' : ''}">
+                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                    <div style="flex: 1;">
+                        <strong>${user.name} ${user.isYou ? '(You)' : ''}</strong>
+                        <div style="color: #666;">${user.ads} ads</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function showWithdrawPage() {
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn" style="color: #666; text-decoration: none;">← Back</a>
+                    <h1>💸 Withdraw</h1>
+                </header>
+
+                <div class="notice">
+                    <p>Min: ${CONFIG.MIN_WITHDRAWAL.toFixed(3)} USDT • Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(3)} USDT</p>
+                </div>
+
+                <input type="text" id="walletAddress" placeholder="Polygon address (0x...)" style="width: 100%; padding: 16px; border: 2px solid #ddd; border-radius: 12px; margin: 10px 0;">
+                <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL.toFixed(3)}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance.toFixed(5)}" step="0.001" style="width: 100%; padding: 16px; border: 2px solid #ddd; border-radius: 12px; margin: 10px 0;">
+
+                <button onclick="processWithdrawal()" class="btn btn-success">Withdraw</button>
+            `;
+        }
+
+        function processWithdrawal() {
+            const address = document.getElementById('walletAddress').value.trim();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
+            if (!address || !address.startsWith('0x') || address.length !== 42) {
+                alert('Invalid address');
+                return;
+            }
+
+            if (amount < CONFIG.MIN_WITHDRAWAL || amount > userData.balance) {
+                alert('Invalid amount');
+                return;
+            }
+
+            userData.balance -= amount;
+            saveUserData();
+            
+            alert('Withdrawal requested!');
+            showHomePage();
+        }
+    </script>
+</body>
+</html>            border-radius: 20px;
             background: transparent;
             color: #666;
             cursor: pointer;
