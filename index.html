@@ -6,8 +6,11 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- ✅ CORRECT AdsGram SDK - sad.min.js -->
+    <!-- AdsGram SDK -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <!-- Supabase JavaScript library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     
     <style>
         /* ===== MODERN STYLES ===== */
@@ -40,7 +43,6 @@
             to { transform: translateY(0); opacity: 1; }
         }
 
-        /* ===== LANGUAGE SELECTOR ===== */
         .language-selector {
             position: absolute;
             top: 20px;
@@ -72,15 +74,6 @@
             color: white;
         }
 
-        .lang-btn:hover {
-            background: #f0f0f0;
-        }
-
-        .lang-btn.active:hover {
-            background: #667eea;
-        }
-
-        /* ===== DAILY REWARD ICON ===== */
         .daily-reward-icon {
             position: absolute;
             top: 20px;
@@ -103,7 +96,6 @@
 
         .daily-reward-icon:hover {
             transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
         }
 
         .daily-reward-icon .icon {
@@ -121,11 +113,6 @@
             background: linear-gradient(135deg, #6c757d, #495057);
             opacity: 0.7;
             cursor: not-allowed;
-        }
-
-        .daily-reward-icon.claimed:hover {
-            transform: none;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .daily-reward-badge {
@@ -149,27 +136,8 @@
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 2px solid #f0f0f0;
-            padding-left: 150px;  /* Extra space for language selector */
-            padding-right: 60px; /* Space for daily reward icon */
-        }
-
-        @media (max-width: 500px) {
-            header {
-                padding-left: 120px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            header {
-                padding-left: 0;
-                padding-top: 60px;
-            }
-            
-            .language-selector {
-                top: 10px;
-                left: 50%;
-                transform: translateX(-50%);
-            }
+            padding-left: 150px;
+            padding-right: 60px;
         }
 
         h1 {
@@ -286,11 +254,6 @@
             color: white;
         }
 
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
         .btn-task {
             background: linear-gradient(135deg, #ff6b6b, #ee5a24);
             color: white;
@@ -328,11 +291,6 @@
             margin: 20px 0;
         }
 
-        /* ===== TASK PAGE STYLES ===== */
-        .task-container {
-            margin: 20px 0;
-        }
-
         .task-card {
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
@@ -340,18 +298,6 @@
             padding: 30px;
             text-align: center;
             margin-bottom: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .task-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
-        }
-
-        .task-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 10px;
         }
 
         .task-reward {
@@ -363,30 +309,6 @@
             margin: 15px 0;
         }
 
-        .task-description {
-            font-size: 1rem;
-            margin: 15px 0;
-            opacity: 0.9;
-        }
-
-        .task-requirements {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 15px 0;
-            text-align: left;
-        }
-
-        .task-requirements li {
-            margin: 8px 0;
-            list-style-type: none;
-        }
-
-        .task-requirements li:before {
-            content: "✓ ";
-            margin-right: 8px;
-        }
-
         .telegram-btn {
             display: inline-block;
             background: #0088cc;
@@ -396,56 +318,7 @@
             text-decoration: none;
             font-weight: bold;
             margin: 15px 0;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
             width: 100%;
-            font-size: 1.2rem;
-        }
-
-        .telegram-btn:hover {
-            background: #006699;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .telegram-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .verify-btn {
-            background: #28a745;
-            color: white;
-            padding: 15px;
-            border-radius: 30px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-        }
-
-        .verify-btn:hover {
-            background: #218838;
-            transform: translateY(-3px);
-        }
-
-        .verify-btn:disabled {
-            background: #6c757d;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .completed-badge {
-            background: #28a745;
-            color: white;
-            padding: 12px;
-            border-radius: 30px;
-            margin: 15px 0;
-            font-weight: bold;
         }
 
         .leaderboard-item {
@@ -455,12 +328,6 @@
             margin: 10px 0;
             background: #f8f9fa;
             border-radius: 16px;
-            transition: all 0.3s;
-        }
-
-        .leaderboard-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .rank {
@@ -480,53 +347,6 @@
         .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); }
         .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
         .rank-other { background: #6c757d; }
-
-        /* ===== DATABASE SETUP GUIDE ===== */
-        .db-setup-guide {
-            background: #fff3cd;
-            border: 2px solid #ffc107;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: left;
-        }
-
-        .db-setup-guide h3 {
-            color: #856404;
-            margin-bottom: 10px;
-        }
-
-        .db-setup-guide code {
-            background: #f8f9fa;
-            padding: 2px 6px;
-            border-radius: 6px;
-            font-family: monospace;
-        }
-
-        .db-setup-guide pre {
-            background: #f8f9fa;
-            padding: 15px;
-            border-radius: 10px;
-            overflow-x: auto;
-            font-family: monospace;
-            font-size: 14px;
-            margin: 15px 0;
-        }
-
-        .option-card {
-            background: white;
-            border: 2px solid #667eea;
-            border-radius: 16px;
-            padding: 20px;
-            margin: 20px 0;
-        }
-
-        .option-title {
-            font-size: 1.3rem;
-            color: #667eea;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
 
         .amount-options {
             display: grid;
@@ -548,13 +368,11 @@
 
         .amount-btn:hover {
             border-color: #667eea;
-            background: white;
         }
 
         .amount-btn.active {
             background: #667eea;
             color: white;
-            border-color: #667eea;
         }
 
         input, textarea {
@@ -564,18 +382,6 @@
             border-radius: 12px;
             font-size: 16px;
             margin: 10px 0;
-            transition: border-color 0.3s;
-        }
-
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        textarea {
-            resize: none;
-            background: #f8f9fa;
-            font-family: monospace;
         }
 
         .notice {
@@ -600,7 +406,6 @@
             border-left: 4px solid #ffc107;
         }
 
-        /* ===== REFERRAL STYLES ===== */
         .referral-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -638,61 +443,6 @@
             font-size: 16px;
             cursor: pointer;
             margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        .copy-btn:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .friend-list {
-            margin: 20px 0;
-        }
-
-        .friend-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            margin: 8px 0;
-        }
-
-        .friend-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            margin-right: 12px;
-        }
-
-        .friend-info {
-            flex: 1;
-        }
-
-        .friend-name {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .friend-earned {
-            color: #28a745;
-            font-size: 0.9rem;
-        }
-
-        .badge {
-            background: #ffc107;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
         }
 
         .modal {
@@ -715,12 +465,6 @@
             max-width: 400px;
             width: 90%;
             text-align: center;
-            animation: modalSlide 0.3s;
-        }
-
-        @keyframes modalSlide {
-            from { transform: translateY(-30px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
         }
 
         .modal-icon {
@@ -770,6 +514,23 @@
             color: #1976d2;
         }
 
+        .db-status {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .db-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .db-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
         @media (max-width: 480px) {
             .stats, .referral-stats {
                 grid-template-columns: 1fr;
@@ -781,6 +542,10 @@
             
             .amount-options {
                 grid-template-columns: repeat(2, 1fr);
+            }
+            
+            header {
+                padding-left: 120px;
             }
         }
     </style>
@@ -794,9 +559,9 @@
     <div id="successModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">✅</div>
-            <h2 id="successTitle">Success!</h2>
+            <h2>Success!</h2>
             <p id="successMessage"></p>
-            <button onclick="closeModal()" class="btn btn-primary" id="successBtn">Continue</button>
+            <button onclick="closeModal()" class="btn btn-primary">Continue</button>
         </div>
     </div>
 
@@ -804,9 +569,9 @@
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">❌</div>
-            <h2 id="errorTitle">Error</h2>
+            <h2>Error</h2>
             <p id="errorMessage"></p>
-            <button onclick="closeModal()" class="btn btn-secondary" id="errorBtn">Close</button>
+            <button onclick="closeModal()" class="btn btn-secondary">Close</button>
         </div>
     </div>
 
@@ -814,298 +579,25 @@
     <div id="dailyRewardModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">🎁</div>
-            <h2 id="dailyTitle">Daily Reward</h2>
+            <h2>Daily Reward</h2>
             <p id="dailyRewardMessage"></p>
-            <div id="dailyAdContainer" style="margin: 15px 0;">
-                <!-- Ad will show here -->
-            </div>
+            <div id="dailyAdContainer" style="margin: 15px 0;"></div>
             <button onclick="startDailyRewardAd()" class="btn btn-primary" id="watchDailyAdBtn">Watch Ad to Claim</button>
-            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;" id="dailyLaterBtn">Maybe Later</button>
+            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;">Maybe Later</button>
         </div>
     </div>
 
-    <!-- Reward Modal -->
-    <div id="rewardModal" class="modal">
+    <!-- Database Status Modal -->
+    <div id="dbStatusModal" class="modal">
         <div class="modal-content">
-            <div class="modal-icon">🎉</div>
-            <h2 id="rewardTitle">Reward Received!</h2>
-            <p id="rewardMessage"></p>
-            <button onclick="closeRewardModal()" class="btn btn-success" id="rewardBtn">Awesome!</button>
-        </div>
-    </div>
-
-    <!-- Database Info Modal -->
-    <div id="dbInfoModal" class="modal">
-        <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
             <div class="modal-icon">📊</div>
-            <h2>Leaderboard Database Setup</h2>
-            
-            <div class="db-setup-guide">
-                <h3>⚠️ Important Note</h3>
-                <p>The current leaderboard shows only demo data because it's stored locally on each user's device.</p>
-                <p>For a REAL leaderboard that tracks all users globally, you need a backend database.</p>
-            </div>
-
-            <div class="option-card">
-                <div class="option-title">Option 1: Simple (Firebase)</div>
-                <p>Free, easy to set up, good for small apps</p>
-                <pre>// 1. Create account at https://firebase.google.com
-// 2. Add this to your code:
-
-import { initializeApp } from "firebase/app";
-import { getDatabase, ref, set, get } from "firebase/database";
-
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_AUTH_DOMAIN",
-  databaseURL: "YOUR_DATABASE_URL",
-  projectId: "YOUR_PROJECT_ID"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-
-// Save user stats
-async function updateLeaderboard(userId, userName, weeklyAds) {
-  await set(ref(db, 'leaderboard/' + userId), {
-    name: userName,
-    ads: weeklyAds,
-    timestamp: Date.now()
-  });
-}</pre>
-            </div>
-
-            <div class="option-card">
-                <div class="option-title">Option 2: Professional (Node.js + MongoDB)</div>
-                <p>More powerful, scalable, full control</p>
-                <pre>// Backend API (Node.js + Express)
-const express = require('express');
-const mongoose = require('mongoose');
-const app = express();
-
-// User Schema
-const UserSchema = new mongoose.Schema({
-  userId: String,
-  userName: String,
-  weeklyAds: Number,
-  totalEarned: Number
-});
-
-// API Endpoints
-app.post('/api/update-stats', async (req, res) => {
-  await User.findOneAndUpdate(
-    { userId: req.body.userId },
-    { 
-      userName: req.body.userName,
-      weeklyAds: req.body.weeklyAds,
-      $inc: { totalEarned: req.body.earned }
-    },
-    { upsert: true }
-  );
-});
-
-app.get('/api/leaderboard', async (req, res) => {
-  const topUsers = await User.find()
-    .sort({ weeklyAds: -1 })
-    .limit(10);
-  res.json(topUsers);
-});</pre>
-            </div>
-
-            <div class="option-card">
-                <div class="option-title">Option 3: Supabase (Easiest)</div>
-                <p>Free tier, PostgreSQL, real-time updates</p>
-                <pre>// 1. Create account at https://supabase.com
-// 2. Create a table 'users' with columns:
-//    - id (primary key)
-//    - user_id (text)
-//    - user_name (text)
-//    - weekly_ads (integer)
-//    - total_earned (float)
-
-import { createClient } from '@supabase/supabase-js'
-
-const supabase = createClient(
-  'YOUR_URL',
-  'YOUR_ANON_KEY'
-)
-
-// Update stats
-async function updateStats() {
-  const { data, error } = await supabase
-    .from('users')
-    .upsert({ 
-      user_id: userData.userId,
-      user_name: userData.userName,
-      weekly_ads: userData.weeklyAds,
-      last_seen: new Date()
-    })
-}
-
-// Get leaderboard
-async function getLeaderboard() {
-  const { data } = await supabase
-    .from('users')
-    .select('user_name, weekly_ads')
-    .order('weekly_ads', { ascending: false })
-    .limit(10)
-  return data
-}</pre>
-            </div>
-
-            <button onclick="closeModal()" class="btn btn-primary">Got it!</button>
+            <h2>Database Status</h2>
+            <p id="dbStatusMessage"></p>
+            <button onclick="closeModal()" class="btn btn-primary">OK</button>
         </div>
     </div>
 
     <script>
-        // ===== LANGUAGE TRANSLATIONS =====
-        const LANGUAGES = {
-            en: {
-                // General
-                appName: "AdEarn",
-                appDesc: "Watch ads & earn USDT rewards!",
-                balance: "Your Balance",
-                welcome: "Welcome",
-                todayAds: "Today's Ads",
-                totalAds: "Total Ads",
-                weeklyAds: "Weekly Ads",
-                continue: "Continue",
-                close: "Close",
-                back: "← Back",
-                you: "You",
-                adsWatched: "ads watched",
-                refresh: "Refresh",
-                loading: "Loading...",
-                
-                // Buttons
-                watchAds: "📺 Watch Ads & Earn",
-                refer: "👥 Refer & Earn",
-                leaderboard: "🏆 Weekly Leaderboard",
-                withdraw: "💸 Withdraw USDT",
-                tasks: "📋 Complete Tasks",
-                
-                // Daily Reward
-                dailyReward: "Daily Reward",
-                dailyAvailable: "🎁 Watch an ad to claim your daily reward!",
-                dailyAmount: "💰 Reward: {amount} USDT",
-                dailyStreak: "🔥 Current Streak: {streak} days",
-                dailyClaimed: "⏳ Daily reward already claimed",
-                dailyNext: "Next reward available in {hours} hours",
-                dailyAround: "around {time}",
-                claimNow: "Watch Ad to Claim {amount} USDT",
-                maybeLater: "Maybe Later",
-                watchToClaim: "Watch an ad to claim your daily reward",
-                
-                // Task Page
-                taskTitle: "📋 Complete Tasks",
-                taskDesc: "Earn extra rewards by completing tasks",
-                specialTask: "🔥 SPECIAL TASK",
-                taskReward: "{amount} USDT",
-                taskDescription: "Join our Telegram channel to earn rewards!",
-                taskRequirements: "📋 Requirements:",
-                req1: "Join the Telegram channel",
-                req2: "Stay for at least 30 seconds",
-                req3: "Come back and verify",
-                joinChannel: "🔗 Join Telegram Channel",
-                verifyTask: "✅ Verify & Claim Reward",
-                taskCompleted: "✅ Task Completed!",
-                taskCompletedDesc: "You've already completed this task",
-                
-                // Referral Page
-                referTitle: "👥 Refer & Earn",
-                referDesc: "Invite friends and earn rewards",
-                totalReferrals: "Total Referrals",
-                referralEarnings: "Referral Earnings",
-                yourLink: "Your Referral Link",
-                shareLink: "Share this link with friends:",
-                copyLink: "📋 Copy Link",
-                copied: "✅ Copied!",
-                howItWorks: "💰 How it works",
-                how1: "• Invite friends using your link",
-                how2: "• You earn {amount} USDT when they join",
-                how3: "• You also earn 5% of their ad earnings forever!",
-                how4: "• Your friends get a {bonus} USDT bonus",
-                yourReferrals: "Your Referrals ({count})",
-                noReferrals: "No referrals yet. Share your link to start earning!",
-                earned: "Earned: {amount} USDT",
-                ads: "{count} ads",
-                
-                // Leaderboard
-                topEarners: "Top earners this week",
-                weeklyPrizes: "Weekly Prizes",
-                databaseInfo: "ℹ️ About Leaderboard",
-                
-                // Withdraw
-                withdrawToPolygon: "Withdraw to Polygon",
-                minWithdraw: "Min: {amount} USDT",
-                fee: "Fee: {amount} USDT",
-                polygonAddress: "Polygon wallet address (0x...)",
-                amount: "Amount",
-                youReceive: "You receive",
-                withdrawNow: "💸 Withdraw Now",
-                
-                // Ad messages
-                earnPerAd: "Earn {amount} USDT per ad",
-                rewardPerAd: "Reward per ad",
-                yourId: "Your User ID",
-                readyToEarn: "Ready to Earn",
-                clickToWatch: "Click below to watch an ad",
-                watchAdEarn: "Watch Ad & Earn {amount} USDT",
-                today: "Today",
-                earnedToday: "Earned Today",
-                loadingAd: "Loading Advertisement",
-                pleaseWait: "Please wait...",
-                adStarted: "Ad Started",
-                watchComplete: "Please watch the complete ad",
-                adCompleted: "Ad Completed!",
-                youEarned: "✅ You earned {amount} USDT!",
-                newBalance: "New balance: {amount} USDT",
-                adError: "Ad Error",
-                tryAgain: "Try Again",
-                usingTestAd: "Using Test Ad",
-                failedToLoad: "Failed to load real ad",
-                testAd: "Test Advertisement",
-                completesIn: "Ad completes in",
-                seconds: "seconds",
-                testAdCompleted: "Test Ad Completed!",
-                
-                // Success/Error messages
-                rewardEarned: "✅ You earned {amount} USDT!",
-                dailyClaimed: "✅ Daily reward claimed!",
-                streak: "🔥 Streak: {streak} days",
-                withdrawalRequested: "Withdrawal requested! You will receive funds within 24 hours.",
-                invalidAddress: "Invalid Polygon address",
-                invalidAmount: "Invalid amount",
-                copiedSuccess: "Link copied to clipboard!",
-                taskCompletedSuccess: "✅ Task completed! You earned {amount} USDT!",
-                alreadyCompleted: "You've already completed this task",
-                verifyFirst: "Please join the channel first before verifying",
-                watchAdFirst: "Please watch the ad first to claim your daily reward",
-                error: "Error"
-            },
-            es: {
-                // Spanish translations (shortened for brevity - same structure as English)
-                appName: "AdEarn",
-                appDesc: "¡Mira anuncios y gana USDT!",
-                balance: "Tu Saldo",
-                welcome: "Bienvenido",
-                todayAds: "Anuncios Hoy",
-                totalAds: "Total Anuncios",
-                weeklyAds: "Anuncios Semanales",
-                continue: "Continuar",
-                close: "Cerrar",
-                back: "← Atrás",
-                watchAds: "📺 Ver Anuncios",
-                refer: "👥 Referir",
-                leaderboard: "🏆 Clasificación",
-                withdraw: "💸 Retirar",
-                tasks: "📋 Tareas",
-                dailyReward: "Recompensa Diaria",
-                watchToClaim: "Mira un anuncio para reclamar",
-                databaseInfo: "ℹ️ Sobre Clasificación"
-            }
-        };
-
         // ===== CONFIGURATION =====
         const CONFIG = {
             AD_REWARD: 0.00005,
@@ -1123,58 +615,375 @@ async function getLeaderboard() {
             // AdsGram
             ADSGRAM: {
                 BLOCK_ID: "23020"
+            },
+            
+            // ===== IMPORTANT: PASTE YOUR SUPABASE CREDENTIALS HERE =====
+            SUPABASE: {
+                URL: "https://your-project-id.supabase.co",  // ← REPLACE WITH YOUR PROJECT URL
+                ANON_KEY: "your-anon-key-here"               // ← REPLACE WITH YOUR ANON KEY
             }
         };
 
-        // ===== CURRENT LANGUAGE =====
+        // ===== LANGUAGE TRANSLATIONS =====
+        const LANGUAGES = {
+            en: {
+                appName: "AdEarn",
+                appDesc: "Watch ads & earn USDT!",
+                balance: "Your Balance",
+                welcome: "Welcome",
+                todayAds: "Today",
+                totalAds: "Total",
+                weeklyAds: "Weekly",
+                watchAds: "📺 Watch Ads",
+                refer: "👥 Refer",
+                leaderboard: "🏆 Leaderboard",
+                withdraw: "💸 Withdraw",
+                tasks: "📋 Tasks",
+                dailyReward: "Daily",
+                back: "← Back",
+                continue: "Continue",
+                close: "Close",
+                refresh: "Refresh",
+                you: "You",
+                adsWatched: "ads watched",
+                loading: "Loading..."
+            }
+        };
+
         let currentLang = 'en';
+        function t(key) { return LANGUAGES[currentLang][key] || key; }
 
-        // ===== TRANSLATION FUNCTION =====
-        function t(key, replacements = {}) {
-            let text = LANGUAGES[currentLang][key] || LANGUAGES.en[key] || key;
-            
-            // Replace placeholders
-            for (const [placeholder, value] of Object.entries(replacements)) {
-                text = text.replace(`{${placeholder}}`, value);
-            }
-            
-            return text;
-        }
+        // ===== SUPABASE INITIALIZATION =====
+        console.log('Initializing Supabase...');
+        const supabase = supabaseClient.createClient(
+            CONFIG.SUPABASE.URL, 
+            CONFIG.SUPABASE.ANON_KEY
+        );
+        
+        // Track connection status
+        let isSupabaseConnected = false;
 
-        // ===== LANGUAGE SELECTOR =====
-        function showLanguageSelector() {
-            const languages = [
-                { code: 'en', name: '🇬🇧 EN' },
-                { code: 'es', name: '🇪🇸 ES' }
-            ];
-            
-            return `
-                <div class="language-selector">
-                    ${languages.map(lang => `
-                        <button class="lang-btn ${currentLang === lang.code ? 'active' : ''}" onclick="setLanguage('${lang.code}')">
-                            ${lang.name}
-                        </button>
-                    `).join('')}
-                </div>
-            `;
-        }
-
-        function setLanguage(langCode) {
-            if (LANGUAGES[langCode]) {
-                currentLang = langCode;
-                localStorage.setItem('preferredLanguage', langCode);
+        // ===== TEST SUPABASE CONNECTION =====
+        async function testSupabaseConnection() {
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .select('count', { count: 'exact', head: true });
                 
-                // Refresh current page
-                const currentPage = sessionStorage.getItem('currentPage') || 'home';
-                switch(currentPage) {
-                    case 'home': showHomePage(); break;
-                    case 'watch': showWatchPage(); break;
-                    case 'tasks': showTasksPage(); break;
-                    case 'referral': showReferralPage(); break;
-                    case 'leaderboard': showLeaderboardPage(); break;
-                    case 'withdraw': showWithdrawPage(); break;
+                if (error) {
+                    console.error('❌ Supabase connection failed:', error.message);
+                    isSupabaseConnected = false;
+                    showDbStatus('❌ Database disconnected', false);
+                } else {
+                    console.log('✅ Supabase connected successfully!');
+                    isSupabaseConnected = true;
+                    showDbStatus('✅ Database connected', true);
+                    
+                    // Sync local user data with database
+                    if (userData.userId) {
+                        syncUserWithDatabase();
+                    }
                 }
+            } catch (error) {
+                console.error('❌ Supabase connection error:', error);
+                isSupabaseConnected = false;
+                showDbStatus('❌ Database error', false);
             }
+        }
+
+        function showDbStatus(message, isConnected) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `db-status ${isConnected ? 'db-connected' : 'db-disconnected'}`;
+            statusDiv.textContent = message;
+            statusDiv.style.position = 'fixed';
+            statusDiv.style.bottom = '10px';
+            statusDiv.style.left = '10px';
+            statusDiv.style.zIndex = '1000';
+            statusDiv.style.padding = '5px 10px';
+            statusDiv.style.borderRadius = '20px';
+            statusDiv.style.fontSize = '12px';
+            
+            // Remove old status if exists
+            const oldStatus = document.querySelector('.db-status');
+            if (oldStatus) oldStatus.remove();
+            
+            document.body.appendChild(statusDiv);
+        }
+
+        // ===== SUPABASE DATABASE FUNCTIONS =====
+
+        // Sync local user with database
+        async function syncUserWithDatabase() {
+            if (!isSupabaseConnected || !userData.userId) return;
+            
+            try {
+                const { data: existing } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('user_id', userData.userId)
+                    .maybeSingle();
+                
+                if (existing) {
+                    // Update local with database values if they're higher
+                    if (existing.balance > userData.balance) {
+                        userData.balance = existing.balance;
+                    }
+                    if (existing.weekly_ads > userData.weeklyAds) {
+                        userData.weeklyAds = existing.weekly_ads;
+                    }
+                    if (existing.total_ads > userData.totalAds) {
+                        userData.totalAds = existing.total_ads;
+                    }
+                    saveUserData();
+                } else {
+                    // Create user in database
+                    await supabase
+                        .from('users')
+                        .insert([{
+                            user_id: userData.userId,
+                            user_name: userData.userName,
+                            balance: userData.balance,
+                            weekly_ads: userData.weeklyAds,
+                            total_ads: userData.totalAds,
+                            referral_code: userData.referralCode,
+                            created_at: new Date().toISOString()
+                        }]);
+                }
+            } catch (error) {
+                console.error('Error syncing with database:', error);
+            }
+        }
+
+        // Save user after watching ad
+        async function saveUserToDB(userId, userName, earned, adsWatched) {
+            if (!isSupabaseConnected) {
+                console.log('⚠️ DB not connected, using localStorage only');
+                return false;
+            }
+            
+            try {
+                // Check if user exists
+                const { data: existing } = await supabase
+                    .from('users')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .maybeSingle();
+                
+                if (existing) {
+                    // Update existing user
+                    const { error } = await supabase
+                        .from('users')
+                        .update({
+                            balance: (parseFloat(existing.balance) || 0) + earned,
+                            weekly_ads: (existing.weekly_ads || 0) + adsWatched,
+                            total_ads: (existing.total_ads || 0) + adsWatched,
+                            last_login: new Date().toISOString()
+                        })
+                        .eq('user_id', userId);
+                    
+                    if (error) throw error;
+                } else {
+                    // Create new user
+                    const { error } = await supabase
+                        .from('users')
+                        .insert([{
+                            user_id: userId,
+                            user_name: userName || 'User',
+                            balance: earned,
+                            weekly_ads: adsWatched,
+                            total_ads: adsWatched,
+                            referral_code: generateReferralCode(),
+                            created_at: new Date().toISOString()
+                        }]);
+                    
+                    if (error) throw error;
+                }
+                return true;
+            } catch (error) {
+                console.error('Error saving to DB:', error);
+                return false;
+            }
+        }
+
+        // Get leaderboard from database
+        async function getLeaderboardFromDB() {
+            if (!isSupabaseConnected) {
+                console.log('⚠️ DB not connected, returning empty leaderboard');
+                return [];
+            }
+            
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('user_name, weekly_ads')
+                    .order('weekly_ads', { ascending: false })
+                    .limit(10);
+                
+                if (error) throw error;
+                return data || [];
+            } catch (error) {
+                console.error('Error fetching leaderboard:', error);
+                return [];
+            }
+        }
+
+        // Get user's rank
+        async function getUserRankFromDB(userId) {
+            if (!isSupabaseConnected) return null;
+            
+            try {
+                const { data: user } = await supabase
+                    .from('users')
+                    .select('weekly_ads')
+                    .eq('user_id', userId)
+                    .maybeSingle();
+                
+                if (!user) return null;
+                
+                const { count } = await supabase
+                    .from('users')
+                    .select('*', { count: 'exact', head: true })
+                    .gt('weekly_ads', user.weekly_ads);
+                
+                return (count || 0) + 1;
+            } catch (error) {
+                console.error('Error getting user rank:', error);
+                return null;
+            }
+        }
+
+        // Create withdrawal request
+        async function createWithdrawalInDB(userId, amount, walletAddress) {
+            if (!isSupabaseConnected) return false;
+            
+            try {
+                // Create withdrawal record
+                const { error } = await supabase
+                    .from('withdrawals')
+                    .insert([{
+                        user_id: userId,
+                        amount: amount,
+                        wallet_address: walletAddress,
+                        status: 'pending',
+                        created_at: new Date().toISOString()
+                    }]);
+                
+                if (error) throw error;
+                
+                // Deduct from user balance
+                const { data: user } = await supabase
+                    .from('users')
+                    .select('balance')
+                    .eq('user_id', userId)
+                    .single();
+                
+                if (user) {
+                    await supabase
+                        .from('users')
+                        .update({ balance: (user.balance || 0) - amount })
+                        .eq('user_id', userId);
+                }
+                
+                return true;
+            } catch (error) {
+                console.error('Error creating withdrawal:', error);
+                return false;
+            }
+        }
+
+        // Claim daily reward
+        async function claimDailyRewardInDB(userId) {
+            if (!isSupabaseConnected) return { success: false };
+            
+            try {
+                const { data: user } = await supabase
+                    .from('users')
+                    .select('daily_streak, last_daily_claim, balance')
+                    .eq('user_id', userId)
+                    .maybeSingle();
+                
+                if (!user) return { success: false };
+                
+                // Calculate streak
+                let newStreak = 1;
+                if (user.last_daily_claim) {
+                    const lastClaim = new Date(user.last_daily_claim);
+                    const hoursSince = (new Date() - lastClaim) / (1000 * 60 * 60);
+                    if (hoursSince < 48) {
+                        newStreak = (user.daily_streak || 0) + 1;
+                    }
+                }
+                
+                // Update user
+                await supabase
+                    .from('users')
+                    .update({
+                        balance: (user.balance || 0) + 0.0002,
+                        daily_streak: newStreak,
+                        last_daily_claim: new Date().toISOString()
+                    })
+                    .eq('user_id', userId);
+                
+                return { success: true, streak: newStreak };
+            } catch (error) {
+                console.error('Error claiming daily reward:', error);
+                return { success: false };
+            }
+        }
+
+        // Complete task
+        async function completeTaskInDB(userId, taskId, reward) {
+            if (!isSupabaseConnected) return { success: false };
+            
+            try {
+                // Check if already completed
+                const { data: existing } = await supabase
+                    .from('completed_tasks')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .eq('task_id', taskId)
+                    .maybeSingle();
+                
+                if (existing) {
+                    return { success: false, message: 'already_completed' };
+                }
+                
+                // Record completion
+                await supabase
+                    .from('completed_tasks')
+                    .insert([{
+                        user_id: userId,
+                        task_id: taskId,
+                        completed_at: new Date().toISOString()
+                    }]);
+                
+                // Add reward
+                const { data: user } = await supabase
+                    .from('users')
+                    .select('balance')
+                    .eq('user_id', userId)
+                    .single();
+                
+                await supabase
+                    .from('users')
+                    .update({ balance: (user.balance || 0) + reward })
+                    .eq('user_id', userId);
+                
+                return { success: true };
+            } catch (error) {
+                console.error('Error completing task:', error);
+                return { success: false };
+            }
+        }
+
+        // Helper function for referral codes
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
         }
 
         // ===== APP STATE =====
@@ -1197,13 +1006,9 @@ async function getLeaderboard() {
 
         // ===== INITIALIZE =====
         document.addEventListener('DOMContentLoaded', function() {
-            // Load saved language preference
-            const savedLang = localStorage.getItem('preferredLanguage');
-            if (savedLang && LANGUAGES[savedLang]) {
-                currentLang = savedLang;
-            }
-            
             initializeApp();
+            // Test Supabase connection after 1 second
+            setTimeout(testSupabaseConnection, 1000);
         });
 
         function initializeApp() {
@@ -1213,7 +1018,7 @@ async function getLeaderboard() {
                 tg.expand();
                 
                 if (tg.initDataUnsafe?.user) {
-                    userData.userId = tg.initDataUnsafe.user.id;
+                    userData.userId = tg.initDataUnsafe.user.id.toString();
                     userData.userName = tg.initDataUnsafe.user.first_name || "User";
                     if (tg.initDataUnsafe.user.username) {
                         userData.userName = "@" + tg.initDataUnsafe.user.username;
@@ -1223,22 +1028,12 @@ async function getLeaderboard() {
             
             loadUserData();
             
-            // Generate referral code if not exists
             if (!userData.referralCode) {
                 userData.referralCode = generateReferralCode();
                 saveUserData();
             }
             
             showHomePage();
-        }
-
-        function generateReferralCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
         }
 
         function loadUserData() {
@@ -1261,524 +1056,73 @@ async function getLeaderboard() {
             localStorage.setItem('adEarnUser', JSON.stringify(userData));
         }
 
-        // ===== DAILY REWARD FUNCTIONS =====
-        function checkDailyReward() {
-            if (!userData.lastDailyClaim) return true;
-            
-            const lastClaim = new Date(userData.lastDailyClaim);
-            const now = new Date();
-            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-            return hoursSinceLastClaim >= 24;
-        }
-
-        function getDailyRewardStatus() {
-            if (!userData.lastDailyClaim) return 'available';
-            
-            const lastClaim = new Date(userData.lastDailyClaim);
-            const now = new Date();
-            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-            
-            if (hoursSinceLastClaim >= 24) return 'available';
-            
-            const hoursLeft = 24 - hoursSinceLastClaim;
-            const nextClaimTime = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
-            return { status: 'claimed', hoursLeft, nextClaimTime };
-        }
-
-        function showDailyRewardModal() {
-            const status = getDailyRewardStatus();
-            
-            if (status === 'available') {
-                document.getElementById('dailyRewardMessage').innerHTML = 
-                    `${t('dailyAvailable')}<br><br>` +
-                    `${t('dailyAmount', {amount: CONFIG.DAILY_REWARD.toFixed(5)})}<br>` +
-                    `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
-                document.getElementById('watchDailyAdBtn').style.display = 'block';
-                document.getElementById('watchDailyAdBtn').innerHTML = t('watchToClaim');
-                document.getElementById('dailyLaterBtn').style.display = 'block';
-            } else {
-                const hoursLeft = Math.ceil(status.hoursLeft);
-                const nextTime = status.nextClaimTime.toLocaleTimeString();
-                document.getElementById('dailyRewardMessage').innerHTML = 
-                    `${t('dailyClaimed')}<br><br>` +
-                    `${t('dailyNext', {hours: hoursLeft})}<br>` +
-                    `${t('dailyAround', {time: nextTime})}<br><br>` +
-                    `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
-                document.getElementById('watchDailyAdBtn').style.display = 'none';
-                document.getElementById('dailyLaterBtn').style.display = 'block';
-            }
-            
-            document.getElementById('dailyTitle').innerHTML = t('dailyReward');
-            document.getElementById('dailyLaterBtn').innerHTML = t('maybeLater');
-            document.getElementById('dailyRewardModal').style.display = 'flex';
-        }
-
-        async function startDailyRewardAd() {
-            const watchBtn = document.getElementById('watchDailyAdBtn');
-            const adContainer = document.getElementById('dailyAdContainer');
-            
-            watchBtn.disabled = true;
-            watchBtn.innerHTML = '<span class="loading-spinner"></span> ' + t('loading');
-            
-            adContainer.innerHTML = `
-                <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                    <div class="ad-icon" style="font-size: 3rem;">⏳</div>
-                    <h3>${t('loadingAd')}</h3>
-                    <p>${t('pleaseWait')}</p>
-                </div>
-            `;
-
-            try {
-                if (typeof window.Adsgram === 'undefined') {
-                    throw new Error('AdsGram SDK not loaded');
-                }
-
-                const AdController = window.Adsgram.init({ 
-                    blockId: CONFIG.ADSGRAM.BLOCK_ID
-                });
-
-                adContainer.innerHTML = `
-                    <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                        <div class="ad-icon" style="font-size: 3rem;">🎬</div>
-                        <h3>${t('adStarted')}</h3>
-                        <p>${t('watchComplete')}</p>
-                    </div>
-                `;
-
-                AdController.show().then((result) => {
-                    console.log('✅ Daily reward ad completed:', result);
-                    
-                    // Update streak
-                    const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
-                    const now = new Date();
-                    
-                    if (lastClaim) {
-                        const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-                        if (hoursSinceLastClaim < 48) {
-                            userData.dailyStreak = (userData.dailyStreak || 0) + 1;
-                        } else {
-                            userData.dailyStreak = 1;
-                        }
-                    } else {
-                        userData.dailyStreak = 1;
-                    }
-                    
-                    // Add reward
-                    userData.balance += CONFIG.DAILY_REWARD;
-                    userData.lastDailyClaim = now.toISOString();
-                    saveUserData();
-                    
-                    closeModal();
-                    showSuccess(
-                        `${t('dailyClaimed')}<br>` +
-                        `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
-                        `${t('streak', {streak: userData.dailyStreak})}`
-                    );
-                    showHomePage();
-                    
-                }).catch((result) => {
-                    console.error('❌ Daily reward ad error:', result);
-                    
-                    adContainer.innerHTML = `
-                        <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                            <div class="ad-icon" style="font-size: 3rem;">❌</div>
-                            <h3>${t('adError')}</h3>
-                            <p>${t('tryAgain')}</p>
-                        </div>
-                    `;
-                    
-                    watchBtn.disabled = false;
-                    watchBtn.innerHTML = t('tryAgain');
-                });
-
-            } catch (error) {
-                console.error('AdsGram error:', error);
-                
-                adContainer.innerHTML = `
-                    <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                        <div class="ad-icon" style="font-size: 3rem;">⚠️</div>
-                        <h3>${t('usingTestAd')}</h3>
-                        <p>${error.message || t('failedToLoad')}</p>
-                    </div>
-                `;
-                
-                setTimeout(() => simulateDailyRewardAd(), 1500);
-            }
-        }
-
-        function simulateDailyRewardAd() {
-            const watchBtn = document.getElementById('watchDailyAdBtn');
-            const adContainer = document.getElementById('dailyAdContainer');
-            let secondsLeft = 5;
-            
-            adContainer.innerHTML = `
-                <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                    <div class="ad-icon" style="font-size: 3rem;">📺</div>
-                    <h3>${t('testAd')}</h3>
-                    <p>${t('completesIn')} <span id="dailyAdTimer">5</span> ${t('seconds')}</p>
-                    <div class="timer" style="font-size: 2rem;" id="dailyTimerDisplay">5</div>
-                    <div class="progress-bar">
-                        <div id="dailyProgressFill" class="progress-fill" style="width: 0%"></div>
-                    </div>
-                </div>
-            `;
-            
-            const timer = setInterval(() => {
-                secondsLeft--;
-                const timerEl = document.getElementById('dailyAdTimer');
-                const timerDisplay = document.getElementById('dailyTimerDisplay');
-                const progressFill = document.getElementById('dailyProgressFill');
-                
-                if (timerEl) timerEl.textContent = secondsLeft;
-                if (timerDisplay) timerDisplay.textContent = secondsLeft;
-                if (progressFill) {
-                    progressFill.style.width = ((5 - secondsLeft) / 5) * 100 + '%';
-                }
-                
-                if (secondsLeft <= 0) {
-                    clearInterval(timer);
-                    
-                    // Update streak
-                    const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
-                    const now = new Date();
-                    
-                    if (lastClaim) {
-                        const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-                        if (hoursSinceLastClaim < 48) {
-                            userData.dailyStreak = (userData.dailyStreak || 0) + 1;
-                        } else {
-                            userData.dailyStreak = 1;
-                        }
-                    } else {
-                        userData.dailyStreak = 1;
-                    }
-                    
-                    // Add reward
-                    userData.balance += CONFIG.DAILY_REWARD;
-                    userData.lastDailyClaim = now.toISOString();
-                    saveUserData();
-                    
-                    closeModal();
-                    showSuccess(
-                        `${t('dailyClaimed')}<br>` +
-                        `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
-                        `${t('streak', {streak: userData.dailyStreak})}`
-                    );
-                    showHomePage();
-                }
-            }, 1000);
-        }
-
-        // ===== TASK FUNCTIONS =====
-        function showTasksPage() {
-            sessionStorage.setItem('currentPage', 'tasks');
-            const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
-            
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
-                    <h1>${t('taskTitle')}</h1>
-                    <p>${t('taskDesc')}</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                <div class="task-container">
-                    <div class="task-card">
-                        <div class="task-icon">🔥</div>
-                        <div class="task-title">${t('specialTask')}</div>
-                        <div class="task-reward">${t('taskReward', {amount: CONFIG.TASK_REWARD.toFixed(5)})}</div>
-                        <div class="task-description">${t('taskDescription')}</div>
-                        
-                        <div class="task-requirements">
-                            <strong>${t('taskRequirements')}</strong>
-                            <ul style="margin-top: 10px;">
-                                <li>${t('req1')}</li>
-                                <li>${t('req2')}</li>
-                                <li>${t('req3')}</li>
-                            </ul>
-                        </div>
-
-                        ${!isTaskCompleted ? `
-                            <a href="https://t.me/${CONFIG.TASK_CHANNEL}" target="_blank" class="telegram-btn" id="joinChannelBtn">
-                                ${t('joinChannel')}
-                            </a>
-                            
-                            <button onclick="verifyTask()" class="verify-btn" id="verifyTaskBtn">
-                                ${t('verifyTask')}
-                            </button>
-                        ` : `
-                            <div class="completed-badge">
-                                ✅ ${t('taskCompleted')}<br>
-                                <small>${t('taskCompletedDesc')}</small>
-                            </div>
-                        `}
-                    </div>
-
-                    <button onclick="showHomePage()" class="btn btn-secondary">${t('back')}</button>
-                </div>
-            `;
-        }
-
-        function verifyTask() {
-            const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
-            
-            if (isTaskCompleted) {
-                showError(t('alreadyCompleted'));
-                return;
-            }
-            
-            // In a real app, you'd verify with Telegram API
-            showSuccess(t('verifyFirst'));
-            
-            setTimeout(() => {
-                if (!userData.completedTasks) userData.completedTasks = [];
-                userData.completedTasks.push('telegram_join');
-                
-                userData.balance += CONFIG.TASK_REWARD;
-                saveUserData();
-                
-                showSuccess(t('taskCompletedSuccess', {amount: CONFIG.TASK_REWARD.toFixed(5)}));
-                showTasksPage();
-            }, 2000);
-        }
-
-        // ===== REFERRAL FUNCTIONS =====
-        function showReferralPage() {
-            sessionStorage.setItem('currentPage', 'referral');
-            
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
-                    <h1>${t('referTitle')}</h1>
-                    <p>${t('referDesc')}</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                <div class="referral-stats">
-                    <div class="referral-box">
-                        <div>${t('totalReferrals')}</div>
-                        <div class="number">${userData.referrals.length}</div>
-                    </div>
-                    <div class="referral-box">
-                        <div>${t('referralEarnings')}</div>
-                        <div class="number">${userData.referralEarnings.toFixed(5)}</div>
-                    </div>
-                </div>
-
-                <div class="referral-link-box">
-                    <h3>${t('yourLink')}</h3>
-                    <p style="color: #666; margin: 10px 0;">${t('shareLink')}</p>
-                    <textarea id="referralLink" rows="2" readonly>https://t.me/${CONFIG.BOT_USERNAME}/Open?startapp=${userData.referralCode}</textarea>
-                    <button onclick="copyReferralLink()" class="copy-btn" id="copyBtn">${t('copyLink')}</button>
-                </div>
-
-                <div class="notice success-notice">
-                    <h3>${t('howItWorks')}</h3>
-                    <p>${t('how1')}</p>
-                    <p>${t('how2', {amount: CONFIG.REFERRAL_REWARD.toFixed(5)})}</p>
-                    <p>${t('how3')}</p>
-                    <p>${t('how4', {bonus: CONFIG.AD_REWARD.toFixed(5)})}</p>
-                </div>
-
-                <h3>${t('yourReferrals', {count: userData.referrals.length})}</h3>
-                <div class="friend-list" id="referralList">
-                    ${generateReferralList()}
-                </div>
-
-                <button onclick="showHomePage()" class="btn btn-secondary">${t('back')}</button>
-            `;
-        }
-
-        function generateReferralList() {
-            if (userData.referrals.length === 0) {
-                return `
-                    <div class="notice">
-                        <p>${t('noReferrals')}</p>
-                    </div>
-                `;
-            }
-            
-            return userData.referrals.map(ref => `
-                <div class="friend-item">
-                    <div class="friend-avatar">${ref.name.charAt(0)}</div>
-                    <div class="friend-info">
-                        <div class="friend-name">${ref.name}</div>
-                        <div class="friend-earned">${t('earned', {amount: ref.earned.toFixed(5)})}</div>
-                    </div>
-                    <span class="badge">${t('ads', {count: ref.ads || 0})}</span>
-                </div>
-            `).join('');
-        }
-
-        function copyReferralLink() {
-            const link = document.getElementById('referralLink');
-            link.select();
-            document.execCommand('copy');
-            
-            const btn = document.getElementById('copyBtn');
-            const originalText = btn.textContent;
-            btn.textContent = t('copied');
-            btn.style.background = '#28a745';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.background = '#28a745';
-            }, 2000);
-        }
-
         // ===== HOME PAGE =====
         function showHomePage() {
             sessionStorage.setItem('currentPage', 'home');
-            const dailyStatus = getDailyRewardStatus();
-            const isDailyAvailable = dailyStatus === 'available';
+            const dailyAvailable = checkDailyReward();
             
             document.getElementById('app').innerHTML = `
-                ${showLanguageSelector()}
+                <div class="language-selector">
+                    <button class="lang-btn active" onclick="setLanguage('en')">🇬🇧 EN</button>
+                </div>
                 
-                <div class="daily-reward-icon ${!isDailyAvailable ? 'claimed' : ''}" onclick="${isDailyAvailable ? 'showDailyRewardModal()' : ''}">
+                <div class="daily-reward-icon ${!dailyAvailable ? 'claimed' : ''}" onclick="${dailyAvailable ? 'showDailyRewardModal()' : ''}">
                     <span class="icon">🎁</span>
-                    <span class="text">${t('dailyReward')}</span>
-                    ${isDailyAvailable ? '<span class="daily-reward-badge">!</span>' : ''}
+                    <span class="text">Daily</span>
+                    ${dailyAvailable ? '<span class="daily-reward-badge">!</span>' : ''}
                 </div>
 
                 <header>
-                    <h1>🤑 ${t('appName')}</h1>
-                    <p>${t('appDesc')}</p>
+                    <h1>🤑 AdEarn</h1>
+                    <p>Watch ads & earn USDT!</p>
                 </header>
 
                 <div class="user-card">
-                    <h3>${t('balance')}</h3>
+                    <h3>Your Balance</h3>
                     <div class="balance">${userData.balance.toFixed(5)} USDT</div>
-                    <p>${t('welcome')}, ${userData.userName}!</p>
+                    <p>Welcome, ${userData.userName}!</p>
                 </div>
 
                 <div class="stats">
                     <div class="stat-box">
-                        <span class="stat-label">${t('todayAds')}</span>
+                        <span class="stat-label">Today</span>
                         <span class="stat-value">${userData.todayAds}</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-label">${t('totalAds')}</span>
+                        <span class="stat-label">Total</span>
                         <span class="stat-value">${userData.totalAds}</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-label">${t('weeklyAds')}</span>
+                        <span class="stat-label">Weekly</span>
                         <span class="stat-value">${userData.weeklyAds}</span>
                     </div>
                 </div>
 
                 <button onclick="showWatchPage()" class="btn btn-primary">
-                    ${t('watchAds')} ${CONFIG.AD_REWARD.toFixed(5)} USDT
+                    📺 Watch Ads (${CONFIG.AD_REWARD.toFixed(5)} USDT)
                 </button>
 
                 <button onclick="showTasksPage()" class="btn btn-task">
-                    ${t('tasks')}
+                    📋 Complete Tasks
                 </button>
 
                 <button onclick="showReferralPage()" class="btn btn-info">
-                    ${t('refer')} (${userData.referrals.length})
+                    👥 Refer & Earn (${userData.referrals.length})
                 </button>
 
                 <button onclick="showLeaderboardPage()" class="btn btn-warning">
-                    ${t('leaderboard')}
+                    🏆 Weekly Leaderboard
                 </button>
 
                 <button onclick="showWithdrawPage()" class="btn btn-success">
-                    ${t('withdraw')}
+                    💸 Withdraw USDT
                 </button>
 
                 <div class="adsgram-badge">
                     <strong>✅ AdsGram Ready</strong><br>
                     Block ID: ${CONFIG.ADSGRAM.BLOCK_ID}
                 </div>
-
-                <div class="notice" style="display: flex; justify-content: space-between; align-items: center;">
-                    <p><strong>💰 ${t('weeklyPrizes')}:</strong> 1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
-                    <button onclick="showDatabaseInfo()" class="btn btn-small" style="background: #6c757d; color: white; padding: 5px 10px; font-size: 12px; width: auto; margin: 0;">${t('databaseInfo')}</button>
-                </div>
             `;
-        }
-
-        // ===== LEADERBOARD PAGE =====
-        function showLeaderboardPage() {
-            sessionStorage.setItem('currentPage', 'leaderboard');
-            
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
-                    <h1>🏆 ${t('leaderboard')}</h1>
-                    <p>${t('topEarners')}</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                <div class="notice" style="background: #fff3cd; color: #856404;">
-                    <p><strong>⚠️ Demo Mode</strong></p>
-                    <p>This leaderboard shows sample data. For a real leaderboard, you need a database.</p>
-                    <button onclick="showDatabaseInfo()" class="btn btn-small" style="background: #ffc107; color: #856404; padding: 8px 15px; font-size: 14px; width: auto; margin-top: 10px;">📊 Learn How</button>
-                </div>
-
-                <div class="notice success-notice">
-                    <h3>🎁 ${t('weeklyPrizes')}</h3>
-                    <p>1st: 0.5 USDT • 2nd: 0.3 USDT • 3rd: 0.1 USDT</p>
-                </div>
-
-                <div class="leaderboard-list">
-                    ${generateLeaderboard()}
-                </div>
-
-                <button onclick="showLeaderboardPage()" class="btn btn-secondary">
-                    🔄 ${t('refresh')}
-                </button>
-            `;
-        }
-
-        function generateLeaderboard() {
-            // This is DEMO data - for real app, this would come from a database
-            const demoUsers = [
-                { name: "CryptoKing", ads: 156 },
-                { name: "AdMaster", ads: 128 },
-                { name: "EarnPro", ads: 97 },
-                { name: "BitcoinBuddy", ads: 45 },
-                { name: "AdWatcher", ads: 38 },
-                { name: "EarnDaily", ads: 32 },
-                { name: "CryptoEarn", ads: 28 },
-                { name: "AdHunter", ads: 25 },
-                { name: "MoneyMaker", ads: 21 },
-                { name: "TokenMaster", ads: 18 }
-            ];
-
-            // Insert current user if they're not in top 10
-            let users = [...demoUsers];
-            const userIndex = users.findIndex(u => u.name === userData.userName);
-            
-            if (userIndex === -1) {
-                // Add user at appropriate position
-                users.push({ name: userData.userName, ads: userData.weeklyAds, isYou: true });
-                users.sort((a, b) => b.ads - a.ads);
-                users = users.slice(0, 10);
-            } else {
-                users[userIndex].ads = userData.weeklyAds;
-                users[userIndex].isYou = true;
-                users.sort((a, b) => b.ads - a.ads);
-            }
-
-            return users.map((user, i) => `
-                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
-                    <div style="flex: 1;">
-                        <strong>${user.name} ${user.isYou ? `(${t('you')})` : ''}</strong>
-                        <div style="color: #666;">${user.ads} ${t('adsWatched')}</div>
-                    </div>
-                    <div style="color: #28a745; font-weight: bold;">
-                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ===== DATABASE INFO =====
-        function showDatabaseInfo() {
-            document.getElementById('dbInfoModal').style.display = 'flex';
         }
 
         // ===== WATCH PAGE =====
@@ -1787,38 +1131,32 @@ async function getLeaderboard() {
             
             document.getElementById('app').innerHTML = `
                 <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
-                    <h1>📺 ${t('watchAds')}</h1>
-                    <p>${t('earnPerAd', {amount: CONFIG.AD_REWARD.toFixed(5)})}</p>
-                    ${showLanguageSelector()}
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
+                    <h1>📺 Watch Ads</h1>
+                    <p>Earn ${CONFIG.AD_REWARD.toFixed(5)} USDT per ad</p>
                 </header>
-
-                <div class="notice success-notice">
-                    <p><strong>💰 ${t('rewardPerAd')}:</strong> ${CONFIG.AD_REWARD.toFixed(5)} USDT</p>
-                    <p><strong>🆔 ${t('yourId')}:</strong> ${userData.userId || userData.userName || 'guest'}</p>
-                </div>
 
                 <div class="ad-container" id="adContainer">
                     <div class="ad-icon">📱</div>
-                    <h2>${t('readyToEarn')}</h2>
-                    <p>${t('clickToWatch')}</p>
+                    <h2>Ready to Earn</h2>
+                    <p>Click below to watch an ad</p>
                 </div>
 
                 <button onclick="startAd()" class="btn btn-primary" id="watchBtn">
-                    ▶️ ${t('watchAdEarn', {amount: CONFIG.AD_REWARD.toFixed(5)})}
+                    ▶️ Watch Ad & Earn ${CONFIG.AD_REWARD.toFixed(5)} USDT
                 </button>
 
                 <div class="stats">
                     <div class="stat-box">
-                        <span class="stat-label">${t('today')}</span>
+                        <span class="stat-label">Today</span>
                         <span class="stat-value">${userData.todayAds}</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-label">${t('balance')}</span>
+                        <span class="stat-label">Balance</span>
                         <span class="stat-value">${userData.balance.toFixed(5)}</span>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-label">${t('earnedToday')}</span>
+                        <span class="stat-label">Earned Today</span>
                         <span class="stat-value">${(userData.todayAds * CONFIG.AD_REWARD).toFixed(5)}</span>
                     </div>
                 </div>
@@ -1831,125 +1169,324 @@ async function getLeaderboard() {
             const adContainer = document.getElementById('adContainer');
             
             watchBtn.disabled = true;
-            watchBtn.innerHTML = '<span class="loading-spinner"></span> ' + t('loading');
+            watchBtn.innerHTML = '<span class="loading-spinner"></span> Loading...';
             
             adContainer.innerHTML = `
                 <div class="ad-icon">⏳</div>
-                <h2>${t('loadingAd')}</h2>
-                <p>${t('pleaseWait')}</p>
-                <div class="progress-bar">
-                    <div class="progress-fill" style="width: 30%"></div>
-                </div>
+                <h2>Loading Advertisement</h2>
+                <p>Please wait...</p>
             `;
 
             try {
                 if (typeof window.Adsgram === 'undefined') {
-                    throw new Error('AdsGram SDK not loaded');
+                    throw new Error('AdsGram not loaded');
                 }
 
-                const AdController = window.Adsgram.init({ 
-                    blockId: CONFIG.ADSGRAM.BLOCK_ID
-                });
-
-                adContainer.innerHTML = `
-                    <div class="ad-icon">🎬</div>
-                    <h2>${t('adStarted')}</h2>
-                    <p>${t('watchComplete')}</p>
-                    <div class="progress-bar">
-                        <div class="progress-fill" style="width: 50%"></div>
-                    </div>
-                `;
+                const AdController = window.Adsgram.init({ blockId: CONFIG.ADSGRAM.BLOCK_ID });
 
                 AdController.show().then((result) => {
-                    console.log('✅ Ad completed:', result);
-                    
-                    userData.balance += CONFIG.AD_REWARD;
-                    userData.totalAds++;
-                    userData.todayAds++;
-                    userData.weeklyAds++;
-                    saveUserData();
-                    
-                    adContainer.innerHTML = `
-                        <div class="ad-icon">🎉</div>
-                        <h2>${t('adCompleted')}</h2>
-                        <p>✅ ${t('youEarned', {amount: CONFIG.AD_REWARD.toFixed(5)})}</p>
-                        <p>${t('newBalance', {amount: userData.balance.toFixed(5)})}</p>
-                    `;
-                    
-                    setTimeout(() => showWatchPage(), 2000);
-                    
-                }).catch((result) => {
-                    console.error('❌ Ad error:', result);
-                    
+                    // Ad completed - reward user
+                    rewardUser();
+                }).catch((error) => {
+                    console.error('Ad error:', error);
                     adContainer.innerHTML = `
                         <div class="ad-icon">❌</div>
-                        <h2>${t('adError')}</h2>
-                        <p>${t('tryAgain')}</p>
+                        <h2>Ad Error</h2>
+                        <p>Please try again</p>
                     `;
-                    
                     watchBtn.disabled = false;
-                    watchBtn.innerHTML = '▶️ ' + t('tryAgain');
+                    watchBtn.innerHTML = '▶️ Try Again';
                 });
 
             } catch (error) {
-                console.error('AdsGram error:', error);
-                
-                adContainer.innerHTML = `
-                    <div class="ad-icon">⚠️</div>
-                    <h2>${t('usingTestAd')}</h2>
-                    <p>${error.message || t('failedToLoad')}</p>
-                `;
-                
-                setTimeout(() => showSimulatedAd(), 1500);
+                console.error('Error:', error);
+                // Fallback to simulated ad
+                simulateAd();
             }
         }
 
-        function showSimulatedAd() {
+        function simulateAd() {
             const watchBtn = document.getElementById('watchBtn');
             const adContainer = document.getElementById('adContainer');
-            let secondsLeft = 5;
+            let seconds = 3;
             
             adContainer.innerHTML = `
                 <div class="ad-icon">📺</div>
-                <h2>${t('testAd')}</h2>
-                <p>${t('completesIn')} <span id="adTimer">5</span> ${t('seconds')}</p>
-                <div class="timer" id="timerDisplay">5</div>
-                <div class="progress-bar">
-                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
-                </div>
+                <h2>Test Ad</h2>
+                <p>Completes in <span id="timer">3</span> seconds</p>
+                <div class="timer" id="timerDisplay">3</div>
             `;
             
             const timer = setInterval(() => {
-                secondsLeft--;
-                const timerEl = document.getElementById('adTimer');
-                const timerDisplay = document.getElementById('timerDisplay');
-                const progressFill = document.getElementById('progressFill');
+                seconds--;
+                document.getElementById('timer').textContent = seconds;
+                document.getElementById('timerDisplay').textContent = seconds;
                 
-                if (timerEl) timerEl.textContent = secondsLeft;
-                if (timerDisplay) timerDisplay.textContent = secondsLeft;
-                if (progressFill) {
-                    progressFill.style.width = ((5 - secondsLeft) / 5) * 100 + '%';
-                }
-                
-                if (secondsLeft <= 0) {
+                if (seconds <= 0) {
                     clearInterval(timer);
-                    
-                    userData.balance += CONFIG.AD_REWARD;
-                    userData.totalAds++;
-                    userData.todayAds++;
-                    userData.weeklyAds++;
-                    saveUserData();
-                    
-                    adContainer.innerHTML = `
-                        <div class="ad-icon">🎉</div>
-                        <h2>${t('testAdCompleted')}</h2>
-                        <p>✅ ${t('youEarned', {amount: CONFIG.AD_REWARD.toFixed(5)})}</p>
-                        <p>${t('newBalance', {amount: userData.balance.toFixed(5)})}</p>
-                    `;
-                    
-                    setTimeout(() => showWatchPage(), 2000);
+                    rewardUser();
                 }
             }, 1000);
+        }
+
+        // ===== UPDATED REWARD FUNCTION WITH DATABASE =====
+        async function rewardUser() {
+            // Update local state
+            userData.balance += CONFIG.AD_REWARD;
+            userData.totalAds++;
+            userData.todayAds++;
+            userData.weeklyAds++;
+            
+            // Save to localStorage
+            saveUserData();
+            
+            // Save to database (don't wait for it)
+            if (userData.userId) {
+                saveUserToDB(
+                    userData.userId,
+                    userData.userName,
+                    CONFIG.AD_REWARD,
+                    1
+                ).then(success => {
+                    if (success) console.log('✅ Saved to database');
+                });
+            }
+            
+            showSuccess(`✅ You earned ${CONFIG.AD_REWARD.toFixed(5)} USDT!`);
+            setTimeout(() => showWatchPage(), 2000);
+        }
+
+        // ===== DAILY REWARD FUNCTIONS =====
+        function checkDailyReward() {
+            if (!userData.lastDailyClaim) return true;
+            const lastClaim = new Date(userData.lastDailyClaim);
+            const hoursSince = (new Date() - lastClaim) / (1000 * 60 * 60);
+            return hoursSince >= 24;
+        }
+
+        function showDailyRewardModal() {
+            const available = checkDailyReward();
+            
+            if (available) {
+                document.getElementById('dailyRewardMessage').innerHTML = 
+                    `Watch an ad to claim your daily reward!<br><br>` +
+                    `💰 Reward: 0.0002 USDT<br>` +
+                    `🔥 Streak: ${userData.dailyStreak || 0} days`;
+                document.getElementById('watchDailyAdBtn').style.display = 'block';
+            } else {
+                document.getElementById('dailyRewardMessage').innerHTML = 
+                    `Daily reward already claimed. Come back tomorrow!<br><br>` +
+                    `🔥 Streak: ${userData.dailyStreak || 0} days`;
+                document.getElementById('watchDailyAdBtn').style.display = 'none';
+            }
+            
+            document.getElementById('dailyRewardModal').style.display = 'flex';
+        }
+
+        async function startDailyRewardAd() {
+            const watchBtn = document.getElementById('watchDailyAdBtn');
+            watchBtn.disabled = true;
+            watchBtn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+
+            try {
+                const AdController = window.Adsgram.init({ blockId: CONFIG.ADSGRAM.BLOCK_ID });
+                
+                AdController.show().then(async (result) => {
+                    // Claim daily reward in database
+                    const dbResult = await claimDailyRewardInDB(userData.userId);
+                    
+                    if (dbResult.success) {
+                        userData.balance += CONFIG.DAILY_REWARD;
+                        userData.dailyStreak = dbResult.streak;
+                        userData.lastDailyClaim = new Date().toISOString();
+                        saveUserData();
+                        
+                        closeModal();
+                        showSuccess(`✅ Daily reward claimed! +0.0002 USDT`);
+                        showHomePage();
+                    }
+                }).catch((error) => {
+                    console.error('Ad error:', error);
+                    watchBtn.disabled = false;
+                    watchBtn.innerHTML = 'Try Again';
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                watchBtn.disabled = false;
+                watchBtn.innerHTML = 'Try Again';
+            }
+        }
+
+        // ===== TASKS PAGE =====
+        function showTasksPage() {
+            sessionStorage.setItem('currentPage', 'tasks');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
+                    <h1>📋 Complete Tasks</h1>
+                    <p>Earn extra rewards</p>
+                </header>
+
+                <div class="task-card">
+                    <div class="task-icon">🔥</div>
+                    <h2>Join Telegram Channel</h2>
+                    <div class="task-reward">+${CONFIG.TASK_REWARD.toFixed(5)} USDT</div>
+                    
+                    <a href="https://t.me/${CONFIG.TASK_CHANNEL}" target="_blank" class="telegram-btn">
+                        🔗 Join Channel
+                    </a>
+                    
+                    <button onclick="verifyTask()" class="btn btn-success">
+                        ✅ Verify & Claim
+                    </button>
+                </div>
+
+                <button onclick="showHomePage()" class="btn btn-secondary">Back to Home</button>
+            `;
+        }
+
+        async function verifyTask() {
+            if (!userData.userId) {
+                showError('Please open app from Telegram');
+                return;
+            }
+            
+            const result = await completeTaskInDB(userData.userId, 'telegram_join', CONFIG.TASK_REWARD);
+            
+            if (result.success) {
+                userData.balance += CONFIG.TASK_REWARD;
+                if (!userData.completedTasks) userData.completedTasks = [];
+                userData.completedTasks.push('telegram_join');
+                saveUserData();
+                
+                showSuccess(`✅ Task completed! +${CONFIG.TASK_REWARD.toFixed(5)} USDT`);
+                setTimeout(() => showHomePage(), 2000);
+            } else if (result.message === 'already_completed') {
+                showError('You already completed this task!');
+            } else {
+                showError('Verification failed. Make sure you joined the channel.');
+            }
+        }
+
+        // ===== UPDATED LEADERBOARD PAGE =====
+        async function showLeaderboardPage() {
+            sessionStorage.setItem('currentPage', 'leaderboard');
+            
+            // Show loading
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
+                    <h1>🏆 Leaderboard</h1>
+                    <p>Loading...</p>
+                </header>
+                <div style="text-align: center; padding: 50px;">
+                    <div class="loading-spinner"></div>
+                </div>
+            `;
+            
+            // Get real leaderboard from database
+            const dbLeaderboard = await getLeaderboardFromDB();
+            
+            // Fallback to demo data if database not connected
+            const leaderboardData = dbLeaderboard.length > 0 ? dbLeaderboard : [
+                { user_name: "CryptoKing", weekly_ads: 156 },
+                { user_name: "AdMaster", weekly_ads: 128 },
+                { user_name: "EarnPro", weekly_ads: 97 },
+                { user_name: "BitcoinBuddy", weekly_ads: 45 },
+                { user_name: "AdWatcher", weekly_ads: 38 },
+                { user_name: "EarnDaily", weekly_ads: 32 }
+            ];
+            
+            // Get current user's rank
+            const userRank = await getUserRankFromDB(userData.userId);
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
+                    <h1>🏆 Weekly Leaderboard</h1>
+                    <p>Top earners this week</p>
+                </header>
+
+                <div class="notice success-notice">
+                    <h3>🎁 Weekly Prizes</h3>
+                    <p>1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
+                </div>
+
+                ${userRank ? `
+                    <div class="notice">
+                        Your Rank: <strong>#${userRank}</strong> with ${userData.weeklyAds} ads
+                    </div>
+                ` : ''}
+
+                <div class="leaderboard-list">
+                    ${leaderboardData.map((user, i) => `
+                        <div class="leaderboard-item ${user.user_name === userData.userName ? 'highlight' : ''}">
+                            <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                            <div style="flex: 1;">
+                                <strong>${user.user_name} ${user.user_name === userData.userName ? '(You)' : ''}</strong>
+                                <div style="color: #666;">${user.weekly_ads} ads watched</div>
+                            </div>
+                            <div style="color: #28a745; font-weight: bold;">
+                                ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <button onclick="showLeaderboardPage()" class="btn btn-secondary">🔄 Refresh</button>
+            `;
+        }
+
+        // ===== REFERRAL PAGE =====
+        function showReferralPage() {
+            sessionStorage.setItem('currentPage', 'referral');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
+                    <h1>👥 Refer & Earn</h1>
+                    <p>Invite friends and earn</p>
+                </header>
+
+                <div class="referral-stats">
+                    <div class="referral-box">
+                        <div>Total Referrals</div>
+                        <div class="number">${userData.referrals.length}</div>
+                    </div>
+                    <div class="referral-box">
+                        <div>Earnings</div>
+                        <div class="number">${userData.referralEarnings.toFixed(5)}</div>
+                    </div>
+                </div>
+
+                <div class="referral-link-box">
+                    <h3>Your Referral Link</h3>
+                    <textarea id="referralLink" rows="2" readonly>https://t.me/${CONFIG.BOT_USERNAME}/Open?startapp=${userData.referralCode}</textarea>
+                    <button onclick="copyReferralLink()" class="copy-btn">📋 Copy Link</button>
+                </div>
+
+                <div class="notice success-notice">
+                    <h3>💰 How it works</h3>
+                    <p>• Invite friends using your link</p>
+                    <p>• You earn ${CONFIG.REFERRAL_REWARD.toFixed(5)} USDT when they join</p>
+                    <p>• You earn 5% of their ad earnings</p>
+                </div>
+
+                <button onclick="showHomePage()" class="btn btn-secondary">Back to Home</button>
+            `;
+        }
+
+        function copyReferralLink() {
+            const link = document.getElementById('referralLink');
+            link.select();
+            document.execCommand('copy');
+            
+            const btn = document.querySelector('.copy-btn');
+            const originalText = btn.textContent;
+            btn.textContent = '✅ Copied!';
+            setTimeout(() => btn.textContent = originalText, 2000);
         }
 
         // ===== WITHDRAW PAGE =====
@@ -1958,14 +1495,13 @@ async function getLeaderboard() {
             
             document.getElementById('app').innerHTML = `
                 <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
-                    <h1>💸 ${t('withdraw')}</h1>
-                    <p>${t('withdrawToPolygon')}</p>
-                    ${showLanguageSelector()}
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
+                    <h1>💸 Withdraw USDT</h1>
+                    <p>Withdraw to Polygon</p>
                 </header>
 
                 <div class="notice warning">
-                    <p>${t('minWithdraw', {amount: CONFIG.MIN_WITHDRAWAL.toFixed(3)})} • ${t('fee', {amount: CONFIG.WITHDRAWAL_FEE.toFixed(3)})}</p>
+                    <p>Min: ${CONFIG.MIN_WITHDRAWAL.toFixed(3)} USDT • Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(3)} USDT</p>
                 </div>
 
                 <div class="amount-options">
@@ -1977,26 +1513,26 @@ async function getLeaderboard() {
                     <div class="amount-btn" onclick="setAmount(1.00)">1.00</div>
                 </div>
 
-                <input type="text" id="walletAddress" placeholder="${t('polygonAddress')}" value="${userData.polygonAddress || ''}">
+                <input type="text" id="walletAddress" placeholder="Polygon wallet address (0x...)" value="${userData.polygonAddress || ''}">
                 <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL.toFixed(3)}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance.toFixed(5)}" step="0.001">
 
                 <div class="notice" style="margin: 20px 0;">
                     <div style="display: flex; justify-content: space-between; margin: 10px 0;">
-                        <span>${t('amount')}:</span>
+                        <span>Amount:</span>
                         <strong id="amountDisplay">${CONFIG.MIN_WITHDRAWAL.toFixed(3)} USDT</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; color: #666;">
-                        <span>${t('fee')}:</span>
+                        <span>Fee:</span>
                         <strong>-${CONFIG.WITHDRAWAL_FEE.toFixed(3)} USDT</strong>
                     </div>
                     <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
-                        <span><strong>${t('youReceive')}:</strong></span>
+                        <span><strong>You receive:</strong></span>
                         <strong style="color: #28a745;" id="receiveAmount">${(CONFIG.MIN_WITHDRAWAL - CONFIG.WITHDRAWAL_FEE).toFixed(3)} USDT</strong>
                     </div>
                 </div>
 
                 <button onclick="processWithdrawal()" class="btn btn-success" id="withdrawBtn">
-                    💸 ${t('withdrawNow')}
+                    💸 Withdraw Now
                 </button>
             `;
 
@@ -2014,41 +1550,47 @@ async function getLeaderboard() {
             document.getElementById('receiveAmount').textContent = (amount - CONFIG.WITHDRAWAL_FEE).toFixed(3) + ' USDT';
         }
 
+        // ===== UPDATED WITHDRAWAL FUNCTION WITH DATABASE =====
         async function processWithdrawal() {
             const address = document.getElementById('walletAddress').value.trim();
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
 
             if (!address || !address.startsWith('0x') || address.length !== 42) {
-                showError(t('invalidAddress'));
+                showError('Invalid Polygon address');
                 return;
             }
 
             if (amount < CONFIG.MIN_WITHDRAWAL || amount > userData.balance) {
-                showError(t('invalidAmount'));
+                showError('Invalid amount');
                 return;
             }
 
             userData.polygonAddress = address;
             
-            const withdrawalData = {
-                withdrawalId: 'W' + Date.now(),
-                userName: userData.userName,
-                userId: userData.userId,
-                amount: amount.toFixed(5),
-                netAmount: (amount - CONFIG.WITHDRAWAL_FEE).toFixed(5),
-                walletAddress: address,
-                balance: userData.balance.toFixed(5)
-            };
-
-            await sendTelegramNotification(withdrawalData);
+            // Create withdrawal in database
+            const dbSuccess = await createWithdrawalInDB(userData.userId, amount, address);
             
-            userData.balance -= amount;
-            saveUserData();
-            
-            showSuccess(t('withdrawalRequested'));
-            setTimeout(() => showHomePage(), 2000);
+            if (dbSuccess) {
+                // Update local balance
+                userData.balance -= amount;
+                saveUserData();
+                
+                // Send Telegram notification
+                await sendTelegramNotification({
+                    userName: userData.userName,
+                    userId: userData.userId,
+                    amount: amount.toFixed(5),
+                    walletAddress: address
+                });
+                
+                showSuccess('Withdrawal requested! Funds will be sent within 24 hours.');
+                setTimeout(() => showHomePage(), 2000);
+            } else {
+                showError('Withdrawal failed. Please try again.');
+            }
         }
 
+        // ===== TELEGRAM NOTIFICATION =====
         async function sendTelegramNotification(data) {
             if (!CONFIG.ADMIN_BOT_TOKEN || !CONFIG.ADMIN_CHAT_ID) return;
             
@@ -2057,9 +1599,7 @@ async function getLeaderboard() {
 👤 *User:* ${data.userName}
 🆔 *ID:* ${data.userId}
 💰 *Amount:* ${data.amount} USDT
-💸 *Net:* ${data.netAmount} USDT
 📤 *Wallet:* \`${data.walletAddress}\`
-📊 *Balance:* ${data.balance} USDT
 ⏰ *Time:* ${new Date().toLocaleString()}
             `;
 
@@ -2078,30 +1618,33 @@ async function getLeaderboard() {
             }
         }
 
-        function closeRewardModal() {
-            document.getElementById('rewardModal').style.display = 'none';
+        // ===== UTILITY FUNCTIONS =====
+        function setLanguage(lang) {
+            currentLang = lang;
+            const currentPage = sessionStorage.getItem('currentPage') || 'home';
+            if (currentPage === 'home') showHomePage();
+            else if (currentPage === 'watch') showWatchPage();
+            else if (currentPage === 'tasks') showTasksPage();
+            else if (currentPage === 'referral') showReferralPage();
+            else if (currentPage === 'leaderboard') showLeaderboardPage();
+            else if (currentPage === 'withdraw') showWithdrawPage();
         }
 
         function showSuccess(message) {
             document.getElementById('successMessage').innerHTML = message;
-            document.getElementById('successTitle').innerHTML = t('continue');
-            document.getElementById('successBtn').innerHTML = t('continue');
             document.getElementById('successModal').style.display = 'flex';
         }
 
         function showError(message) {
             document.getElementById('errorMessage').textContent = message;
-            document.getElementById('errorTitle').innerHTML = t('error');
-            document.getElementById('errorBtn').innerHTML = t('close');
             document.getElementById('errorModal').style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
-            document.getElementById('rewardModal').style.display = 'none';
             document.getElementById('dailyRewardModal').style.display = 'none';
-            document.getElementById('dbInfoModal').style.display = 'none';
+            document.getElementById('dbStatusModal').style.display = 'none';
         }
     </script>
 </body>
