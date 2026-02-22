@@ -6,15 +6,16 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- AdsGram SDK -->
+    <!-- ✅ CORRECT AdsGram SDK - sad.min.js -->
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
     
     <style>
+        /* ===== MODERN STYLES ===== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
         }
 
         body {
@@ -30,433 +31,33 @@
             border-radius: 24px;
             padding: 20px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: slideUp 0.3s ease;
+            position: relative;
         }
 
-        header {
-            text-align: center;
-            margin-bottom: 24px;
-            padding-bottom: 20px;
-            border-bottom: 2px solid #f0f0f0;
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
         }
 
-        h1 {
-            font-size: 2.2rem;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        /* ===== LANGUAGE SELECTOR ===== */
+        .language-selector {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border-radius: 30px;
+            padding: 5px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 20;
+            display: flex;
+            gap: 5px;
         }
 
-        .user-card {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 24px;
-            border-radius: 20px;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .balance {
-            font-size: 2.8rem;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin: 24px 0;
-        }
-
-        .stat-box {
-            background: #f8f9fa;
-            padding: 16px;
-            border-radius: 16px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 1.6rem;
-            font-weight: bold;
-            color: #333;
-        }
-
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 18px;
+        .lang-btn {
+            padding: 8px 12px;
             border: none;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            margin: 12px 0;
-            text-align: center;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #ffc107, #fd7e14);
-            color: white;
-        }
-
-        .btn-success {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-        }
-
-        .btn-task {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-        }
-
-        .btn-info {
-            background: linear-gradient(135deg, #17a2b8, #138496);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
-            color: white;
-        }
-
-        .ad-container {
-            background: #f8f9fa;
             border-radius: 20px;
-            padding: 30px;
-            margin: 20px 0;
-            text-align: center;
-            border: 3px dashed #ddd;
-            min-height: 320px;
-        }
-
-        .ad-icon {
-            font-size: 5rem;
-            margin: 20px 0;
-        }
-
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
-            padding: 16px;
-            margin: 10px 0;
-            background: #f8f9fa;
-            border-radius: 16px;
-        }
-
-        .rank {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 15px;
-            color: white;
-        }
-
-        .rank-1 { background: gold; }
-        .rank-2 { background: silver; }
-        .rank-3 { background: #cd7f32; }
-        .rank-other { background: #6c757d; }
-
-        .notice {
-            background: #e3f2fd;
-            padding: 16px;
-            border-radius: 12px;
-            margin: 20px 0;
-            color: #1976d2;
-            text-align: center;
-        }
-
-        .adsgram-badge {
-            background: #e3f2fd;
-            border: 2px solid #2196f3;
-            border-radius: 12px;
-            padding: 12px;
-            margin: 10px 0;
-            text-align: center;
-            color: #1976d2;
-        }
-    </style>
-</head>
-<body>
-    <div id="app" class="container">
-        <!-- Content loaded dynamically -->
-    </div>
-
-    <script>
-        // ===== CONFIGURATION =====
-        const CONFIG = {
-            AD_REWARD: 0.00005,
-            DAILY_REWARD: 0.0002,
-            TASK_REWARD: 0.0003,
-            MIN_WITHDRAWAL: 0.015,
-            WITHDRAWAL_FEE: 0.001,
-            WEEKLY_PRIZES: [0.5, 0.3, 0.1],
-            ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
-            ADMIN_CHAT_ID: "6450016040",
-            REFERRAL_REWARD: 0.0001,
-            BOT_USERNAME: "earnmoneyapppbot",
-            TASK_CHANNEL: "adwatch2",
-            
-            ADSGRAM: {
-                BLOCK_ID: "23020"
-            }
-        };
-
-        // ===== APP STATE =====
-        let userData = {
-            balance: 0.00000,
-            totalAds: 0,
-            todayAds: 0,
-            weeklyAds: 0,
-            userName: "User",
-            userId: null,
-            polygonAddress: "",
-            lastDailyClaim: null,
-            dailyStreak: 0,
-            referralCode: null,
-            referrals: [],
-            referralEarnings: 0,
-            referredBy: null,
-            completedTasks: []
-        };
-
-        // ===== INITIALIZE =====
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeApp();
-        });
-
-        function initializeApp() {
-            if (typeof Telegram !== 'undefined') {
-                const tg = window.Telegram.WebApp;
-                tg.expand();
-                
-                if (tg.initDataUnsafe?.user) {
-                    userData.userId = tg.initDataUnsafe.user.id.toString();
-                    userData.userName = tg.initDataUnsafe.user.first_name || "User";
-                }
-            }
-            
-            loadUserData();
-            
-            if (!userData.referralCode) {
-                userData.referralCode = generateReferralCode();
-                saveUserData();
-            }
-            
-            showHomePage();
-        }
-
-        function generateReferralCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
-        function loadUserData() {
-            const saved = localStorage.getItem('adEarnUser');
-            if (saved) {
-                const data = JSON.parse(saved);
-                const today = new Date().toDateString();
-                
-                if (data.lastLogin !== today) {
-                    data.todayAds = 0;
-                }
-                
-                userData = { ...userData, ...data };
-                userData.lastLogin = today;
-            }
-            saveUserData();
-        }
-
-        function saveUserData() {
-            localStorage.setItem('adEarnUser', JSON.stringify(userData));
-        }
-
-        function showHomePage() {
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <h1>🤑 AdEarn</h1>
-                    <p>Watch ads & earn USDT!</p>
-                </header>
-
-                <div class="user-card">
-                    <h3>Your Balance</h3>
-                    <div class="balance">${userData.balance.toFixed(5)} USDT</div>
-                    <p>Welcome, ${userData.userName}!</p>
-                </div>
-
-                <div class="stats">
-                    <div class="stat-box">
-                        <span class="stat-label">Today</span>
-                        <span class="stat-value">${userData.todayAds}</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Total</span>
-                        <span class="stat-value">${userData.totalAds}</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Weekly</span>
-                        <span class="stat-value">${userData.weeklyAds}</span>
-                    </div>
-                </div>
-
-                <button onclick="showWatchPage()" class="btn btn-primary">
-                    📺 Watch Ads (${CONFIG.AD_REWARD.toFixed(5)} USDT)
-                </button>
-
-                <button onclick="showLeaderboardPage()" class="btn btn-warning">
-                    🏆 Leaderboard
-                </button>
-
-                <button onclick="showWithdrawPage()" class="btn btn-success">
-                    💸 Withdraw
-                </button>
-
-                <div class="adsgram-badge">
-                    <strong>✅ AdsGram Ready</strong><br>
-                    Block ID: ${CONFIG.ADSGRAM.BLOCK_ID}
-                </div>
-            `;
-        }
-
-        function showWatchPage() {
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn" style="color: #666; text-decoration: none;">← Back</a>
-                    <h1>📺 Watch Ads</h1>
-                </header>
-
-                <div class="ad-container" id="adContainer">
-                    <div class="ad-icon">📱</div>
-                    <h2>Ready to Earn</h2>
-                    <p>Click below to watch an ad</p>
-                </div>
-
-                <button onclick="startAd()" class="btn btn-primary" id="watchBtn">
-                    ▶️ Watch Ad & Earn ${CONFIG.AD_REWARD.toFixed(5)} USDT
-                </button>
-            `;
-        }
-
-        async function startAd() {
-            const watchBtn = document.getElementById('watchBtn');
-            
-            watchBtn.disabled = true;
-            watchBtn.innerHTML = 'Loading...';
-
-            try {
-                const AdController = Adsgram.init({ blockId: CONFIG.ADSGRAM.BLOCK_ID });
-                await AdController.show();
-                
-                userData.balance += CONFIG.AD_REWARD;
-                userData.totalAds++;
-                userData.todayAds++;
-                userData.weeklyAds++;
-                saveUserData();
-                
-                alert(`✅ You earned ${CONFIG.AD_REWARD.toFixed(5)} USDT!`);
-                showHomePage();
-                
-            } catch (error) {
-                alert('Ad failed, try again');
-                watchBtn.disabled = false;
-                watchBtn.innerHTML = '▶️ Try Again';
-            }
-        }
-
-        function showLeaderboardPage() {
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn" style="color: #666; text-decoration: none;">← Back</a>
-                    <h1>🏆 Leaderboard</h1>
-                </header>
-
-                <div class="notice">
-                    <h3>🎁 Weekly Prizes</h3>
-                    <p>1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
-                </div>
-
-                <div class="leaderboard-list">
-                    ${generateLeaderboard()}
-                </div>
-
-                <button onclick="showLeaderboardPage()" class="btn btn-secondary">Refresh</button>
-            `;
-        }
-
-        function generateLeaderboard() {
-            const users = [
-                { name: "CryptoKing", ads: 156 },
-                { name: "AdMaster", ads: 128 },
-                { name: "EarnPro", ads: 97 },
-                { name: userData.userName, ads: userData.weeklyAds, isYou: true },
-                { name: "BitcoinBuddy", ads: 45 }
-            ];
-
-            return users.map((user, i) => `
-                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd;' : ''}">
-                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
-                    <div style="flex: 1;">
-                        <strong>${user.name} ${user.isYou ? '(You)' : ''}</strong>
-                        <div style="color: #666;">${user.ads} ads</div>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function showWithdrawPage() {
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn" style="color: #666; text-decoration: none;">← Back</a>
-                    <h1>💸 Withdraw</h1>
-                </header>
-
-                <div class="notice">
-                    <p>Min: ${CONFIG.MIN_WITHDRAWAL.toFixed(3)} USDT • Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(3)} USDT</p>
-                </div>
-
-                <input type="text" id="walletAddress" placeholder="Polygon address (0x...)" style="width: 100%; padding: 16px; border: 2px solid #ddd; border-radius: 12px; margin: 10px 0;">
-                <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL.toFixed(3)}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance.toFixed(5)}" step="0.001" style="width: 100%; padding: 16px; border: 2px solid #ddd; border-radius: 12px; margin: 10px 0;">
-
-                <button onclick="processWithdrawal()" class="btn btn-success">Withdraw</button>
-            `;
-        }
-
-        function processWithdrawal() {
-            const address = document.getElementById('walletAddress').value.trim();
-            const amount = parseFloat(document.getElementById('withdrawAmount').value);
-
-            if (!address || !address.startsWith('0x') || address.length !== 42) {
-                alert('Invalid address');
-                return;
-            }
-
-            if (amount < CONFIG.MIN_WITHDRAWAL || amount > userData.balance) {
-                alert('Invalid amount');
-                return;
-            }
-
-            userData.balance -= amount;
-            saveUserData();
-            
-            alert('Withdrawal requested!');
-            showHomePage();
-        }
-    </script>
-</body>
-</html>            border-radius: 20px;
             background: transparent;
             color: #666;
             cursor: pointer;
@@ -470,6 +71,15 @@
             color: white;
         }
 
+        .lang-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .lang-btn.active:hover {
+            background: #667eea;
+        }
+
+        /* ===== DAILY REWARD ICON ===== */
         .daily-reward-icon {
             position: absolute;
             top: 20px;
@@ -492,6 +102,7 @@
 
         .daily-reward-icon:hover {
             transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
         }
 
         .daily-reward-icon .icon {
@@ -509,6 +120,11 @@
             background: linear-gradient(135deg, #6c757d, #495057);
             opacity: 0.7;
             cursor: not-allowed;
+        }
+
+        .daily-reward-icon.claimed:hover {
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .daily-reward-badge {
@@ -532,8 +148,8 @@
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 2px solid #f0f0f0;
-            padding-left: 150px;
-            padding-right: 60px;
+            padding-left: 80px;  /* Space for language selector */
+            padding-right: 60px; /* Space for daily reward icon */
         }
 
         h1 {
@@ -650,13 +266,13 @@
             color: white;
         }
 
-        .btn-task {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+        .btn-secondary {
+            background: #6c757d;
             color: white;
         }
 
-        .btn-secondary {
-            background: #6c757d;
+        .btn-task {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
             color: white;
         }
 
@@ -690,6 +306,126 @@
             font-weight: bold;
             color: #f5576c;
             margin: 20px 0;
+        }
+
+        /* ===== TASK PAGE STYLES ===== */
+        .task-container {
+            margin: 20px 0;
+        }
+
+        .task-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .task-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .task-reward {
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 30px;
+            margin: 15px 0;
+        }
+
+        .task-description {
+            font-size: 1rem;
+            margin: 15px 0;
+            opacity: 0.9;
+        }
+
+        .task-requirements {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .task-requirements li {
+            margin: 8px 0;
+            list-style-type: none;
+        }
+
+        .task-requirements li:before {
+            content: "✓ ";
+            margin-right: 8px;
+        }
+
+        .telegram-btn {
+            display: inline-block;
+            background: #0088cc;
+            color: white;
+            padding: 18px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.2rem;
+        }
+
+        .telegram-btn:hover {
+            background: #006699;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .telegram-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .verify-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 30px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .verify-btn:hover {
+            background: #218838;
+            transform: translateY(-3px);
+        }
+
+        .verify-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .completed-badge {
+            background: #28a745;
+            color: white;
+            padding: 12px;
+            border-radius: 30px;
+            margin: 15px 0;
+            font-weight: bold;
         }
 
         .leaderboard-item {
@@ -797,6 +533,7 @@
             border-left: 4px solid #ffc107;
         }
 
+        /* ===== REFERRAL STYLES ===== */
         .referral-stats {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -966,23 +703,6 @@
             color: #1976d2;
         }
 
-        .db-status {
-            font-size: 0.8rem;
-            margin-top: 5px;
-            padding: 5px;
-            border-radius: 10px;
-        }
-
-        .db-connected {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .db-disconnected {
-            background: #f8d7da;
-            color: #721c24;
-        }
-
         @media (max-width: 480px) {
             .stats, .referral-stats {
                 grid-template-columns: 1fr;
@@ -994,6 +714,16 @@
             
             .amount-options {
                 grid-template-columns: repeat(2, 1fr);
+            }
+
+            .language-selector {
+                top: 10px;
+                left: 10px;
+            }
+
+            .lang-btn {
+                padding: 5px 8px;
+                font-size: 12px;
             }
         }
     </style>
@@ -1007,9 +737,9 @@
     <div id="successModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">✅</div>
-            <h2>Success!</h2>
+            <h2 id="successTitle">Success!</h2>
             <p id="successMessage"></p>
-            <button onclick="closeModal()" class="btn btn-primary">Continue</button>
+            <button onclick="closeModal()" class="btn btn-primary" id="successBtn">Continue</button>
         </div>
     </div>
 
@@ -1017,9 +747,9 @@
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">❌</div>
-            <h2>Error</h2>
+            <h2 id="errorTitle">Error</h2>
             <p id="errorMessage"></p>
-            <button onclick="closeModal()" class="btn btn-secondary">Close</button>
+            <button onclick="closeModal()" class="btn btn-secondary" id="errorBtn">Close</button>
         </div>
     </div>
 
@@ -1027,11 +757,20 @@
     <div id="dailyRewardModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">🎁</div>
-            <h2>Daily Reward</h2>
+            <h2 id="dailyTitle">Daily Reward</h2>
             <p id="dailyRewardMessage"></p>
-            <div id="dailyAdContainer" style="margin: 15px 0;"></div>
-            <button onclick="startDailyRewardAd()" class="btn btn-primary" id="watchDailyAdBtn">Watch Ad to Claim</button>
-            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;">Maybe Later</button>
+            <button onclick="claimDailyReward()" class="btn btn-success" id="claimDailyBtn">Claim 0.0002 USDT</button>
+            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;" id="dailyLaterBtn">Maybe Later</button>
+        </div>
+    </div>
+
+    <!-- Reward Modal -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">🎉</div>
+            <h2 id="rewardTitle">Reward Received!</h2>
+            <p id="rewardMessage"></p>
+            <button onclick="closeRewardModal()" class="btn btn-success" id="rewardBtn">Awesome!</button>
         </div>
     </div>
 
@@ -1039,6 +778,7 @@
         // ===== LANGUAGE TRANSLATIONS =====
         const LANGUAGES = {
             en: {
+                // General
                 appName: "AdEarn",
                 appDesc: "Watch ads & earn USDT rewards!",
                 balance: "Your Balance",
@@ -1049,28 +789,26 @@
                 continue: "Continue",
                 close: "Close",
                 back: "← Back",
-                you: "You",
-                adsWatched: "ads watched",
-                refresh: "Refresh",
-                loading: "Loading...",
                 
+                // Buttons
                 watchAds: "📺 Watch Ads & Earn",
                 refer: "👥 Refer & Earn",
                 leaderboard: "🏆 Weekly Leaderboard",
                 withdraw: "💸 Withdraw USDT",
                 tasks: "📋 Complete Tasks",
                 
+                // Daily Reward
                 dailyReward: "Daily Reward",
-                dailyAvailable: "🎁 Watch an ad to claim your daily reward!",
-                dailyAmount: "💰 Reward: {amount} USDT",
+                dailyAvailable: "🎁 You have a daily reward waiting!",
+                dailyAmount: "💰 Amount: {amount} USDT",
                 dailyStreak: "🔥 Current Streak: {streak} days",
                 dailyClaimed: "⏳ Daily reward already claimed",
                 dailyNext: "Next reward available in {hours} hours",
                 dailyAround: "around {time}",
-                claimNow: "Watch Ad to Claim {amount} USDT",
+                claimNow: "Claim {amount} USDT",
                 maybeLater: "Maybe Later",
-                watchToClaim: "Watch an ad to claim your daily reward",
                 
+                // Task Page
                 taskTitle: "📋 Complete Tasks",
                 taskDesc: "Earn extra rewards by completing tasks",
                 specialTask: "🔥 SPECIAL TASK",
@@ -1085,6 +823,7 @@
                 taskCompleted: "✅ Task Completed!",
                 taskCompletedDesc: "You've already completed this task",
                 
+                // Referral Page
                 referTitle: "👥 Refer & Earn",
                 referDesc: "Invite friends and earn rewards",
                 totalReferrals: "Total Referrals",
@@ -1103,42 +842,9 @@
                 earned: "Earned: {amount} USDT",
                 ads: "{count} ads",
                 
-                topEarners: "Top earners this week",
-                weeklyPrizes: "Weekly Prizes",
-                
-                withdrawToPolygon: "Withdraw to Polygon",
-                minWithdraw: "Min: {amount} USDT",
-                fee: "Fee: {amount} USDT",
-                polygonAddress: "Polygon wallet address (0x...)",
-                amount: "Amount",
-                youReceive: "You receive",
-                withdrawNow: "💸 Withdraw Now",
-                
-                earnPerAd: "Earn {amount} USDT per ad",
-                rewardPerAd: "Reward per ad",
-                yourId: "Your User ID",
-                readyToEarn: "Ready to Earn",
-                clickToWatch: "Click below to watch an ad",
-                watchAdEarn: "Watch Ad & Earn {amount} USDT",
-                today: "Today",
-                earnedToday: "Earned Today",
-                loadingAd: "Loading Advertisement",
-                pleaseWait: "Please wait...",
-                adStarted: "Ad Started",
-                watchComplete: "Please watch the complete ad",
-                adCompleted: "Ad Completed!",
-                youEarned: "✅ You earned {amount} USDT!",
-                newBalance: "New balance: {amount} USDT",
-                adError: "Ad Error",
-                tryAgain: "Try Again",
-                usingTestAd: "Using Test Ad",
-                failedToLoad: "Failed to load real ad",
-                testAd: "Test Advertisement",
-                completesIn: "Ad completes in",
-                seconds: "seconds",
-                testAdCompleted: "Test Ad Completed!",
-                
+                // Success/Error messages
                 rewardEarned: "✅ You earned {amount} USDT!",
+                newBalance: "New balance: {amount} USDT",
                 dailyClaimed: "✅ Daily reward claimed!",
                 streak: "🔥 Streak: {streak} days",
                 withdrawalRequested: "Withdrawal requested! You will receive funds within 24 hours.",
@@ -1147,44 +853,303 @@
                 copiedSuccess: "Link copied to clipboard!",
                 taskCompletedSuccess: "✅ Task completed! You earned {amount} USDT!",
                 alreadyCompleted: "You've already completed this task",
-                verifyFirst: "Please join the channel first before verifying",
-                watchAdFirst: "Please watch the ad first to claim your daily reward",
-                error: "Error"
+                verifyFirst: "Please join the channel first before verifying"
+            },
+            es: {
+                // Spanish
+                appName: "AdEarn",
+                appDesc: "¡Mira anuncios y gana USDT!",
+                balance: "Tu Saldo",
+                welcome: "Bienvenido",
+                todayAds: "Anuncios Hoy",
+                totalAds: "Total Anuncios",
+                weeklyAds: "Anuncios Semanales",
+                continue: "Continuar",
+                close: "Cerrar",
+                back: "← Atrás",
+                
+                watchAds: "📺 Ver Anuncios y Ganar",
+                refer: "👥 Referir y Ganar",
+                leaderboard: "🏆 Clasificación Semanal",
+                withdraw: "💸 Retirar USDT",
+                tasks: "📋 Completar Tareas",
+                
+                dailyReward: "Recompensa Diaria",
+                dailyAvailable: "🎁 ¡Tienes una recompensa diaria esperando!",
+                dailyAmount: "💰 Cantidad: {amount} USDT",
+                dailyStreak: "🔥 Racha Actual: {streak} días",
+                dailyClaimed: "⏳ Recompensa diaria ya reclamada",
+                dailyNext: "Próxima recompensa en {hours} horas",
+                dailyAround: "alrededor de {time}",
+                claimNow: "Reclamar {amount} USDT",
+                maybeLater: "Quizás Después",
+                
+                taskTitle: "📋 Completar Tareas",
+                taskDesc: "Gana recompensas extra completando tareas",
+                specialTask: "🔥 TAREA ESPECIAL",
+                taskReward: "{amount} USDT",
+                taskDescription: "¡Únete a nuestro canal de Telegram para ganar recompensas!",
+                taskRequirements: "📋 Requisitos:",
+                req1: "Únete al canal de Telegram",
+                req2: "Permanece al menos 30 segundos",
+                req3: "Regresa y verifica",
+                joinChannel: "🔗 Unirse al Canal de Telegram",
+                verifyTask: "✅ Verificar y Reclamar",
+                taskCompleted: "✅ ¡Tarea Completada!",
+                taskCompletedDesc: "Ya has completado esta tarea",
+                
+                referTitle: "👥 Referir y Ganar",
+                referDesc: "Invita amigos y gana recompensas",
+                totalReferrals: "Total Referidos",
+                referralEarnings: "Ganancias por Referidos",
+                yourLink: "Tu Enlace de Referido",
+                shareLink: "Comparte este enlace con amigos:",
+                copyLink: "📋 Copiar Enlace",
+                copied: "✅ ¡Copiado!",
+                howItWorks: "💰 Cómo funciona",
+                how1: "• Invita amigos usando tu enlace",
+                how2: "• Ganas {amount} USDT cuando se unen",
+                how3: "• También ganas 5% de sus ganancias de anuncios",
+                how4: "• Tus amigos reciben {bonus} USDT de bonificación",
+                yourReferrals: "Tus Referidos ({count})",
+                noReferrals: "Aún no tienes referidos. ¡Comparte tu enlace para comenzar!",
+                earned: "Ganado: {amount} USDT",
+                ads: "{count} anuncios",
+                
+                rewardEarned: "✅ ¡Ganaste {amount} USDT!",
+                newBalance: "Nuevo saldo: {amount} USDT",
+                dailyClaimed: "✅ ¡Recompensa diaria reclamada!",
+                streak: "🔥 Racha: {streak} días",
+                withdrawalRequested: "¡Solicitud de retiro enviada! Recibirás los fondos en 24 horas.",
+                invalidAddress: "Dirección Polygon inválida",
+                invalidAmount: "Cantidad inválida",
+                copiedSuccess: "¡Enlace copiado al portapapeles!",
+                taskCompletedSuccess: "✅ ¡Tarea completada! Ganaste {amount} USDT!",
+                alreadyCompleted: "Ya has completado esta tarea",
+                verifyFirst: "Por favor únete al canal primero antes de verificar"
+            },
+            fr: {
+                // French
+                appName: "AdEarn",
+                appDesc: "Regardez des pubs et gagnez des USDT!",
+                balance: "Votre Solde",
+                welcome: "Bienvenue",
+                todayAds: "Pubs Aujourd'hui",
+                totalAds: "Total Pubs",
+                weeklyAds: "Pubs Hebdo",
+                continue: "Continuer",
+                close: "Fermer",
+                back: "← Retour",
+                
+                watchAds: "📺 Voir Pubs et Gagner",
+                refer: "👥 Parrainer et Gagner",
+                leaderboard: "🏆 Classement Hebdo",
+                withdraw: "💸 Retirer USDT",
+                tasks: "📋 Compléter Tâches",
+                
+                dailyReward: "Récompense Quotidienne",
+                dailyAvailable: "🎁 Une récompense quotidienne vous attend!",
+                dailyAmount: "💰 Montant: {amount} USDT",
+                dailyStreak: "🔥 Séquence: {streak} jours",
+                dailyClaimed: "⏳ Récompense déjà réclamée",
+                dailyNext: "Prochaine récompense dans {hours} heures",
+                dailyAround: "vers {time}",
+                claimNow: "Réclamer {amount} USDT",
+                maybeLater: "Plus Tard",
+                
+                taskTitle: "📋 Compléter Tâches",
+                taskDesc: "Gagnez des récompenses supplémentaires",
+                specialTask: "🔥 TÂCHE SPÉCIALE",
+                taskReward: "{amount} USDT",
+                taskDescription: "Rejoignez notre chaîne Telegram!",
+                taskRequirements: "📋 Conditions:",
+                req1: "Rejoindre la chaîne Telegram",
+                req2: "Rester 30 secondes",
+                req3: "Revenir et vérifier",
+                joinChannel: "🔗 Rejoindre Telegram",
+                verifyTask: "✅ Vérifier et Réclamer",
+                taskCompleted: "✅ Tâche Complétée!",
+                taskCompletedDesc: "Vous avez déjà complété cette tâche",
+                
+                referTitle: "👥 Parrainer et Gagner",
+                referDesc: "Invitez des amis et gagnez",
+                totalReferrals: "Total Filleuls",
+                referralEarnings: "Gains Parrainage",
+                yourLink: "Votre Lien",
+                shareLink: "Partagez ce lien:",
+                copyLink: "📋 Copier",
+                copied: "✅ Copié!",
+                howItWorks: "💰 Comment ça marche",
+                how1: "• Invitez des amis avec votre lien",
+                how2: "• Gagnez {amount} USDT quand ils rejoignent",
+                how3: "• Gagnez 5% de leurs gains de pubs",
+                how4: "• Vos amis reçoivent {bonus} USDT",
+                yourReferrals: "Vos Filleuls ({count})",
+                noReferrals: "Pas encore de filleuls. Partagez votre lien!",
+                earned: "Gagné: {amount} USDT",
+                ads: "{count} pubs",
+                
+                rewardEarned: "✅ Vous avez gagné {amount} USDT!",
+                newBalance: "Nouveau solde: {amount} USDT",
+                dailyClaimed: "✅ Récompense quotidienne réclamée!",
+                streak: "🔥 Séquence: {streak} jours",
+                withdrawalRequested: "Demande de retrait envoyée!",
+                invalidAddress: "Adresse Polygon invalide",
+                invalidAmount: "Montant invalide",
+                copiedSuccess: "Lien copié!",
+                taskCompletedSuccess: "✅ Tâche complétée! +{amount} USDT!",
+                alreadyCompleted: "Tâche déjà complétée",
+                verifyFirst: "Rejoignez d'abord le canal"
+            },
+            de: {
+                // German
+                appName: "AdEarn",
+                appDesc: "Sehen Sie Anzeigen und verdienen Sie USDT!",
+                balance: "Ihr Guthaben",
+                welcome: "Willkommen",
+                todayAds: "Heutige Anzeigen",
+                totalAds: "Gesamt Anzeigen",
+                weeklyAds: "Wöchentliche Anzeigen",
+                continue: "Weiter",
+                close: "Schließen",
+                back: "← Zurück",
+                
+                watchAds: "📺 Anzeigen Sehen",
+                refer: "👥 Empfehlen",
+                leaderboard: "🏆 Rangliste",
+                withdraw: "💸 USDT Abheben",
+                tasks: "📋 Aufgaben",
+                
+                dailyReward: "Tägliche Belohnung",
+                dailyAvailable: "🎁 Tägliche Belohnung verfügbar!",
+                dailyAmount: "💰 Betrag: {amount} USDT",
+                dailyStreak: "🔥 Serie: {streak} Tage",
+                dailyClaimed: "⏳ Bereits abgeholt",
+                dailyNext: "Nächste in {hours} Stunden",
+                dailyAround: "um {time}",
+                claimNow: "{amount} USDT Abholen",
+                maybeLater: "Später",
+                
+                taskTitle: "📋 Aufgaben",
+                taskDesc: "Verdiene Extrabelohnungen",
+                specialTask: "🔥 SPEZIALAUFGABE",
+                taskReward: "{amount} USDT",
+                taskDescription: "Tritt unserem Telegram-Kanal bei!",
+                taskRequirements: "📋 Anforderungen:",
+                req1: "Telegram-Kanal beitreten",
+                req2: "30 Sekunden bleiben",
+                req3: "Zurückkommen und bestätigen",
+                joinChannel: "🔗 Telegram Beitreten",
+                verifyTask: "✅ Bestätigen",
+                taskCompleted: "✅ Aufgabe Erledigt!",
+                taskCompletedDesc: "Aufgabe bereits erledigt",
+                
+                referTitle: "👥 Empfehlen & Verdienen",
+                referDesc: "Lade Freunde ein",
+                totalReferrals: "Empfehlungen",
+                referralEarnings: "Verdienste",
+                yourLink: "Ihr Link",
+                shareLink: "Teilen Sie diesen Link:",
+                copyLink: "📋 Kopieren",
+                copied: "✅ Kopiert!",
+                howItWorks: "💰 So funktioniert's",
+                how1: "• Freunde einladen",
+                how2: "• {amount} USDT pro Freund",
+                how3: "• 5% ihrer Anzeigen-Einnahmen",
+                how4: "• Freunde erhalten {bonus} USDT",
+                yourReferrals: "Ihre Freunde ({count})",
+                noReferrals: "Noch keine Freunde. Teilen Sie Ihren Link!",
+                earned: "Verdient: {amount} USDT",
+                ads: "{count} Anzeigen",
+                
+                rewardEarned: "✅ Sie haben {amount} USDT verdient!",
+                newBalance: "Neues Guthaben: {amount} USDT",
+                dailyClaimed: "✅ Tägliche Belohnung abgeholt!",
+                streak: "🔥 Serie: {streak} Tage",
+                withdrawalRequested: "Auszahlung beantragt!",
+                invalidAddress: "Ungültige Polygon-Adresse",
+                invalidAmount: "Ungültiger Betrag",
+                copiedSuccess: "Link kopiert!",
+                taskCompletedSuccess: "✅ Aufgabe erledigt! +{amount} USDT!",
+                alreadyCompleted: "Bereits erledigt",
+                verifyFirst: "Bitte zuerst Kanal beitreten"
+            },
+            hi: {
+                // Hindi
+                appName: "AdEarn",
+                appDesc: "विज्ञापन देखें और USDT कमाएं!",
+                balance: "आपका बैलेंस",
+                welcome: "स्वागत है",
+                todayAds: "आज के विज्ञापन",
+                totalAds: "कुल विज्ञापन",
+                weeklyAds: "साप्ताहिक विज्ञापन",
+                continue: "जारी रखें",
+                close: "बंद करें",
+                back: "← वापस",
+                
+                watchAds: "📺 विज्ञापन देखें",
+                refer: "👥 रेफर करें",
+                leaderboard: "🏆 लीडरबोर्ड",
+                withdraw: "💸 USDT निकालें",
+                tasks: "📋 कार्य पूरा करें",
+                
+                dailyReward: "दैनिक इनाम",
+                dailyAvailable: "🎁 आपका दैनिक इनाम इंतजार कर रहा है!",
+                dailyAmount: "💰 राशि: {amount} USDT",
+                dailyStreak: "🔥 लगातार: {streak} दिन",
+                dailyClaimed: "⏳ दैनिक इनाम पहले ही लिया जा चुका है",
+                dailyNext: "अगला इनाम {hours} घंटे में",
+                dailyAround: "लगभग {time}",
+                claimNow: "{amount} USDT लें",
+                maybeLater: "बाद में",
+                
+                taskTitle: "📋 कार्य पूरा करें",
+                taskDesc: "अतिरिक्त इनाम कमाएं",
+                specialTask: "🔥 विशेष कार्य",
+                taskReward: "{amount} USDT",
+                taskDescription: "हमारे Telegram चैनल से जुड़ें!",
+                taskRequirements: "📋 आवश्यकताएं:",
+                req1: "Telegram चैनल से जुड़ें",
+                req2: "30 सेकंड रुकें",
+                req3: "वापस आकर सत्यापित करें",
+                joinChannel: "🔗 Telegram से जुड़ें",
+                verifyTask: "✅ सत्यापित करें",
+                taskCompleted: "✅ कार्य पूरा हुआ!",
+                taskCompletedDesc: "आप यह कार्य पहले ही पूरा कर चुके हैं",
+                
+                referTitle: "👥 रेफर करें और कमाएं",
+                referDesc: "दोस्तों को आमंत्रित करें",
+                totalReferrals: "कुल रेफरल",
+                referralEarnings: "रेफरल कमाई",
+                yourLink: "आपका रेफरल लिंक",
+                shareLink: "यह लिंक दोस्तों के साथ साझा करें:",
+                copyLink: "📋 कॉपी करें",
+                copied: "✅ कॉपी हो गया!",
+                howItWorks: "💰 यह कैसे काम करता है",
+                how1: "• अपने लिंक से दोस्तों को आमंत्रित करें",
+                how2: "• {amount} USDT कमाएं जब वे जुड़ें",
+                how3: "• उनकी कमाई का 5% हमेशा के लिए पाएं",
+                how4: "• आपके दोस्तों को {bonus} USDT बोनस मिलेगा",
+                yourReferrals: "आपके रेफरल ({count})",
+                noReferrals: "अभी तक कोई रेफरल नहीं। अपना लिंक साझा करें!",
+                earned: "कमाई: {amount} USDT",
+                ads: "{count} विज्ञापन",
+                
+                rewardEarned: "✅ आपने {amount} USDT कमाए!",
+                newBalance: "नया बैलेंस: {amount} USDT",
+                dailyClaimed: "✅ दैनिक इनाम मिल गया!",
+                streak: "🔥 लगातार: {streak} दिन",
+                withdrawalRequested: "निकासी का अनुरोध किया गया!",
+                invalidAddress: "अमान्य Polygon पता",
+                invalidAmount: "अमान्य राशि",
+                copiedSuccess: "लिंक कॉपी हो गया!",
+                taskCompletedSuccess: "✅ कार्य पूरा हुआ! +{amount} USDT!",
+                alreadyCompleted: "यह कार्य पहले ही पूरा हो चुका है",
+                verifyFirst: "कृपया पहले चैनल से जुड़ें"
             }
         };
 
-        let currentLang = 'en';
-        function t(key, replacements = {}) {
-            let text = LANGUAGES[currentLang][key] || LANGUAGES.en[key] || key;
-            for (const [placeholder, value] of Object.entries(replacements)) {
-                text = text.replace(`{${placeholder}}`, value);
-            }
-            return text;
-        }
-
-        function setLanguage(langCode) {
-            if (LANGUAGES[langCode]) {
-                currentLang = langCode;
-                localStorage.setItem('preferredLanguage', langCode);
-                const currentPage = sessionStorage.getItem('currentPage') || 'home';
-                if (currentPage === 'home') showHomePage();
-                else if (currentPage === 'watch') showWatchPage();
-                else if (currentPage === 'tasks') showTasksPage();
-                else if (currentPage === 'referral') showReferralPage();
-                else if (currentPage === 'leaderboard') showLeaderboardPage();
-                else if (currentPage === 'withdraw') showWithdrawPage();
-            }
-        }
-
-        function showLanguageSelector() {
-            return `
-                <div class="language-selector">
-                    <button class="lang-btn active" onclick="setLanguage('en')">🇬🇧 EN</button>
-                </div>
-            `;
-        }
-
-        // ===== CONFIGURATION WITH SUPABASE CREDENTIALS =====
+        // ===== CONFIGURATION =====
         const CONFIG = {
             AD_REWARD: 0.00005,
             DAILY_REWARD: 0.0002,
@@ -1195,113 +1160,66 @@
             ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
             ADMIN_CHAT_ID: "6450016040",
             REFERRAL_REWARD: 0.0001,
-            BOT_USERNAME: "earnmoneyapppbot",
-            TASK_CHANNEL: "adwatch2",
+            BOT_USERNAME: "earnmoneyapppbot",  // Updated bot username
+            TASK_CHANNEL: "adwatch2",           // Task channel
             
+            // AdsGram
             ADSGRAM: {
                 BLOCK_ID: "23020"
-            },
-            
-            // ✅ YOUR SUPABASE CREDENTIALS - ALREADY ADDED
-            SUPABASE: {
-                URL: "https://brxygrzqrisdqpusplry.supabase.co",
-                ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyeHlncnpxcmlzZHFwdXNwbHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDMxMzIsImV4cCI6MjA4NzI3OTEzMn0.Or8lE6OMgV9wg2AJYdJP7DDpDiHhUBfB7xszlVPh8qw"
             }
         };
 
-        // ===== SUPABASE INITIALIZATION =====
-        let supabase = null;
-        let isSupabaseConnected = false;
+        // ===== CURRENT LANGUAGE =====
+        let currentLang = 'en';
 
-        // Initialize Supabase
-        try {
-            supabase = supabaseClient.createClient(
-                CONFIG.SUPABASE.URL, 
-                CONFIG.SUPABASE.ANON_KEY
-            );
-            console.log('✅ Supabase initialized');
-        } catch (error) {
-            console.error('❌ Supabase init error:', error.message);
+        // ===== TRANSLATION FUNCTION =====
+        function t(key, replacements = {}) {
+            let text = LANGUAGES[currentLang][key] || LANGUAGES.en[key] || key;
+            
+            // Replace placeholders
+            for (const [placeholder, value] of Object.entries(replacements)) {
+                text = text.replace(`{${placeholder}}`, value);
+            }
+            
+            return text;
         }
 
-        // Test connection
-        async function testSupabaseConnection() {
-            if (!supabase) return false;
+        // ===== LANGUAGE SELECTOR =====
+        function showLanguageSelector() {
+            const languages = [
+                { code: 'en', name: '🇬🇧 EN' },
+                { code: 'es', name: '🇪🇸 ES' },
+                { code: 'fr', name: '🇫🇷 FR' },
+                { code: 'de', name: '🇩🇪 DE' },
+                { code: 'hi', name: '🇮🇳 HI' }
+            ];
             
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .select('count', { count: 'exact', head: true });
+            return `
+                <div class="language-selector">
+                    ${languages.map(lang => `
+                        <button class="lang-btn ${currentLang === lang.code ? 'active' : ''}" onclick="setLanguage('${lang.code}')">
+                            ${lang.name}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function setLanguage(langCode) {
+            if (LANGUAGES[langCode]) {
+                currentLang = langCode;
+                localStorage.setItem('preferredLanguage', langCode);
                 
-                if (error) {
-                    console.log('⚠️ Supabase connection failed:', error.message);
-                    return false;
+                // Refresh current page
+                const currentPage = sessionStorage.getItem('currentPage') || 'home';
+                switch(currentPage) {
+                    case 'home': showHomePage(); break;
+                    case 'watch': showWatchPage(); break;
+                    case 'tasks': showTasksPage(); break;
+                    case 'referral': showReferralPage(); break;
+                    case 'leaderboard': showLeaderboardPage(); break;
+                    case 'withdraw': showWithdrawPage(); break;
                 }
-                console.log('✅ Supabase connected!');
-                return true;
-            } catch (error) {
-                console.log('⚠️ Supabase error:', error.message);
-                return false;
-            }
-        }
-
-        function showDbStatus(message, isConnected) {
-            const statusDiv = document.createElement('div');
-            statusDiv.className = `db-status ${isConnected ? 'db-connected' : 'db-disconnected'}`;
-            statusDiv.textContent = message;
-            statusDiv.style.position = 'fixed';
-            statusDiv.style.bottom = '10px';
-            statusDiv.style.left = '10px';
-            statusDiv.style.zIndex = '1000';
-            statusDiv.style.padding = '5px 10px';
-            statusDiv.style.borderRadius = '20px';
-            statusDiv.style.fontSize = '12px';
-            
-            const oldStatus = document.querySelector('.db-status');
-            if (oldStatus) oldStatus.remove();
-            
-            document.body.appendChild(statusDiv);
-        }
-
-        // ===== SUPABASE DATABASE FUNCTIONS =====
-        async function saveUserToDB() {
-            if (!isSupabaseConnected || !userData.userId) return false;
-            
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .upsert({
-                        user_id: userData.userId.toString(),
-                        user_name: userData.userName,
-                        balance: userData.balance,
-                        weekly_ads: userData.weeklyAds,
-                        total_ads: userData.totalAds,
-                        last_seen: new Date().toISOString()
-                    }, { onConflict: 'user_id' });
-                
-                if (error) throw error;
-                return true;
-            } catch (error) {
-                console.log('⚠️ DB save failed:', error.message);
-                return false;
-            }
-        }
-
-        async function getLeaderboardFromDB() {
-            if (!isSupabaseConnected) return [];
-            
-            try {
-                const { data, error } = await supabase
-                    .from('users')
-                    .select('user_name, weekly_ads')
-                    .order('weekly_ads', { ascending: false })
-                    .limit(10);
-                
-                if (error) throw error;
-                return data || [];
-            } catch (error) {
-                console.log('⚠️ DB leaderboard failed:', error.message);
-                return [];
             }
         }
 
@@ -1320,35 +1238,28 @@
             referrals: [],
             referralEarnings: 0,
             referredBy: null,
-            completedTasks: []
+            completedTasks: []  // Track completed tasks
         };
 
         // ===== INITIALIZE =====
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved language preference
             const savedLang = localStorage.getItem('preferredLanguage');
             if (savedLang && LANGUAGES[savedLang]) {
                 currentLang = savedLang;
             }
-            initializeApp();
             
-            // Test Supabase connection
-            if (supabase) {
-                isSupabaseConnected = await testSupabaseConnection();
-                if (isSupabaseConnected) {
-                    showDbStatus('✅ Database connected', true);
-                } else {
-                    showDbStatus('⚠️ Using local storage only', false);
-                }
-            }
+            initializeApp();
         });
 
         function initializeApp() {
+            // Get Telegram user info
             if (typeof Telegram !== 'undefined') {
                 const tg = window.Telegram.WebApp;
                 tg.expand();
                 
                 if (tg.initDataUnsafe?.user) {
-                    userData.userId = tg.initDataUnsafe.user.id.toString();
+                    userData.userId = tg.initDataUnsafe.user.id;
                     userData.userName = tg.initDataUnsafe.user.first_name || "User";
                     if (tg.initDataUnsafe.user.username) {
                         userData.userName = "@" + tg.initDataUnsafe.user.username;
@@ -1358,6 +1269,7 @@
             
             loadUserData();
             
+            // Generate referral code if not exists
             if (!userData.referralCode) {
                 userData.referralCode = generateReferralCode();
                 saveUserData();
@@ -1398,6 +1310,7 @@
         // ===== DAILY REWARD FUNCTIONS =====
         function checkDailyReward() {
             if (!userData.lastDailyClaim) return true;
+            
             const lastClaim = new Date(userData.lastDailyClaim);
             const now = new Date();
             const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
@@ -1406,10 +1319,13 @@
 
         function getDailyRewardStatus() {
             if (!userData.lastDailyClaim) return 'available';
+            
             const lastClaim = new Date(userData.lastDailyClaim);
             const now = new Date();
             const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+            
             if (hoursSinceLastClaim >= 24) return 'available';
+            
             const hoursLeft = 24 - hoursSinceLastClaim;
             const nextClaimTime = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
             return { status: 'claimed', hoursLeft, nextClaimTime };
@@ -1423,8 +1339,8 @@
                     `${t('dailyAvailable')}<br><br>` +
                     `${t('dailyAmount', {amount: CONFIG.DAILY_REWARD.toFixed(5)})}<br>` +
                     `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
-                document.getElementById('watchDailyAdBtn').style.display = 'block';
-                document.getElementById('watchDailyAdBtn').innerHTML = t('watchToClaim');
+                document.getElementById('claimDailyBtn').style.display = 'block';
+                document.getElementById('claimDailyBtn').innerHTML = t('claimNow', {amount: CONFIG.DAILY_REWARD.toFixed(5)});
             } else {
                 const hoursLeft = Math.ceil(status.hoursLeft);
                 const nextTime = status.nextClaimTime.toLocaleTimeString();
@@ -1433,7 +1349,7 @@
                     `${t('dailyNext', {hours: hoursLeft})}<br>` +
                     `${t('dailyAround', {time: nextTime})}<br><br>` +
                     `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
-                document.getElementById('watchDailyAdBtn').style.display = 'none';
+                document.getElementById('claimDailyBtn').style.display = 'none';
             }
             
             document.getElementById('dailyTitle').innerHTML = t('dailyReward');
@@ -1441,161 +1357,43 @@
             document.getElementById('dailyRewardModal').style.display = 'flex';
         }
 
-        async function startDailyRewardAd() {
-            const watchBtn = document.getElementById('watchDailyAdBtn');
-            const adContainer = document.getElementById('dailyAdContainer');
-            
-            watchBtn.disabled = true;
-            watchBtn.innerHTML = '<span class="loading-spinner"></span> ' + t('loading');
-            
-            adContainer.innerHTML = `
-                <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                    <div class="ad-icon" style="font-size: 3rem;">⏳</div>
-                    <h3>${t('loadingAd')}</h3>
-                    <p>${t('pleaseWait')}</p>
-                </div>
-            `;
-
-            try {
-                if (typeof window.Adsgram === 'undefined') {
-                    throw new Error('AdsGram SDK not loaded');
-                }
-
-                const AdController = window.Adsgram.init({ 
-                    blockId: CONFIG.ADSGRAM.BLOCK_ID
-                });
-
-                AdController.show().then((result) => {
-                    console.log('✅ Daily reward ad completed:', result);
-                    
-                    const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
-                    const now = new Date();
-                    
-                    if (lastClaim) {
-                        const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-                        if (hoursSinceLastClaim < 48) {
-                            userData.dailyStreak = (userData.dailyStreak || 0) + 1;
-                        } else {
-                            userData.dailyStreak = 1;
-                        }
-                    } else {
-                        userData.dailyStreak = 1;
-                    }
-                    
-                    userData.balance += CONFIG.DAILY_REWARD;
-                    userData.lastDailyClaim = now.toISOString();
-                    saveUserData();
-                    
-                    // Save to database
-                    if (isSupabaseConnected) {
-                        saveUserToDB();
-                    }
-                    
-                    closeModal();
-                    showSuccess(
-                        `${t('dailyClaimed')}<br>` +
-                        `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
-                        `${t('streak', {streak: userData.dailyStreak})}`
-                    );
-                    showHomePage();
-                    
-                }).catch((result) => {
-                    console.error('❌ Daily reward ad error:', result);
-                    
-                    adContainer.innerHTML = `
-                        <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                            <div class="ad-icon" style="font-size: 3rem;">❌</div>
-                            <h3>${t('adError')}</h3>
-                            <p>${t('tryAgain')}</p>
-                        </div>
-                    `;
-                    
-                    watchBtn.disabled = false;
-                    watchBtn.innerHTML = t('tryAgain');
-                });
-
-            } catch (error) {
-                console.error('AdsGram error:', error);
-                
-                adContainer.innerHTML = `
-                    <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                        <div class="ad-icon" style="font-size: 3rem;">⚠️</div>
-                        <h3>${t('usingTestAd')}</h3>
-                        <p>${error.message || t('failedToLoad')}</p>
-                    </div>
-                `;
-                
-                setTimeout(() => simulateDailyRewardAd(), 1500);
+        function claimDailyReward() {
+            if (!checkDailyReward()) {
+                closeModal();
+                showError('Daily reward not available yet!');
+                return;
             }
+            
+            // Update streak
+            const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
+            const now = new Date();
+            
+            if (lastClaim) {
+                const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+                if (hoursSinceLastClaim < 48) {
+                    userData.dailyStreak = (userData.dailyStreak || 0) + 1;
+                } else {
+                    userData.dailyStreak = 1;
+                }
+            } else {
+                userData.dailyStreak = 1;
+            }
+            
+            // Add reward
+            userData.balance += CONFIG.DAILY_REWARD;
+            userData.lastDailyClaim = now.toISOString();
+            saveUserData();
+            
+            closeModal();
+            showSuccess(
+                `${t('dailyClaimed')}<br>` +
+                `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
+                `${t('streak', {streak: userData.dailyStreak})}`
+            );
+            showHomePage();
         }
 
-        function simulateDailyRewardAd() {
-            const watchBtn = document.getElementById('watchDailyAdBtn');
-            const adContainer = document.getElementById('dailyAdContainer');
-            let secondsLeft = 5;
-            
-            adContainer.innerHTML = `
-                <div class="ad-container" style="min-height: 200px; padding: 15px;">
-                    <div class="ad-icon" style="font-size: 3rem;">📺</div>
-                    <h3>${t('testAd')}</h3>
-                    <p>${t('completesIn')} <span id="dailyAdTimer">5</span> ${t('seconds')}</p>
-                    <div class="timer" style="font-size: 2rem;" id="dailyTimerDisplay">5</div>
-                    <div class="progress-bar">
-                        <div id="dailyProgressFill" class="progress-fill" style="width: 0%"></div>
-                    </div>
-                </div>
-            `;
-            
-            const timer = setInterval(() => {
-                secondsLeft--;
-                const timerEl = document.getElementById('dailyAdTimer');
-                const timerDisplay = document.getElementById('dailyTimerDisplay');
-                const progressFill = document.getElementById('dailyProgressFill');
-                
-                if (timerEl) timerEl.textContent = secondsLeft;
-                if (timerDisplay) timerDisplay.textContent = secondsLeft;
-                if (progressFill) {
-                    progressFill.style.width = ((5 - secondsLeft) / 5) * 100 + '%';
-                }
-                
-                if (secondsLeft <= 0) {
-                    clearInterval(timer);
-                    
-                    const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
-                    const now = new Date();
-                    
-                    if (lastClaim) {
-                        const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-                        if (hoursSinceLastClaim < 48) {
-                            userData.dailyStreak = (userData.dailyStreak || 0) + 1;
-                        } else {
-                            userData.dailyStreak = 1;
-                        }
-                    } else {
-                        userData.dailyStreak = 1;
-                    }
-                    
-                    userData.balance += CONFIG.DAILY_REWARD;
-                    userData.lastDailyClaim = now.toISOString();
-                    saveUserData();
-                    
-                    // Save to database
-                    if (isSupabaseConnected) {
-                        saveUserToDB();
-                    }
-                    
-                    closeModal();
-                    showSuccess(
-                        `${t('dailyClaimed')}<br>` +
-                        `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
-                        `${t('streak', {streak: userData.dailyStreak})}`
-                    );
-                    showHomePage();
-                }
-            }, 1000);
-        }
-
-        // ===== TASKS PAGE =====
+        // ===== TASK FUNCTIONS =====
         function showTasksPage() {
             sessionStorage.setItem('currentPage', 'tasks');
             const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
@@ -1653,26 +1451,26 @@
                 return;
             }
             
+            // In a real app, you'd verify with Telegram API
+            // For demo, we'll simulate verification
             showSuccess(t('verifyFirst'));
             
+            // Simulate user joining after 2 seconds
             setTimeout(() => {
+                // Mark task as completed
                 if (!userData.completedTasks) userData.completedTasks = [];
                 userData.completedTasks.push('telegram_join');
                 
+                // Add reward
                 userData.balance += CONFIG.TASK_REWARD;
                 saveUserData();
-                
-                // Save to database
-                if (isSupabaseConnected) {
-                    saveUserToDB();
-                }
                 
                 showSuccess(t('taskCompletedSuccess', {amount: CONFIG.TASK_REWARD.toFixed(5)}));
                 showTasksPage();
             }, 2000);
         }
 
-        // ===== REFERRAL PAGE =====
+        // ===== REFERRAL FUNCTIONS =====
         function showReferralPage() {
             sessionStorage.setItem('currentPage', 'referral');
             
@@ -1756,6 +1554,35 @@
             }, 2000);
         }
 
+        // ===== CHECK FOR REFERRAL IN URL =====
+        function checkForReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const startParam = urlParams.get('startapp');
+            
+            if (startParam && startParam !== userData.referralCode && !userData.referredBy) {
+                processReferral(startParam);
+            }
+        }
+
+        function processReferral(referralCode) {
+            userData.referredBy = referralCode;
+            userData.balance += CONFIG.AD_REWARD;
+            saveUserData();
+            
+            showSuccess(`🎉 Welcome! You got a ${CONFIG.AD_REWARD.toFixed(5)} USDT bonus from your friend!`);
+        }
+
+        function addReferral(referralName, referralId) {
+            userData.referrals.push({
+                name: referralName,
+                id: referralId,
+                earned: 0,
+                ads: 0,
+                joined: new Date().toISOString()
+            });
+            saveUserData();
+        }
+
         // ===== HOME PAGE =====
         function showHomePage() {
             sessionStorage.setItem('currentPage', 'home');
@@ -1821,6 +1648,10 @@
                     <strong>✅ AdsGram Ready</strong><br>
                     Block ID: ${CONFIG.ADSGRAM.BLOCK_ID}
                 </div>
+
+                <div class="notice">
+                    <p><strong>💰 ${t('weeklyPrizes')}:</strong> 1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
+                </div>
             `;
         }
 
@@ -1835,6 +1666,11 @@
                     <p>${t('earnPerAd', {amount: CONFIG.AD_REWARD.toFixed(5)})}</p>
                     ${showLanguageSelector()}
                 </header>
+
+                <div class="notice success-notice">
+                    <p><strong>💰 ${t('rewardPerAd')}:</strong> ${CONFIG.AD_REWARD.toFixed(5)} USDT</p>
+                    <p><strong>🆔 ${t('yourId')}:</strong> ${userData.userId || userData.userName || 'guest'}</p>
+                </div>
 
                 <div class="ad-container" id="adContainer">
                     <div class="ad-icon">📱</div>
@@ -1907,11 +1743,6 @@
                     userData.weeklyAds++;
                     saveUserData();
                     
-                    // Save to database
-                    if (isSupabaseConnected) {
-                        saveUserToDB();
-                    }
-                    
                     adContainer.innerHTML = `
                         <div class="ad-icon">🎉</div>
                         <h2>${t('adCompleted')}</h2>
@@ -1983,11 +1814,6 @@
                     userData.weeklyAds++;
                     saveUserData();
                     
-                    // Save to database
-                    if (isSupabaseConnected) {
-                        saveUserToDB();
-                    }
-                    
                     adContainer.innerHTML = `
                         <div class="ad-icon">🎉</div>
                         <h2>${t('testAdCompleted')}</h2>
@@ -2001,10 +1827,9 @@
         }
 
         // ===== LEADERBOARD PAGE =====
-        async function showLeaderboardPage() {
+        function showLeaderboardPage() {
             sessionStorage.setItem('currentPage', 'leaderboard');
             
-            // Show loading
             document.getElementById('app').innerHTML = `
                 <header>
                     <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
@@ -2012,41 +1837,6 @@
                     <p>${t('topEarners')}</p>
                     ${showLanguageSelector()}
                 </header>
-                <div style="text-align: center; padding: 50px;">
-                    <div class="loading-spinner"></div>
-                </div>
-            `;
-            
-            // Get leaderboard from database
-            let leaderboardData = [];
-            if (isSupabaseConnected) {
-                leaderboardData = await getLeaderboardFromDB();
-            }
-            
-            // If no data, use demo
-            if (leaderboardData.length === 0) {
-                leaderboardData = [
-                    { user_name: "CryptoKing", weekly_ads: 156 },
-                    { user_name: "AdMaster", weekly_ads: 128 },
-                    { user_name: "EarnPro", weekly_ads: 97 },
-                    { user_name: userData.userName, weekly_ads: userData.weeklyAds },
-                    { user_name: "BitcoinBuddy", weekly_ads: 45 },
-                    { user_name: "AdWatcher", weekly_ads: 38 }
-                ].sort((a, b) => b.weekly_ads - a.weekly_ads);
-            }
-            
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
-                    <h1>🏆 ${t('leaderboard')}</h1>
-                    <p>${t('topEarners')}</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                ${isSupabaseConnected ? 
-                    '<div class="notice" style="background: #d4edda; color: #155724;">✅ Live data from database</div>' : 
-                    '<div class="notice" style="background: #fff3cd; color: #856404;">⚠️ Demo data (local storage)</div>'
-                }
 
                 <div class="notice success-notice">
                     <h3>🎁 ${t('weeklyPrizes')}</h3>
@@ -2054,24 +1844,37 @@
                 </div>
 
                 <div class="leaderboard-list">
-                    ${leaderboardData.map((user, i) => `
-                        <div class="leaderboard-item" style="${user.user_name === userData.userName ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                            <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
-                            <div style="flex: 1;">
-                                <strong>${user.user_name} ${user.user_name === userData.userName ? `(${t('you')})` : ''}</strong>
-                                <div style="color: #666;">${user.weekly_ads} ${t('adsWatched')}</div>
-                            </div>
-                            <div style="color: #28a745; font-weight: bold;">
-                                ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
-                            </div>
-                        </div>
-                    `).join('')}
+                    ${generateLeaderboard()}
                 </div>
 
                 <button onclick="showLeaderboardPage()" class="btn btn-secondary">
                     🔄 ${t('refresh')}
                 </button>
             `;
+        }
+
+        function generateLeaderboard() {
+            const users = [
+                { name: "CryptoKing", ads: 156 },
+                { name: "AdMaster", ads: 128 },
+                { name: "EarnPro", ads: 97 },
+                { name: userData.userName, ads: userData.weeklyAds, isYou: true },
+                { name: "BitcoinBuddy", ads: 45 },
+                { name: "AdWatcher", ads: 38 }
+            ];
+
+            return users.map((user, i) => `
+                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
+                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                    <div style="flex: 1;">
+                        <strong>${user.name} ${user.isYou ? `(${t('you')})` : ''}</strong>
+                        <div style="color: #666;">${user.ads} ${t('adsWatched')}</div>
+                    </div>
+                    <div style="color: #28a745; font-weight: bold;">
+                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
+                    </div>
+                </div>
+            `).join('');
         }
 
         // ===== WITHDRAW PAGE =====
@@ -2167,11 +1970,6 @@
             userData.balance -= amount;
             saveUserData();
             
-            // Save to database
-            if (isSupabaseConnected) {
-                saveUserToDB();
-            }
-            
             showSuccess(t('withdrawalRequested'));
             setTimeout(() => showHomePage(), 2000);
         }
@@ -2205,19 +2003,28 @@
             }
         }
 
+        function closeRewardModal() {
+            document.getElementById('rewardModal').style.display = 'none';
+        }
+
         function showSuccess(message) {
             document.getElementById('successMessage').innerHTML = message;
+            document.getElementById('successTitle').innerHTML = t('continue');
+            document.getElementById('successBtn').innerHTML = t('continue');
             document.getElementById('successModal').style.display = 'flex';
         }
 
         function showError(message) {
             document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorTitle').innerHTML = t('error');
+            document.getElementById('errorBtn').innerHTML = t('close');
             document.getElementById('errorModal').style.display = 'flex';
         }
 
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
+            document.getElementById('rewardModal').style.display = 'none';
             document.getElementById('dailyRewardModal').style.display = 'none';
         }
     </script>
