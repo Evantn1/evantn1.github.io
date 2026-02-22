@@ -1,4 +1,4 @@
-        <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -6,6 +6,10 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    
+    <!-- Add Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
     <style>
         * {
             margin: 0;
@@ -97,18 +101,13 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
         }
 
         .btn-success {
             background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #ffc107, #fd7e14);
             color: white;
         }
 
@@ -120,6 +119,62 @@
             color: #1976d2;
             text-align: center;
         }
+
+        .db-status {
+            font-size: 0.8rem;
+            padding: 5px 10px;
+            border-radius: 20px;
+            margin-top: 10px;
+            position: fixed;
+            bottom: 10px;
+            left: 10px;
+            z-index: 1000;
+        }
+
+        .db-connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .db-disconnected {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 12px;
+        }
+
+        .rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            color: white;
+        }
+
+        .rank-1 { background: gold; }
+        .rank-2 { background: silver; }
+        .rank-3 { background: #cd7f32; }
+        .rank-other { background: #6c757d; }
+
+        @media (max-width: 480px) {
+            .stats {
+                grid-template-columns: 1fr;
+            }
+            .balance {
+                font-size: 2.2rem;
+            }
+        }
     </style>
 </head>
 <body>
@@ -128,7 +183,7 @@
     </div>
 
     <script>
-        // ===== SIMPLE CONFIGURATION =====
+        // ===== CONFIGURATION WITH YOUR SUPABASE CREDENTIALS =====
         const CONFIG = {
             AD_REWARD: 0.00005,
             DAILY_REWARD: 0.0002,
@@ -136,7 +191,13 @@
             WITHDRAWAL_FEE: 0.001,
             ADSGRAM_BLOCK_ID: "23020",
             BOT_USERNAME: "earnmoneyapppbot",
-            TASK_CHANNEL: "adwatch2"
+            TASK_CHANNEL: "adwatch2",
+            
+            // ✅ YOUR SUPABASE CREDENTIALS (already inserted)
+            SUPABASE: {
+                URL: "https://brxygrzqrisdqpusplry.supabase.co",
+                ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyeHlncnpxcmlzZHFwdXNwbHJ5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE3MDMxMzIsImV4cCI6MjA4NzI3OTEzMn0.Or8lE6OMgV9wg2AJYdJP7DDpDiHhUBfB7xszlVPh8qw"
+            }
         };
 
         // ===== APP STATE =====
@@ -149,9 +210,67 @@
             userId: null
         };
 
+        // ===== SUPABASE INITIALIZATION =====
+        let supabase = null;
+        let isSupabaseConnected = false;
+
+        // Initialize Supabase
+        try {
+            supabase = supabaseClient.createClient(
+                CONFIG.SUPABASE.URL, 
+                CONFIG.SUPABASE.ANON_KEY
+            );
+            console.log('✅ Supabase initialized');
+        } catch (error) {
+            console.error('❌ Supabase init error:', error.message);
+        }
+
+        // Test connection
+        async function testSupabaseConnection() {
+            if (!supabase) return false;
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .select('count', { count: 'exact', head: true });
+                
+                if (error) {
+                    console.log('⚠️ Supabase connection failed:', error.message);
+                    return false;
+                }
+                console.log('✅ Supabase connected!');
+                return true;
+            } catch (error) {
+                console.log('⚠️ Supabase error:', error.message);
+                return false;
+            }
+        }
+
+        function showDbStatus(message, isConnected) {
+            const statusDiv = document.createElement('div');
+            statusDiv.className = `db-status ${isConnected ? 'db-connected' : 'db-disconnected'}`;
+            statusDiv.textContent = message;
+            
+            // Remove old status
+            const oldStatus = document.querySelector('.db-status');
+            if (oldStatus) oldStatus.remove();
+            
+            document.body.appendChild(statusDiv);
+        }
+
         // ===== INITIALIZE =====
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
             initializeApp();
+            
+            // Test Supabase connection
+            if (supabase) {
+                isSupabaseConnected = await testSupabaseConnection();
+                if (isSupabaseConnected) {
+                    showDbStatus('✅ Database connected', true);
+                } else {
+                    showDbStatus('⚠️ Using local storage only', false);
+                }
+            }
         });
 
         function initializeApp() {
@@ -183,6 +302,49 @@
             localStorage.setItem('adEarnUser', JSON.stringify(userData));
         }
 
+        // ===== DATABASE FUNCTIONS =====
+        async function saveUserToDB() {
+            if (!isSupabaseConnected || !userData.userId) return false;
+            
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .upsert({
+                        user_id: userData.userId.toString(),
+                        user_name: userData.userName,
+                        balance: userData.balance,
+                        weekly_ads: userData.weeklyAds,
+                        total_ads: userData.totalAds,
+                        last_seen: new Date().toISOString()
+                    }, { onConflict: 'user_id' });
+                
+                if (error) throw error;
+                return true;
+            } catch (error) {
+                console.log('⚠️ DB save failed:', error.message);
+                return false;
+            }
+        }
+
+        async function getLeaderboardFromDB() {
+            if (!isSupabaseConnected) return [];
+            
+            try {
+                const { data, error } = await supabase
+                    .from('users')
+                    .select('user_name, weekly_ads')
+                    .order('weekly_ads', { ascending: false })
+                    .limit(10);
+                
+                if (error) throw error;
+                return data || [];
+            } catch (error) {
+                console.log('⚠️ DB leaderboard failed:', error.message);
+                return [];
+            }
+        }
+
+        // ===== HOME PAGE =====
         function showHomePage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -219,12 +381,13 @@
                     🏆 Leaderboard
                 </button>
 
-                <div class="notice">
-                    <p>✅ App is working!</p>
-                </div>
+                <button onclick="showWithdrawPage()" class="btn btn-success">
+                    💸 Withdraw
+                </button>
             `;
         }
 
+        // ===== WATCH PAGE =====
         function showWatchPage() {
             document.getElementById('app').innerHTML = `
                 <header>
@@ -233,7 +396,7 @@
                 </header>
 
                 <div class="notice">
-                    <p>Click button to watch ad</p>
+                    <p>Click button to watch an ad and earn ${CONFIG.AD_REWARD.toFixed(5)} USDT</p>
                 </div>
 
                 <button onclick="startAd()" class="btn btn-primary" id="watchBtn">
@@ -242,20 +405,108 @@
             `;
         }
 
-        function showLeaderboardPage() {
+        // ===== LEADERBOARD PAGE =====
+        async function showLeaderboardPage() {
+            // Show loading
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" style="color: #666; text-decoration: none;">← Back</a>
+                    <h1>🏆 Leaderboard</h1>
+                </header>
+                <div style="text-align: center; padding: 50px;">Loading...</div>
+            `;
+            
+            // Get leaderboard data
+            let leaderboardData = [];
+            if (isSupabaseConnected) {
+                leaderboardData = await getLeaderboardFromDB();
+            }
+            
+            // If no data, use demo + user
+            if (leaderboardData.length === 0) {
+                leaderboardData = [
+                    { user_name: "CryptoKing", weekly_ads: 156 },
+                    { user_name: "AdMaster", weekly_ads: 128 },
+                    { user_name: "EarnPro", weekly_ads: 97 },
+                    { user_name: userData.userName, weekly_ads: userData.weeklyAds },
+                    { user_name: "BitcoinBuddy", weekly_ads: 45 }
+                ].sort((a, b) => b.weekly_ads - a.weekly_ads);
+            }
+            
+            // Display leaderboard
             document.getElementById('app').innerHTML = `
                 <header>
                     <a href="#" onclick="showHomePage(); return false;" style="color: #666; text-decoration: none;">← Back</a>
                     <h1>🏆 Leaderboard</h1>
                 </header>
 
-                <div class="notice">
-                    <p>Leaderboard will show here</p>
-                    <p>Your weekly ads: ${userData.weeklyAds}</p>
-                </div>
+                ${isSupabaseConnected ? 
+                    '<div class="notice" style="background: #d4edda; color: #155724;">✅ Live data from database</div>' : 
+                    '<div class="notice" style="background: #fff3cd; color: #856404;">⚠️ Demo data (database not connected)</div>'
+                }
+
+                ${leaderboardData.map((user, i) => `
+                    <div class="leaderboard-item" style="${user.user_name === userData.userName ? 'border: 2px solid #667eea;' : ''}">
+                        <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                        <div style="flex: 1;">
+                            <strong>${user.user_name} ${user.user_name === userData.userName ? '(You)' : ''}</strong>
+                            <div style="color: #666;">${user.weekly_ads} ads</div>
+                        </div>
+                        <div style="color: #28a745; font-weight: bold;">
+                            ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
+                        </div>
+                    </div>
+                `).join('')}
+
+                <button onclick="showLeaderboardPage()" class="btn btn-primary" style="margin-top: 20px;">
+                    🔄 Refresh
+                </button>
             `;
         }
 
+        // ===== WITHDRAW PAGE =====
+        function showWithdrawPage() {
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" style="color: #666; text-decoration: none;">← Back</a>
+                    <h1>💸 Withdraw</h1>
+                </header>
+
+                <div class="notice warning">
+                    <p>Min: ${CONFIG.MIN_WITHDRAWAL.toFixed(3)} USDT • Fee: ${CONFIG.WITHDRAWAL_FEE.toFixed(3)} USDT</p>
+                </div>
+
+                <input type="text" id="walletAddress" placeholder="Polygon address (0x...)" style="width: 100%; padding: 16px; border: 2px solid #ddd; border-radius: 12px; margin: 10px 0;">
+                <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL.toFixed(3)}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance.toFixed(5)}" step="0.001" style="width: 100%; padding: 16px; border: 2px solid #ddd; border-radius: 12px; margin: 10px 0;">
+
+                <button onclick="processWithdrawal()" class="btn btn-success">
+                    💸 Withdraw
+                </button>
+            `;
+        }
+
+        async function processWithdrawal() {
+            const address = document.getElementById('walletAddress').value.trim();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
+            if (!address || !address.startsWith('0x') || address.length !== 42) {
+                alert('Invalid Polygon address');
+                return;
+            }
+
+            if (amount < CONFIG.MIN_WITHDRAWAL || amount > userData.balance) {
+                alert('Invalid amount');
+                return;
+            }
+
+            userData.balance -= amount;
+            saveUserData();
+            
+            alert('Withdrawal requested!');
+            showHomePage();
+        }
+
+        // ===== AD FUNCTION =====
         async function startAd() {
             const watchBtn = document.getElementById('watchBtn');
             watchBtn.disabled = true;
@@ -273,6 +524,11 @@
                     userData.todayAds++;
                     userData.weeklyAds++;
                     saveUserData();
+                    
+                    // Try to save to database
+                    if (isSupabaseConnected) {
+                        saveUserToDB();
+                    }
                     
                     alert(`✅ You earned ${CONFIG.AD_REWARD.toFixed(5)} USDT!`);
                     showHomePage();
