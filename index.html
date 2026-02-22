@@ -759,6 +759,1975 @@
             <div class="modal-icon">🎁</div>
             <h2 id="dailyTitle">Daily Reward</h2>
             <p id="dailyRewardMessage"></p>
+            <button onclick="claimDailyReward()" class="btn btn-success" id="claimDailyBtn">Claim 0.0002 USDT</button>
+            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;" id="dailyLaterBtn">Maybe Later</button>
+        </div>
+    </div>
+
+    <!-- Reward Modal -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">🎉</div>
+            <h2 id="rewardTitle">Reward Received!</h2>
+            <p id="rewardMessage"></p>
+            <button onclick="closeRewardModal()" class="btn btn-success" id="rewardBtn">Awesome!</button>
+        </div>
+    </div>
+
+    <script>
+        // ===== LANGUAGE TRANSLATIONS =====
+        const LANGUAGES = {
+            en: {
+                // General
+                appName: "AdEarn",
+                appDesc: "Watch ads & earn USDT rewards!",
+                balance: "Your Balance",
+                welcome: "Welcome",
+                todayAds: "Today's Ads",
+                totalAds: "Total Ads",
+                weeklyAds: "Weekly Ads",
+                continue: "Continue",
+                close: "Close",
+                back: "← Back",
+                
+                // Buttons
+                watchAds: "📺 Watch Ads & Earn",
+                refer: "👥 Refer & Earn",
+                leaderboard: "🏆 Weekly Leaderboard",
+                withdraw: "💸 Withdraw USDT",
+                tasks: "📋 Complete Tasks",
+                
+                // Daily Reward
+                dailyReward: "Daily Reward",
+                dailyAvailable: "🎁 You have a daily reward waiting!",
+                dailyAmount: "💰 Amount: {amount} USDT",
+                dailyStreak: "🔥 Current Streak: {streak} days",
+                dailyClaimed: "⏳ Daily reward already claimed",
+                dailyNext: "Next reward available in {hours} hours",
+                dailyAround: "around {time}",
+                claimNow: "Claim {amount} USDT",
+                maybeLater: "Maybe Later",
+                
+                // Task Page
+                taskTitle: "📋 Complete Tasks",
+                taskDesc: "Earn extra rewards by completing tasks",
+                specialTask: "🔥 SPECIAL TASK",
+                taskReward: "{amount} USDT",
+                taskDescription: "Join our Telegram channel to earn rewards!",
+                taskRequirements: "📋 Requirements:",
+                req1: "Join the Telegram channel",
+                req2: "Stay for at least 30 seconds",
+                req3: "Come back and verify",
+                joinChannel: "🔗 Join Telegram Channel",
+                verifyTask: "✅ Verify & Claim Reward",
+                taskCompleted: "✅ Task Completed!",
+                taskCompletedDesc: "You've already completed this task",
+                
+                // Referral Page
+                referTitle: "👥 Refer & Earn",
+                referDesc: "Invite friends and earn rewards",
+                totalReferrals: "Total Referrals",
+                referralEarnings: "Referral Earnings",
+                yourLink: "Your Referral Link",
+                shareLink: "Share this link with friends:",
+                copyLink: "📋 Copy Link",
+                copied: "✅ Copied!",
+                howItWorks: "💰 How it works",
+                how1: "• Invite friends using your link",
+                how2: "• You earn {amount} USDT when they join",
+                how3: "• You also earn 5% of their ad earnings forever!",
+                how4: "• Your friends get a {bonus} USDT bonus",
+                yourReferrals: "Your Referrals ({count})",
+                noReferrals: "No referrals yet. Share your link to start earning!",
+                earned: "Earned: {amount} USDT",
+                ads: "{count} ads",
+                
+                // Success/Error messages
+                rewardEarned: "✅ You earned {amount} USDT!",
+                newBalance: "New balance: {amount} USDT",
+                dailyClaimed: "✅ Daily reward claimed!",
+                streak: "🔥 Streak: {streak} days",
+                withdrawalRequested: "Withdrawal requested! You will receive funds within 24 hours.",
+                invalidAddress: "Invalid Polygon address",
+                invalidAmount: "Invalid amount",
+                copiedSuccess: "Link copied to clipboard!",
+                taskCompletedSuccess: "✅ Task completed! You earned {amount} USDT!",
+                alreadyCompleted: "You've already completed this task",
+                verifyFirst: "Please join the channel first before verifying"
+            },
+            es: {
+                // Spanish
+                appName: "AdEarn",
+                appDesc: "¡Mira anuncios y gana USDT!",
+                balance: "Tu Saldo",
+                welcome: "Bienvenido",
+                todayAds: "Anuncios Hoy",
+                totalAds: "Total Anuncios",
+                weeklyAds: "Anuncios Semanales",
+                continue: "Continuar",
+                close: "Cerrar",
+                back: "← Atrás",
+                
+                watchAds: "📺 Ver Anuncios y Ganar",
+                refer: "👥 Referir y Ganar",
+                leaderboard: "🏆 Clasificación Semanal",
+                withdraw: "💸 Retirar USDT",
+                tasks: "📋 Completar Tareas",
+                
+                dailyReward: "Recompensa Diaria",
+                dailyAvailable: "🎁 ¡Tienes una recompensa diaria esperando!",
+                dailyAmount: "💰 Cantidad: {amount} USDT",
+                dailyStreak: "🔥 Racha Actual: {streak} días",
+                dailyClaimed: "⏳ Recompensa diaria ya reclamada",
+                dailyNext: "Próxima recompensa en {hours} horas",
+                dailyAround: "alrededor de {time}",
+                claimNow: "Reclamar {amount} USDT",
+                maybeLater: "Quizás Después",
+                
+                taskTitle: "📋 Completar Tareas",
+                taskDesc: "Gana recompensas extra completando tareas",
+                specialTask: "🔥 TAREA ESPECIAL",
+                taskReward: "{amount} USDT",
+                taskDescription: "¡Únete a nuestro canal de Telegram para ganar recompensas!",
+                taskRequirements: "📋 Requisitos:",
+                req1: "Únete al canal de Telegram",
+                req2: "Permanece al menos 30 segundos",
+                req3: "Regresa y verifica",
+                joinChannel: "🔗 Unirse al Canal de Telegram",
+                verifyTask: "✅ Verificar y Reclamar",
+                taskCompleted: "✅ ¡Tarea Completada!",
+                taskCompletedDesc: "Ya has completado esta tarea",
+                
+                referTitle: "👥 Referir y Ganar",
+                referDesc: "Invita amigos y gana recompensas",
+                totalReferrals: "Total Referidos",
+                referralEarnings: "Ganancias por Referidos",
+                yourLink: "Tu Enlace de Referido",
+                shareLink: "Comparte este enlace con amigos:",
+                copyLink: "📋 Copiar Enlace",
+                copied: "✅ ¡Copiado!",
+                howItWorks: "💰 Cómo funciona",
+                how1: "• Invita amigos usando tu enlace",
+                how2: "• Ganas {amount} USDT cuando se unen",
+                how3: "• También ganas 5% de sus ganancias de anuncios",
+                how4: "• Tus amigos reciben {bonus} USDT de bonificación",
+                yourReferrals: "Tus Referidos ({count})",
+                noReferrals: "Aún no tienes referidos. ¡Comparte tu enlace para comenzar!",
+                earned: "Ganado: {amount} USDT",
+                ads: "{count} anuncios",
+                
+                rewardEarned: "✅ ¡Ganaste {amount} USDT!",
+                newBalance: "Nuevo saldo: {amount} USDT",
+                dailyClaimed: "✅ ¡Recompensa diaria reclamada!",
+                streak: "🔥 Racha: {streak} días",
+                withdrawalRequested: "¡Solicitud de retiro enviada! Recibirás los fondos en 24 horas.",
+                invalidAddress: "Dirección Polygon inválida",
+                invalidAmount: "Cantidad inválida",
+                copiedSuccess: "¡Enlace copiado al portapapeles!",
+                taskCompletedSuccess: "✅ ¡Tarea completada! Ganaste {amount} USDT!",
+                alreadyCompleted: "Ya has completado esta tarea",
+                verifyFirst: "Por favor únete al canal primero antes de verificar"
+            },
+            fr: {
+                // French
+                appName: "AdEarn",
+                appDesc: "Regardez des pubs et gagnez des USDT!",
+                balance: "Votre Solde",
+                welcome: "Bienvenue",
+                todayAds: "Pubs Aujourd'hui",
+                totalAds: "Total Pubs",
+                weeklyAds: "Pubs Hebdo",
+                continue: "Continuer",
+                close: "Fermer",
+                back: "← Retour",
+                
+                watchAds: "📺 Voir Pubs et Gagner",
+                refer: "👥 Parrainer et Gagner",
+                leaderboard: "🏆 Classement Hebdo",
+                withdraw: "💸 Retirer USDT",
+                tasks: "📋 Compléter Tâches",
+                
+                dailyReward: "Récompense Quotidienne",
+                dailyAvailable: "🎁 Une récompense quotidienne vous attend!",
+                dailyAmount: "💰 Montant: {amount} USDT",
+                dailyStreak: "🔥 Séquence: {streak} jours",
+                dailyClaimed: "⏳ Récompense déjà réclamée",
+                dailyNext: "Prochaine récompense dans {hours} heures",
+                dailyAround: "vers {time}",
+                claimNow: "Réclamer {amount} USDT",
+                maybeLater: "Plus Tard",
+                
+                taskTitle: "📋 Compléter Tâches",
+                taskDesc: "Gagnez des récompenses supplémentaires",
+                specialTask: "🔥 TÂCHE SPÉCIALE",
+                taskReward: "{amount} USDT",
+                taskDescription: "Rejoignez notre chaîne Telegram!",
+                taskRequirements: "📋 Conditions:",
+                req1: "Rejoindre la chaîne Telegram",
+                req2: "Rester 30 secondes",
+                req3: "Revenir et vérifier",
+                joinChannel: "🔗 Rejoindre Telegram",
+                verifyTask: "✅ Vérifier et Réclamer",
+                taskCompleted: "✅ Tâche Complétée!",
+                taskCompletedDesc: "Vous avez déjà complété cette tâche",
+                
+                referTitle: "👥 Parrainer et Gagner",
+                referDesc: "Invitez des amis et gagnez",
+                totalReferrals: "Total Filleuls",
+                referralEarnings: "Gains Parrainage",
+                yourLink: "Votre Lien",
+                shareLink: "Partagez ce lien:",
+                copyLink: "📋 Copier",
+                copied: "✅ Copié!",
+                howItWorks: "💰 Comment ça marche",
+                how1: "• Invitez des amis avec votre lien",
+                how2: "• Gagnez {amount} USDT quand ils rejoignent",
+                how3: "• Gagnez 5% de leurs gains de pubs",
+                how4: "• Vos amis reçoivent {bonus} USDT",
+                yourReferrals: "Vos Filleuls ({count})",
+                noReferrals: "Pas encore de filleuls. Partagez votre lien!",
+                earned: "Gagné: {amount} USDT",
+                ads: "{count} pubs",
+                
+                rewardEarned: "✅ Vous avez gagné {amount} USDT!",
+                newBalance: "Nouveau solde: {amount} USDT",
+                dailyClaimed: "✅ Récompense quotidienne réclamée!",
+                streak: "🔥 Séquence: {streak} jours",
+                withdrawalRequested: "Demande de retrait envoyée!",
+                invalidAddress: "Adresse Polygon invalide",
+                invalidAmount: "Montant invalide",
+                copiedSuccess: "Lien copié!",
+                taskCompletedSuccess: "✅ Tâche complétée! +{amount} USDT!",
+                alreadyCompleted: "Tâche déjà complétée",
+                verifyFirst: "Rejoignez d'abord le canal"
+            },
+            de: {
+                // German
+                appName: "AdEarn",
+                appDesc: "Sehen Sie Anzeigen und verdienen Sie USDT!",
+                balance: "Ihr Guthaben",
+                welcome: "Willkommen",
+                todayAds: "Heutige Anzeigen",
+                totalAds: "Gesamt Anzeigen",
+                weeklyAds: "Wöchentliche Anzeigen",
+                continue: "Weiter",
+                close: "Schließen",
+                back: "← Zurück",
+                
+                watchAds: "📺 Anzeigen Sehen",
+                refer: "👥 Empfehlen",
+                leaderboard: "🏆 Rangliste",
+                withdraw: "💸 USDT Abheben",
+                tasks: "📋 Aufgaben",
+                
+                dailyReward: "Tägliche Belohnung",
+                dailyAvailable: "🎁 Tägliche Belohnung verfügbar!",
+                dailyAmount: "💰 Betrag: {amount} USDT",
+                dailyStreak: "🔥 Serie: {streak} Tage",
+                dailyClaimed: "⏳ Bereits abgeholt",
+                dailyNext: "Nächste in {hours} Stunden",
+                dailyAround: "um {time}",
+                claimNow: "{amount} USDT Abholen",
+                maybeLater: "Später",
+                
+                taskTitle: "📋 Aufgaben",
+                taskDesc: "Verdiene Extrabelohnungen",
+                specialTask: "🔥 SPEZIALAUFGABE",
+                taskReward: "{amount} USDT",
+                taskDescription: "Tritt unserem Telegram-Kanal bei!",
+                taskRequirements: "📋 Anforderungen:",
+                req1: "Telegram-Kanal beitreten",
+                req2: "30 Sekunden bleiben",
+                req3: "Zurückkommen und bestätigen",
+                joinChannel: "🔗 Telegram Beitreten",
+                verifyTask: "✅ Bestätigen",
+                taskCompleted: "✅ Aufgabe Erledigt!",
+                taskCompletedDesc: "Aufgabe bereits erledigt",
+                
+                referTitle: "👥 Empfehlen & Verdienen",
+                referDesc: "Lade Freunde ein",
+                totalReferrals: "Empfehlungen",
+                referralEarnings: "Verdienste",
+                yourLink: "Ihr Link",
+                shareLink: "Teilen Sie diesen Link:",
+                copyLink: "📋 Kopieren",
+                copied: "✅ Kopiert!",
+                howItWorks: "💰 So funktioniert's",
+                how1: "• Freunde einladen",
+                how2: "• {amount} USDT pro Freund",
+                how3: "• 5% ihrer Anzeigen-Einnahmen",
+                how4: "• Freunde erhalten {bonus} USDT",
+                yourReferrals: "Ihre Freunde ({count})",
+                noReferrals: "Noch keine Freunde. Teilen Sie Ihren Link!",
+                earned: "Verdient: {amount} USDT",
+                ads: "{count} Anzeigen",
+                
+                rewardEarned: "✅ Sie haben {amount} USDT verdient!",
+                newBalance: "Neues Guthaben: {amount} USDT",
+                dailyClaimed: "✅ Tägliche Belohnung abgeholt!",
+                streak: "🔥 Serie: {streak} Tage",
+                withdrawalRequested: "Auszahlung beantragt!",
+                invalidAddress: "Ungültige Polygon-Adresse",
+                invalidAmount: "Ungültiger Betrag",
+                copiedSuccess: "Link kopiert!",
+                taskCompletedSuccess: "✅ Aufgabe erledigt! +{amount} USDT!",
+                alreadyCompleted: "Bereits erledigt",
+                verifyFirst: "Bitte zuerst Kanal beitreten"
+            },
+            hi: {
+                // Hindi
+                appName: "AdEarn",
+                appDesc: "विज्ञापन देखें और USDT कमाएं!",
+                balance: "आपका बैलेंस",
+                welcome: "स्वागत है",
+                todayAds: "आज के विज्ञापन",
+                totalAds: "कुल विज्ञापन",
+                weeklyAds: "साप्ताहिक विज्ञापन",
+                continue: "जारी रखें",
+                close: "बंद करें",
+                back: "← वापस",
+                
+                watchAds: "📺 विज्ञापन देखें",
+                refer: "👥 रेफर करें",
+                leaderboard: "🏆 लीडरबोर्ड",
+                withdraw: "💸 USDT निकालें",
+                tasks: "📋 कार्य पूरा करें",
+                
+                dailyReward: "दैनिक इनाम",
+                dailyAvailable: "🎁 आपका दैनिक इनाम इंतजार कर रहा है!",
+                dailyAmount: "💰 राशि: {amount} USDT",
+                dailyStreak: "🔥 लगातार: {streak} दिन",
+                dailyClaimed: "⏳ दैनिक इनाम पहले ही लिया जा चुका है",
+                dailyNext: "अगला इनाम {hours} घंटे में",
+                dailyAround: "लगभग {time}",
+                claimNow: "{amount} USDT लें",
+                maybeLater: "बाद में",
+                
+                taskTitle: "📋 कार्य पूरा करें",
+                taskDesc: "अतिरिक्त इनाम कमाएं",
+                specialTask: "🔥 विशेष कार्य",
+                taskReward: "{amount} USDT",
+                taskDescription: "हमारे Telegram चैनल से जुड़ें!",
+                taskRequirements: "📋 आवश्यकताएं:",
+                req1: "Telegram चैनल से जुड़ें",
+                req2: "30 सेकंड रुकें",
+                req3: "वापस आकर सत्यापित करें",
+                joinChannel: "🔗 Telegram से जुड़ें",
+                verifyTask: "✅ सत्यापित करें",
+                taskCompleted: "✅ कार्य पूरा हुआ!",
+                taskCompletedDesc: "आप यह कार्य पहले ही पूरा कर चुके हैं",
+                
+                referTitle: "👥 रेफर करें और कमाएं",
+                referDesc: "दोस्तों को आमंत्रित करें",
+                totalReferrals: "कुल रेफरल",
+                referralEarnings: "रेफरल कमाई",
+                yourLink: "आपका रेफरल लिंक",
+                shareLink: "यह लिंक दोस्तों के साथ साझा करें:",
+                copyLink: "📋 कॉपी करें",
+                copied: "✅ कॉपी हो गया!",
+                howItWorks: "💰 यह कैसे काम करता है",
+                how1: "• अपने लिंक से दोस्तों को आमंत्रित करें",
+                how2: "• {amount} USDT कमाएं जब वे जुड़ें",
+                how3: "• उनकी कमाई का 5% हमेशा के लिए पाएं",
+                how4: "• आपके दोस्तों को {bonus} USDT बोनस मिलेगा",
+                yourReferrals: "आपके रेफरल ({count})",
+                noReferrals: "अभी तक कोई रेफरल नहीं। अपना लिंक साझा करें!",
+                earned: "कमाई: {amount} USDT",
+                ads: "{count} विज्ञापन",
+                
+                rewardEarned: "✅ आपने {amount} USDT कमाए!",
+                newBalance: "नया बैलेंस: {amount} USDT",
+                dailyClaimed: "✅ दैनिक इनाम मिल गया!",
+                streak: "🔥 लगातार: {streak} दिन",
+                withdrawalRequested: "निकासी का अनुरोध किया गया!",
+                invalidAddress: "अमान्य Polygon पता",
+                invalidAmount: "अमान्य राशि",
+                copiedSuccess: "लिंक कॉपी हो गया!",
+                taskCompletedSuccess: "✅ कार्य पूरा हुआ! +{amount} USDT!",
+                alreadyCompleted: "यह कार्य पहले ही पूरा हो चुका है",
+                verifyFirst: "कृपया पहले चैनल से जुड़ें"
+            }
+        };
+
+        // ===== CONFIGURATION =====
+        const CONFIG = {
+            AD_REWARD: 0.00005,
+            DAILY_REWARD: 0.0002,
+            TASK_REWARD: 0.0003,
+            MIN_WITHDRAWAL: 0.015,
+            WITHDRAWAL_FEE: 0.001,
+            WEEKLY_PRIZES: [0.5, 0.3, 0.1],
+            ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
+            ADMIN_CHAT_ID: "6450016040",
+            REFERRAL_REWARD: 0.0001,
+            BOT_USERNAME: "earnmoneyapppbot",  // Updated bot username
+            TASK_CHANNEL: "adwatch2",           // Task channel
+            
+            // AdsGram
+            ADSGRAM: {
+                BLOCK_ID: "23020"
+            }
+        };
+
+        // ===== CURRENT LANGUAGE =====
+        let currentLang = 'en';
+
+        // ===== TRANSLATION FUNCTION =====
+        function t(key, replacements = {}) {
+            let text = LANGUAGES[currentLang][key] || LANGUAGES.en[key] || key;
+            
+            // Replace placeholders
+            for (const [placeholder, value] of Object.entries(replacements)) {
+                text = text.replace(`{${placeholder}}`, value);
+            }
+            
+            return text;
+        }
+
+        // ===== LANGUAGE SELECTOR =====
+        function showLanguageSelector() {
+            const languages = [
+                { code: 'en', name: '🇬🇧 EN' },
+                { code: 'es', name: '🇪🇸 ES' },
+                { code: 'fr', name: '🇫🇷 FR' },
+                { code: 'de', name: '🇩🇪 DE' },
+                { code: 'hi', name: '🇮🇳 HI' }
+            ];
+            
+            return `
+                <div class="language-selector">
+                    ${languages.map(lang => `
+                        <button class="lang-btn ${currentLang === lang.code ? 'active' : ''}" onclick="setLanguage('${lang.code}')">
+                            ${lang.name}
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function setLanguage(langCode) {
+            if (LANGUAGES[langCode]) {
+                currentLang = langCode;
+                localStorage.setItem('preferredLanguage', langCode);
+                
+                // Refresh current page
+                const currentPage = sessionStorage.getItem('currentPage') || 'home';
+                switch(currentPage) {
+                    case 'home': showHomePage(); break;
+                    case 'watch': showWatchPage(); break;
+                    case 'tasks': showTasksPage(); break;
+                    case 'referral': showReferralPage(); break;
+                    case 'leaderboard': showLeaderboardPage(); break;
+                    case 'withdraw': showWithdrawPage(); break;
+                }
+            }
+        }
+
+        // ===== APP STATE =====
+        let userData = {
+            balance: 0.00000,
+            totalAds: 0,
+            todayAds: 0,
+            weeklyAds: 0,
+            userName: "User",
+            userId: null,
+            polygonAddress: "",
+            lastDailyClaim: null,
+            dailyStreak: 0,
+            referralCode: null,
+            referrals: [],
+            referralEarnings: 0,
+            referredBy: null,
+            completedTasks: []  // Track completed tasks
+        };
+
+        // ===== INITIALIZE =====
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved language preference
+            const savedLang = localStorage.getItem('preferredLanguage');
+            if (savedLang && LANGUAGES[savedLang]) {
+                currentLang = savedLang;
+            }
+            
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Get Telegram user info
+            if (typeof Telegram !== 'undefined') {
+                const tg = window.Telegram.WebApp;
+                tg.expand();
+                
+                if (tg.initDataUnsafe?.user) {
+                    userData.userId = tg.initDataUnsafe.user.id;
+                    userData.userName = tg.initDataUnsafe.user.first_name || "User";
+                    if (tg.initDataUnsafe.user.username) {
+                        userData.userName = "@" + tg.initDataUnsafe.user.username;
+                    }
+                }
+            }
+            
+            loadUserData();
+            
+            // Generate referral code if not exists
+            if (!userData.referralCode) {
+                userData.referralCode = generateReferralCode();
+                saveUserData();
+            }
+            
+            showHomePage();
+        }
+
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+
+        function loadUserData() {
+            const saved = localStorage.getItem('adEarnUser');
+            if (saved) {
+                const data = JSON.parse(saved);
+                const today = new Date().toDateString();
+                
+                if (data.lastLogin !== today) {
+                    data.todayAds = 0;
+                }
+                
+                userData = { ...userData, ...data };
+                userData.lastLogin = today;
+            }
+            saveUserData();
+        }
+
+        function saveUserData() {
+            localStorage.setItem('adEarnUser', JSON.stringify(userData));
+        }
+
+        // ===== DAILY REWARD FUNCTIONS =====
+        function checkDailyReward() {
+            if (!userData.lastDailyClaim) return true;
+            
+            const lastClaim = new Date(userData.lastDailyClaim);
+            const now = new Date();
+            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+            return hoursSinceLastClaim >= 24;
+        }
+
+        function getDailyRewardStatus() {
+            if (!userData.lastDailyClaim) return 'available';
+            
+            const lastClaim = new Date(userData.lastDailyClaim);
+            const now = new Date();
+            const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+            
+            if (hoursSinceLastClaim >= 24) return 'available';
+            
+            const hoursLeft = 24 - hoursSinceLastClaim;
+            const nextClaimTime = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
+            return { status: 'claimed', hoursLeft, nextClaimTime };
+        }
+
+        function showDailyRewardModal() {
+            const status = getDailyRewardStatus();
+            
+            if (status === 'available') {
+                document.getElementById('dailyRewardMessage').innerHTML = 
+                    `${t('dailyAvailable')}<br><br>` +
+                    `${t('dailyAmount', {amount: CONFIG.DAILY_REWARD.toFixed(5)})}<br>` +
+                    `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
+                document.getElementById('claimDailyBtn').style.display = 'block';
+                document.getElementById('claimDailyBtn').innerHTML = t('claimNow', {amount: CONFIG.DAILY_REWARD.toFixed(5)});
+            } else {
+                const hoursLeft = Math.ceil(status.hoursLeft);
+                const nextTime = status.nextClaimTime.toLocaleTimeString();
+                document.getElementById('dailyRewardMessage').innerHTML = 
+                    `${t('dailyClaimed')}<br><br>` +
+                    `${t('dailyNext', {hours: hoursLeft})}<br>` +
+                    `${t('dailyAround', {time: nextTime})}<br><br>` +
+                    `${t('dailyStreak', {streak: userData.dailyStreak || 0})}`;
+                document.getElementById('claimDailyBtn').style.display = 'none';
+            }
+            
+            document.getElementById('dailyTitle').innerHTML = t('dailyReward');
+            document.getElementById('dailyLaterBtn').innerHTML = t('maybeLater');
+            document.getElementById('dailyRewardModal').style.display = 'flex';
+        }
+
+        function claimDailyReward() {
+            if (!checkDailyReward()) {
+                closeModal();
+                showError('Daily reward not available yet!');
+                return;
+            }
+            
+            // Update streak
+            const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
+            const now = new Date();
+            
+            if (lastClaim) {
+                const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+                if (hoursSinceLastClaim < 48) {
+                    userData.dailyStreak = (userData.dailyStreak || 0) + 1;
+                } else {
+                    userData.dailyStreak = 1;
+                }
+            } else {
+                userData.dailyStreak = 1;
+            }
+            
+            // Add reward
+            userData.balance += CONFIG.DAILY_REWARD;
+            userData.lastDailyClaim = now.toISOString();
+            saveUserData();
+            
+            closeModal();
+            showSuccess(
+                `${t('dailyClaimed')}<br>` +
+                `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
+                `${t('streak', {streak: userData.dailyStreak})}`
+            );
+            showHomePage();
+        }
+
+        // ===== TASK FUNCTIONS =====
+        function showTasksPage() {
+            sessionStorage.setItem('currentPage', 'tasks');
+            const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>${t('taskTitle')}</h1>
+                    <p>${t('taskDesc')}</p>
+                    ${showLanguageSelector()}
+                </header>
+
+                <div class="task-container">
+                    <div class="task-card">
+                        <div class="task-icon">🔥</div>
+                        <div class="task-title">${t('specialTask')}</div>
+                        <div class="task-reward">${t('taskReward', {amount: CONFIG.TASK_REWARD.toFixed(5)})}</div>
+                        <div class="task-description">${t('taskDescription')}</div>
+                        
+                        <div class="task-requirements">
+                            <strong>${t('taskRequirements')}</strong>
+                            <ul style="margin-top: 10px;">
+                                <li>${t('req1')}</li>
+                                <li>${t('req2')}</li>
+                                <li>${t('req3')}</li>
+                            </ul>
+                        </div>
+
+                        ${!isTaskCompleted ? `
+                            <a href="https://t.me/${CONFIG.TASK_CHANNEL}" target="_blank" class="telegram-btn" id="joinChannelBtn">
+                                ${t('joinChannel')}
+                            </a>
+                            
+                            <button onclick="verifyTask()" class="verify-btn" id="verifyTaskBtn">
+                                ${t('verifyTask')}
+                            </button>
+                        ` : `
+                            <div class="completed-badge">
+                                ✅ ${t('taskCompleted')}<br>
+                                <small>${t('taskCompletedDesc')}</small>
+                            </div>
+                        `}
+                    </div>
+
+                    <button onclick="showHomePage()" class="btn btn-secondary">${t('back')}</button>
+                </div>
+            `;
+        }
+
+        function verifyTask() {
+            const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
+            
+            if (isTaskCompleted) {
+                showError(t('alreadyCompleted'));
+                return;
+            }
+            
+            // In a real app, you'd verify with Telegram API
+            // For demo, we'll simulate verification
+            showSuccess(t('verifyFirst'));
+            
+            // Simulate user joining after 2 seconds
+            setTimeout(() => {
+                // Mark task as completed
+                if (!userData.completedTasks) userData.completedTasks = [];
+                userData.completedTasks.push('telegram_join');
+                
+                // Add reward
+                userData.balance += CONFIG.TASK_REWARD;
+                saveUserData();
+                
+                showSuccess(t('taskCompletedSuccess', {amount: CONFIG.TASK_REWARD.toFixed(5)}));
+                showTasksPage();
+            }, 2000);
+        }
+
+        // ===== REFERRAL FUNCTIONS =====
+        function showReferralPage() {
+            sessionStorage.setItem('currentPage', 'referral');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>${t('referTitle')}</h1>
+                    <p>${t('referDesc')}</p>
+                    ${showLanguageSelector()}
+                </header>
+
+                <div class="referral-stats">
+                    <div class="referral-box">
+                        <div>${t('totalReferrals')}</div>
+                        <div class="number">${userData.referrals.length}</div>
+                    </div>
+                    <div class="referral-box">
+                        <div>${t('referralEarnings')}</div>
+                        <div class="number">${userData.referralEarnings.toFixed(5)}</div>
+                    </div>
+                </div>
+
+                <div class="referral-link-box">
+                    <h3>${t('yourLink')}</h3>
+                    <p style="color: #666; margin: 10px 0;">${t('shareLink')}</p>
+                    <textarea id="referralLink" rows="2" readonly>https://t.me/${CONFIG.BOT_USERNAME}/Open?startapp=${userData.referralCode}</textarea>
+                    <button onclick="copyReferralLink()" class="copy-btn" id="copyBtn">${t('copyLink')}</button>
+                </div>
+
+                <div class="notice success-notice">
+                    <h3>${t('howItWorks')}</h3>
+                    <p>${t('how1')}</p>
+                    <p>${t('how2', {amount: CONFIG.REFERRAL_REWARD.toFixed(5)})}</p>
+                    <p>${t('how3')}</p>
+                    <p>${t('how4', {bonus: CONFIG.AD_REWARD.toFixed(5)})}</p>
+                </div>
+
+                <h3>${t('yourReferrals', {count: userData.referrals.length})}</h3>
+                <div class="friend-list" id="referralList">
+                    ${generateReferralList()}
+                </div>
+
+                <button onclick="showHomePage()" class="btn btn-secondary">${t('back')}</button>
+            `;
+        }
+
+        function generateReferralList() {
+            if (userData.referrals.length === 0) {
+                return `
+                    <div class="notice">
+                        <p>${t('noReferrals')}</p>
+                    </div>
+                `;
+            }
+            
+            return userData.referrals.map(ref => `
+                <div class="friend-item">
+                    <div class="friend-avatar">${ref.name.charAt(0)}</div>
+                    <div class="friend-info">
+                        <div class="friend-name">${ref.name}</div>
+                        <div class="friend-earned">${t('earned', {amount: ref.earned.toFixed(5)})}</div>
+                    </div>
+                    <span class="badge">${t('ads', {count: ref.ads || 0})}</span>
+                </div>
+            `).join('');
+        }
+
+        function copyReferralLink() {
+            const link = document.getElementById('referralLink');
+            link.select();
+            document.execCommand('copy');
+            
+            const btn = document.getElementById('copyBtn');
+            const originalText = btn.textContent;
+            btn.textContent = t('copied');
+            btn.style.background = '#28a745';
+            
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.background = '#28a745';
+            }, 2000);
+        }
+
+        // ===== CHECK FOR REFERRAL IN URL =====
+        function checkForReferral() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const startParam = urlParams.get('startapp');
+            
+            if (startParam && startParam !== userData.referralCode && !userData.referredBy) {
+                processReferral(startParam);
+            }
+        }
+
+        function processReferral(referralCode) {
+            userData.referredBy = referralCode;
+            userData.balance += CONFIG.AD_REWARD;
+            saveUserData();
+            
+            showSuccess(`🎉 Welcome! You got a ${CONFIG.AD_REWARD.toFixed(5)} USDT bonus from your friend!`);
+        }
+
+        function addReferral(referralName, referralId) {
+            userData.referrals.push({
+                name: referralName,
+                id: referralId,
+                earned: 0,
+                ads: 0,
+                joined: new Date().toISOString()
+            });
+            saveUserData();
+        }
+
+        // ===== HOME PAGE =====
+        function showHomePage() {
+            sessionStorage.setItem('currentPage', 'home');
+            const dailyStatus = getDailyRewardStatus();
+            const isDailyAvailable = dailyStatus === 'available';
+            
+            document.getElementById('app').innerHTML = `
+                ${showLanguageSelector()}
+                
+                <div class="daily-reward-icon ${!isDailyAvailable ? 'claimed' : ''}" onclick="${isDailyAvailable ? 'showDailyRewardModal()' : ''}">
+                    <span class="icon">🎁</span>
+                    <span class="text">${t('dailyReward')}</span>
+                    ${isDailyAvailable ? '<span class="daily-reward-badge">!</span>' : ''}
+                </div>
+
+                <header>
+                    <h1>🤑 ${t('appName')}</h1>
+                    <p>${t('appDesc')}</p>
+                </header>
+
+                <div class="user-card">
+                    <h3>${t('balance')}</h3>
+                    <div class="balance">${userData.balance.toFixed(5)} USDT</div>
+                    <p>${t('welcome')}, ${userData.userName}!</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">${t('todayAds')}</span>
+                        <span class="stat-value">${userData.todayAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">${t('totalAds')}</span>
+                        <span class="stat-value">${userData.totalAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">${t('weeklyAds')}</span>
+                        <span class="stat-value">${userData.weeklyAds}</span>
+                    </div>
+                </div>
+
+                <button onclick="showWatchPage()" class="btn btn-primary">
+                    ${t('watchAds')} ${CONFIG.AD_REWARD.toFixed(5)} USDT
+                </button>
+
+                <button onclick="showTasksPage()" class="btn btn-task">
+                    ${t('tasks')}
+                </button>
+
+                <button onclick="showReferralPage()" class="btn btn-info">
+                    ${t('refer')} (${userData.referrals.length})
+                </button>
+
+                <button onclick="showLeaderboardPage()" class="btn btn-warning">
+                    ${t('leaderboard')}
+                </button>
+
+                <button onclick="showWithdrawPage()" class="btn btn-success">
+                    ${t('withdraw')}
+                </button>
+
+                <div class="adsgram-badge">
+                    <strong>✅ AdsGram Ready</strong><br>
+                    Block ID: ${CONFIG.ADSGRAM.BLOCK_ID}
+                </div>
+
+                <div class="notice">
+                    <p><strong>💰 ${t('weeklyPrizes')}:</strong> 1st: 0.5 USDT | 2nd: 0.3 USDT | 3rd: 0.1 USDT</p>
+                </div>
+            `;
+        }
+
+        // ===== WATCH PAGE =====
+        function showWatchPage() {
+            sessionStorage.setItem('currentPage', 'watch');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>📺 ${t('watchAds')}</h1>
+                    <p>${t('earnPerAd', {amount: CONFIG.AD_REWARD.toFixed(5)})}</p>
+                    ${showLanguageSelector()}
+                </header>
+
+                <div class="notice success-notice">
+                    <p><strong>💰 ${t('rewardPerAd')}:</strong> ${CONFIG.AD_REWARD.toFixed(5)} USDT</p>
+                    <p><strong>🆔 ${t('yourId')}:</strong> ${userData.userId || userData.userName || 'guest'}</p>
+                </div>
+
+                <div class="ad-container" id="adContainer">
+                    <div class="ad-icon">📱</div>
+                    <h2>${t('readyToEarn')}</h2>
+                    <p>${t('clickToWatch')}</p>
+                </div>
+
+                <button onclick="startAd()" class="btn btn-primary" id="watchBtn">
+                    ▶️ ${t('watchAdEarn', {amount: CONFIG.AD_REWARD.toFixed(5)})}
+                </button>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">${t('today')}</span>
+                        <span class="stat-value">${userData.todayAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">${t('balance')}</span>
+                        <span class="stat-value">${userData.balance.toFixed(5)}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">${t('earnedToday')}</span>
+                        <span class="stat-value">${(userData.todayAds * CONFIG.AD_REWARD).toFixed(5)}</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ===== ADSGRAM AD FUNCTION =====
+        async function startAd() {
+            const watchBtn = document.getElementById('watchBtn');
+            const adContainer = document.getElementById('adContainer');
+            
+            watchBtn.disabled = true;
+            watchBtn.innerHTML = '<span class="loading-spinner"></span> ' + t('loading');
+            
+            adContainer.innerHTML = `
+                <div class="ad-icon">⏳</div>
+                <h2>${t('loadingAd')}</h2>
+                <p>${t('pleaseWait')}</p>
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: 30%"></div>
+                </div>
+            `;
+
+            try {
+                if (typeof window.Adsgram === 'undefined') {
+                    throw new Error('AdsGram SDK not loaded');
+                }
+
+                const AdController = window.Adsgram.init({ 
+                    blockId: CONFIG.ADSGRAM.BLOCK_ID
+                });
+
+                adContainer.innerHTML = `
+                    <div class="ad-icon">🎬</div>
+                    <h2>${t('adStarted')}</h2>
+                    <p>${t('watchComplete')}</p>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                `;
+
+                AdController.show().then((result) => {
+                    console.log('✅ Ad completed:', result);
+                    
+                    userData.balance += CONFIG.AD_REWARD;
+                    userData.totalAds++;
+                    userData.todayAds++;
+                    userData.weeklyAds++;
+                    saveUserData();
+                    
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">🎉</div>
+                        <h2>${t('adCompleted')}</h2>
+                        <p>✅ ${t('youEarned', {amount: CONFIG.AD_REWARD.toFixed(5)})}</p>
+                        <p>${t('newBalance', {amount: userData.balance.toFixed(5)})}</p>
+                    `;
+                    
+                    setTimeout(() => showWatchPage(), 2000);
+                    
+                }).catch((result) => {
+                    console.error('❌ Ad error:', result);
+                    
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">❌</div>
+                        <h2>${t('adError')}</h2>
+                        <p>${t('tryAgain')}</p>
+                    `;
+                    
+                    watchBtn.disabled = false;
+                    watchBtn.innerHTML = '▶️ ' + t('tryAgain');
+                });
+
+            } catch (error) {
+                console.error('AdsGram error:', error);
+                
+                adContainer.innerHTML = `
+                    <div class="ad-icon">⚠️</div>
+                    <h2>${t('usingTestAd')}</h2>
+                    <p>${error.message || t('failedToLoad')}</p>
+                `;
+                
+                setTimeout(() => showSimulatedAd(), 1500);
+            }
+        }
+
+        function showSimulatedAd() {
+            const watchBtn = document.getElementById('watchBtn');
+            const adContainer = document.getElementById('adContainer');
+            let secondsLeft = 5;
+            
+            adContainer.innerHTML = `
+                <div class="ad-icon">📺</div>
+                <h2>${t('testAd')}</h2>
+                <p>${t('completesIn')} <span id="adTimer">5</span> ${t('seconds')}</p>
+                <div class="timer" id="timerDisplay">5</div>
+                <div class="progress-bar">
+                    <div id="progressFill" class="progress-fill" style="width: 0%"></div>
+                </div>
+            `;
+            
+            const timer = setInterval(() => {
+                secondsLeft--;
+                const timerEl = document.getElementById('adTimer');
+                const timerDisplay = document.getElementById('timerDisplay');
+                const progressFill = document.getElementById('progressFill');
+                
+                if (timerEl) timerEl.textContent = secondsLeft;
+                if (timerDisplay) timerDisplay.textContent = secondsLeft;
+                if (progressFill) {
+                    progressFill.style.width = ((5 - secondsLeft) / 5) * 100 + '%';
+                }
+                
+                if (secondsLeft <= 0) {
+                    clearInterval(timer);
+                    
+                    userData.balance += CONFIG.AD_REWARD;
+                    userData.totalAds++;
+                    userData.todayAds++;
+                    userData.weeklyAds++;
+                    saveUserData();
+                    
+                    adContainer.innerHTML = `
+                        <div class="ad-icon">🎉</div>
+                        <h2>${t('testAdCompleted')}</h2>
+                        <p>✅ ${t('youEarned', {amount: CONFIG.AD_REWARD.toFixed(5)})}</p>
+                        <p>${t('newBalance', {amount: userData.balance.toFixed(5)})}</p>
+                    `;
+                    
+                    setTimeout(() => showWatchPage(), 2000);
+                }
+            }, 1000);
+        }
+
+        // ===== LEADERBOARD PAGE =====
+        function showLeaderboardPage() {
+            sessionStorage.setItem('currentPage', 'leaderboard');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>🏆 ${t('leaderboard')}</h1>
+                    <p>${t('topEarners')}</p>
+                    ${showLanguageSelector()}
+                </header>
+
+                <div class="notice success-notice">
+                    <h3>🎁 ${t('weeklyPrizes')}</h3>
+                    <p>1st: 0.5 USDT • 2nd: 0.3 USDT • 3rd: 0.1 USDT</p>
+                </div>
+
+                <div class="leaderboard-list">
+                    ${generateLeaderboard()}
+                </div>
+
+                <button onclick="showLeaderboardPage()" class="btn btn-secondary">
+                    🔄 ${t('refresh')}
+                </button>
+            `;
+        }
+
+        function generateLeaderboard() {
+            const users = [
+                { name: "CryptoKing", ads: 156 },
+                { name: "AdMaster", ads: 128 },
+                { name: "EarnPro", ads: 97 },
+                { name: userData.userName, ads: userData.weeklyAds, isYou: true },
+                { name: "BitcoinBuddy", ads: 45 },
+                { name: "AdWatcher", ads: 38 }
+            ];
+
+            return users.map((user, i) => `
+                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
+                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                    <div style="flex: 1;">
+                        <strong>${user.name} ${user.isYou ? `(${t('you')})` : ''}</strong>
+                        <div style="color: #666;">${user.ads} ${t('adsWatched')}</div>
+                    </div>
+                    <div style="color: #28a745; font-weight: bold;">
+                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== WITHDRAW PAGE =====
+        function showWithdrawPage() {
+            sessionStorage.setItem('currentPage', 'withdraw');
+            
+            document.getElementById('app').innerHTML = `
+                <header>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>💸 ${t('withdraw')}</h1>
+                    <p>${t('withdrawToPolygon')}</p>
+                    ${showLanguageSelector()}
+                </header>
+
+                <div class="notice warning">
+                    <p>${t('minWithdraw', {amount: CONFIG.MIN_WITHDRAWAL.toFixed(3)})} • ${t('fee', {amount: CONFIG.WITHDRAWAL_FEE.toFixed(3)})}</p>
+                </div>
+
+                <div class="amount-options">
+                    <div class="amount-btn" onclick="setAmount(0.015)">0.015</div>
+                    <div class="amount-btn" onclick="setAmount(0.03)">0.03</div>
+                    <div class="amount-btn" onclick="setAmount(0.05)">0.05</div>
+                    <div class="amount-btn" onclick="setAmount(0.10)">0.10</div>
+                    <div class="amount-btn" onclick="setAmount(0.50)">0.50</div>
+                    <div class="amount-btn" onclick="setAmount(1.00)">1.00</div>
+                </div>
+
+                <input type="text" id="walletAddress" placeholder="${t('polygonAddress')}" value="${userData.polygonAddress || ''}">
+                <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL.toFixed(3)}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance.toFixed(5)}" step="0.001">
+
+                <div class="notice" style="margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>${t('amount')}:</span>
+                        <strong id="amountDisplay">${CONFIG.MIN_WITHDRAWAL.toFixed(3)} USDT</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #666;">
+                        <span>${t('fee')}:</span>
+                        <strong>-${CONFIG.WITHDRAWAL_FEE.toFixed(3)} USDT</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
+                        <span><strong>${t('youReceive')}:</strong></span>
+                        <strong style="color: #28a745;" id="receiveAmount">${(CONFIG.MIN_WITHDRAWAL - CONFIG.WITHDRAWAL_FEE).toFixed(3)} USDT</strong>
+                    </div>
+                </div>
+
+                <button onclick="processWithdrawal()" class="btn btn-success" id="withdrawBtn">
+                    💸 ${t('withdrawNow')}
+                </button>
+            `;
+
+            document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawInfo);
+        }
+
+        function setAmount(amount) {
+            document.getElementById('withdrawAmount').value = amount.toFixed(3);
+            updateWithdrawInfo();
+        }
+
+        function updateWithdrawInfo() {
+            const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            document.getElementById('amountDisplay').textContent = amount.toFixed(3) + ' USDT';
+            document.getElementById('receiveAmount').textContent = (amount - CONFIG.WITHDRAWAL_FEE).toFixed(3) + ' USDT';
+        }
+
+        async function processWithdrawal() {
+            const address = document.getElementById('walletAddress').value.trim();
+            const amount = parseFloat(document.getElementById('withdrawAmount').value);
+
+            if (!address || !address.startsWith('0x') || address.length !== 42) {
+                showError(t('invalidAddress'));
+                return;
+            }
+
+            if (amount < CONFIG.MIN_WITHDRAWAL || amount > userData.balance) {
+                showError(t('invalidAmount'));
+                return;
+            }
+
+            userData.polygonAddress = address;
+            
+            const withdrawalData = {
+                withdrawalId: 'W' + Date.now(),
+                userName: userData.userName,
+                userId: userData.userId,
+                amount: amount.toFixed(5),
+                netAmount: (amount - CONFIG.WITHDRAWAL_FEE).toFixed(5),
+                walletAddress: address,
+                balance: userData.balance.toFixed(5)
+            };
+
+            await sendTelegramNotification(withdrawalData);
+            
+            userData.balance -= amount;
+            saveUserData();
+            
+            showSuccess(t('withdrawalRequested'));
+            setTimeout(() => showHomePage(), 2000);
+        }
+
+        async function sendTelegramNotification(data) {
+            if (!CONFIG.ADMIN_BOT_TOKEN || !CONFIG.ADMIN_CHAT_ID) return;
+            
+            const message = `
+🚀 *New Withdrawal!*
+👤 *User:* ${data.userName}
+🆔 *ID:* ${data.userId}
+💰 *Amount:* ${data.amount} USDT
+💸 *Net:* ${data.netAmount} USDT
+📤 *Wallet:* \`${data.walletAddress}\`
+📊 *Balance:* ${data.balance} USDT
+⏰ *Time:* ${new Date().toLocaleString()}
+            `;
+
+            try {
+                await fetch(`https://api.telegram.org/bot${CONFIG.ADMIN_BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        chat_id: CONFIG.ADMIN_CHAT_ID,
+                        text: message,
+                        parse_mode: 'Markdown'
+                    })
+                });
+            } catch (error) {
+                console.error('Telegram error:', error);
+            }
+        }
+
+        function closeRewardModal() {
+            document.getElementById('rewardModal').style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            document.getElementById('successMessage').innerHTML = message;
+            document.getElementById('successTitle').innerHTML = t('continue');
+            document.getElementById('successBtn').innerHTML = t('continue');
+            document.getElementById('successModal').style.display = 'flex';
+        }
+
+        function showError(message) {
+            document.getElementById('errorMessage').textContent = message;
+            document.getElementById('errorTitle').innerHTML = t('error');
+            document.getElementById('errorBtn').innerHTML = t('close');
+            document.getElementById('errorModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('successModal').style.display = 'none';
+            document.getElementById('errorModal').style.display = 'none';
+            document.getElementById('rewardModal').style.display = 'none';
+            document.getElementById('dailyRewardModal').style.display = 'none';
+        }
+    </script>
+</body>
+</html>            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .lang-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .lang-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .lang-btn.active:hover {
+            background: #667eea;
+        }
+
+        /* ===== DAILY REWARD ICON ===== */
+        .daily-reward-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: white;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            border: 3px solid white;
+        }
+
+        .daily-reward-icon:hover {
+            transform: scale(1.1) rotate(5deg);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .daily-reward-icon .icon {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .daily-reward-icon .text {
+            font-size: 0.6rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .daily-reward-icon.claimed {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        .daily-reward-icon.claimed:hover {
+            transform: none;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .daily-reward-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff4444;
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid white;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 24px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-left: 80px;  /* Space for language selector */
+            padding-right: 60px; /* Space for daily reward icon */
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 8px 16px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 14px;
+            margin-bottom: 15px;
+            transition: all 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #5a6268;
+            transform: translateX(-3px);
+        }
+
+        .user-card {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 24px;
+            border-radius: 20px;
+            margin-bottom: 24px;
+            text-align: center;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .balance {
+            font-size: 2.8rem;
+            font-weight: bold;
+            margin: 10px 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin: 24px 0;
+        }
+
+        .stat-box {
+            background: #f8f9fa;
+            padding: 16px;
+            border-radius: 16px;
+            text-align: center;
+            transition: transform 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #333;
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 12px 0;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #ffc107, #fd7e14);
+            color: white;
+        }
+
+        .btn-info {
+            background: linear-gradient(135deg, #17a2b8, #138496);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-task {
+            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .ad-container {
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 30px;
+            margin: 20px 0;
+            text-align: center;
+            border: 3px dashed #ddd;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .ad-icon {
+            font-size: 5rem;
+            margin: 20px 0;
+        }
+
+        .timer {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #f5576c;
+            margin: 20px 0;
+        }
+
+        /* ===== TASK PAGE STYLES ===== */
+        .task-container {
+            margin: 20px 0;
+        }
+
+        .task-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .task-icon {
+            font-size: 4rem;
+            margin-bottom: 15px;
+        }
+
+        .task-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .task-reward {
+            font-size: 2rem;
+            font-weight: bold;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 30px;
+            margin: 15px 0;
+        }
+
+        .task-description {
+            font-size: 1rem;
+            margin: 15px 0;
+            opacity: 0.9;
+        }
+
+        .task-requirements {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 15px;
+            margin: 15px 0;
+            text-align: left;
+        }
+
+        .task-requirements li {
+            margin: 8px 0;
+            list-style-type: none;
+        }
+
+        .task-requirements li:before {
+            content: "✓ ";
+            margin-right: 8px;
+        }
+
+        .telegram-btn {
+            display: inline-block;
+            background: #0088cc;
+            color: white;
+            padding: 18px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin: 15px 0;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.2rem;
+        }
+
+        .telegram-btn:hover {
+            background: #006699;
+            transform: translateY(-3px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .telegram-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .verify-btn {
+            background: #28a745;
+            color: white;
+            padding: 15px;
+            border-radius: 30px;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1.1rem;
+            transition: all 0.3s;
+        }
+
+        .verify-btn:hover {
+            background: #218838;
+            transform: translateY(-3px);
+        }
+
+        .verify-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .completed-badge {
+            background: #28a745;
+            color: white;
+            padding: 12px;
+            border-radius: 30px;
+            margin: 15px 0;
+            font-weight: bold;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            align-items: center;
+            padding: 16px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+
+        .leaderboard-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .rank {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 15px;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
+        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); }
+        .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
+        .rank-other { background: #6c757d; }
+
+        .amount-options {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .amount-btn {
+            padding: 15px;
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 12px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .amount-btn:hover {
+            border-color: #667eea;
+            background: white;
+        }
+
+        .amount-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 16px;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            font-size: 16px;
+            margin: 10px 0;
+            transition: border-color 0.3s;
+        }
+
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            resize: none;
+            background: #f8f9fa;
+            font-family: monospace;
+        }
+
+        .notice {
+            background: #e3f2fd;
+            padding: 16px;
+            border-radius: 12px;
+            margin: 20px 0;
+            color: #1976d2;
+            text-align: center;
+            border-left: 4px solid #1976d2;
+        }
+
+        .success-notice {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
+        }
+
+        /* ===== REFERRAL STYLES ===== */
+        .referral-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .referral-box {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 16px;
+            text-align: center;
+        }
+
+        .referral-box .number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .referral-link-box {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 16px;
+            margin: 20px 0;
+        }
+
+        .copy-btn {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .copy-btn:hover {
+            background: #218838;
+            transform: translateY(-2px);
+        }
+
+        .friend-list {
+            margin: 20px 0;
+        }
+
+        .friend-item {
+            display: flex;
+            align-items: center;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 12px;
+            margin: 8px 0;
+        }
+
+        .friend-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            margin-right: 12px;
+        }
+
+        .friend-info {
+            flex: 1;
+        }
+
+        .friend-name {
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .friend-earned {
+            color: #28a745;
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            background: #ffc107;
+            color: #856404;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 24px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            animation: modalSlide 0.3s;
+        }
+
+        @keyframes modalSlide {
+            from { transform: translateY(-30px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 20px;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            transition: width 0.3s ease;
+        }
+
+        .adsgram-badge {
+            background: #e3f2fd;
+            border: 2px solid #2196f3;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #1976d2;
+        }
+
+        @media (max-width: 480px) {
+            .stats, .referral-stats {
+                grid-template-columns: 1fr;
+            }
+            
+            .balance {
+                font-size: 2.2rem;
+            }
+            
+            .amount-options {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .language-selector {
+                top: 10px;
+                left: 10px;
+            }
+
+            .lang-btn {
+                padding: 5px 8px;
+                font-size: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="app" class="container">
+        <!-- Content loaded dynamically -->
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">✅</div>
+            <h2 id="successTitle">Success!</h2>
+            <p id="successMessage"></p>
+            <button onclick="closeModal()" class="btn btn-primary" id="successBtn">Continue</button>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">❌</div>
+            <h2 id="errorTitle">Error</h2>
+            <p id="errorMessage"></p>
+            <button onclick="closeModal()" class="btn btn-secondary" id="errorBtn">Close</button>
+        </div>
+    </div>
+
+    <!-- Daily Reward Modal -->
+    <div id="dailyRewardModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-icon">🎁</div>
+            <h2 id="dailyTitle">Daily Reward</h2>
+            <p id="dailyRewardMessage"></p>
             <button onclick="watchAdForDailyReward()" class="btn btn-success" id="watchAdForDailyBtn">Watch Ad to Claim 0.0002 USDT</button>
             <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;" id="dailyLaterBtn">Maybe Later</button>
         </div>
