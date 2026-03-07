@@ -6,9 +6,6 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- ✅ Adexora Ads SDK -->
-    <script src="https://adexora.com/cdn/ads.js?id=1729"></script>
-    
     <style>
         /* ===== MODERN STYLES ===== */
         * {
@@ -703,6 +700,17 @@
             color: #1976d2;
         }
 
+        .adexora-error-badge {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #c62828;
+        }
+
         @media (max-width: 480px) {
             .stats, .referral-stats {
                 grid-template-columns: 1fr;
@@ -786,7 +794,129 @@
         </div>
     </div>
 
+    <!-- Adexora Loading Status (hidden by default) -->
+    <div id="adexoraStatus" style="display: none;"></div>
+
     <script>
+        // ===== ADEXORA SAFE LOADER =====
+        // This loads Adexora with fallback if it fails
+        (function() {
+            window.adexoraLoaded = false;
+            window.adexoraLoading = true;
+            
+            // Create status element
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'adexora-status-element';
+            statusDiv.style.cssText = 'position:fixed; bottom:10px; left:10px; background:#333; color:white; padding:5px 10px; border-radius:20px; font-size:12px; z-index:9999; display:none;';
+            document.body.appendChild(statusDiv);
+            
+            function updateStatus(message, isError = false) {
+                console.log('Adexora: ' + message);
+                const el = document.getElementById('adexora-status-element');
+                if (el) {
+                    el.style.display = 'block';
+                    el.style.background = isError ? '#c62828' : '#333';
+                    el.textContent = '📺 Adexora: ' + message;
+                    
+                    // Auto hide after 5 seconds
+                    setTimeout(() => {
+                        el.style.display = 'none';
+                    }, 5000);
+                }
+            }
+            
+            // Try to load Adexora script
+            const script = document.createElement('script');
+            script.src = 'https://adexora.com/cdn/ads.js?id=1729';
+            script.async = true;
+            
+            script.onload = function() {
+                console.log('✅ Adexora loaded successfully');
+                window.adexoraLoaded = true;
+                window.adexoraLoading = false;
+                updateStatus('Connected successfully');
+                
+                // Update badge if exists
+                const badge = document.querySelector('.adexora-badge');
+                if (badge) {
+                    badge.style.background = '#d4edda';
+                    badge.style.borderColor = '#28a745';
+                    badge.innerHTML = '<strong>✅ Adexora Connected</strong><br>Ad ID: 1729';
+                }
+            };
+            
+            script.onerror = function() {
+                console.error('❌ Adexora failed to load - using fallback mode');
+                window.adexoraLoaded = false;
+                window.adexoraLoading = false;
+                updateStatus('Using fallback mode (no ads)', true);
+                
+                // Create fallback mock for testing
+                window.showAdexora = function() {
+                    return new Promise((resolve) => {
+                        console.log('🎬 Using mock ad - simulating 3 second ad');
+                        updateStatus('Mock ad playing...');
+                        
+                        // Show mock ad in container if available
+                        const adContainer = document.getElementById('adRewardContainer');
+                        if (adContainer) {
+                            let seconds = 3;
+                            adContainer.innerHTML = `
+                                <div class="ad-icon">📺</div>
+                                <h3>Test Ad Mode</h3>
+                                <p>Ad completes in <span id="mockTimer">3</span> seconds</p>
+                                <div class="progress-bar">
+                                    <div id="mockProgress" class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            `;
+                            
+                            const timer = setInterval(() => {
+                                seconds--;
+                                const timerEl = document.getElementById('mockTimer');
+                                const progressEl = document.getElementById('mockProgress');
+                                if (timerEl) timerEl.textContent = seconds;
+                                if (progressEl) progressEl.style.width = ((3 - seconds) / 3) * 100 + '%';
+                                
+                                if (seconds <= 0) {
+                                    clearInterval(timer);
+                                    resolve();
+                                }
+                            }, 1000);
+                        } else {
+                            // Fallback if no container
+                            setTimeout(resolve, 3000);
+                        }
+                    });
+                };
+                
+                // Create visible warning
+                const warning = document.createElement('div');
+                warning.style.cssText = 'background: #ffc107; color: #000; padding: 10px; text-align: center; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9998; font-size: 14px;';
+                warning.innerHTML = '⚠️ Ad service temporarily unavailable. Using test mode. Ads will be simulated for now.';
+                document.body.appendChild(warning);
+                
+                // Auto remove warning after 10 seconds
+                setTimeout(() => {
+                    if (warning.parentNode) {
+                        warning.style.opacity = '0';
+                        warning.style.transition = 'opacity 1s';
+                        setTimeout(() => {
+                            if (warning.parentNode) warning.remove();
+                        }, 1000);
+                    }
+                }, 10000);
+                
+                // Update badge
+                const badge = document.querySelector('.adexora-badge');
+                if (badge) {
+                    badge.className = 'adexora-error-badge';
+                    badge.innerHTML = '<strong>⚠️ Adexora Fallback Mode</strong><br>Using simulated ads';
+                }
+            };
+            
+            document.head.appendChild(script);
+        })();
+
         // ===== LANGUAGE TRANSLATIONS =====
         const LANGUAGES = {
             en: {
@@ -881,7 +1011,7 @@
                 verifyFirst: "Please join the channel first before verifying"
             },
             es: {
-                // Spanish translations (same structure as English)
+                // Spanish translations (simplified for brevity - you can expand these)
                 appName: "AdEarn",
                 appDesc: "¡Mira anuncios y gana USDT!",
                 balance: "Tu Saldo",
@@ -907,90 +1037,6 @@
                 claimNow: "Ver Anuncio para Reclamar {amount} USDT",
                 maybeLater: "Quizás Después",
                 watchAdToClaim: "¡Mira un anuncio para reclamar tu recompensa diaria!"
-            },
-            fr: {
-                // French translations
-                appName: "AdEarn",
-                appDesc: "Regardez des pubs et gagnez des USDT!",
-                balance: "Votre Solde",
-                welcome: "Bienvenue",
-                todayAds: "Pubs Aujourd'hui",
-                totalAds: "Total Pubs",
-                weeklyAds: "Pubs Hebdo",
-                continue: "Continuer",
-                close: "Fermer",
-                back: "← Retour",
-                watchAds: "📺 Voir Pubs et Gagner",
-                refer: "👥 Parrainer et Gagner",
-                leaderboard: "🏆 Classement Hebdo",
-                withdraw: "💸 Retirer USDT",
-                tasks: "📋 Compléter Tâches",
-                dailyReward: "Récompense Quotidienne",
-                dailyAvailable: "🎁 Une récompense quotidienne vous attend!",
-                dailyAmount: "💰 Montant: {amount} USDT",
-                dailyStreak: "🔥 Séquence: {streak} jours",
-                dailyClaimed: "⏳ Récompense déjà réclamée",
-                dailyNext: "Prochaine récompense dans {hours} heures",
-                dailyAround: "vers {time}",
-                claimNow: "Voir Pub pour Réclamer {amount} USDT",
-                maybeLater: "Plus Tard",
-                watchAdToClaim: "Regardez une pub pour réclamer votre récompense quotidienne!"
-            },
-            de: {
-                // German translations
-                appName: "AdEarn",
-                appDesc: "Sehen Sie Anzeigen und verdienen Sie USDT!",
-                balance: "Ihr Guthaben",
-                welcome: "Willkommen",
-                todayAds: "Heutige Anzeigen",
-                totalAds: "Gesamt Anzeigen",
-                weeklyAds: "Wöchentliche Anzeigen",
-                continue: "Weiter",
-                close: "Schließen",
-                back: "← Zurück",
-                watchAds: "📺 Anzeigen Sehen",
-                refer: "👥 Empfehlen",
-                leaderboard: "🏆 Rangliste",
-                withdraw: "💸 USDT Abheben",
-                tasks: "📋 Aufgaben",
-                dailyReward: "Tägliche Belohnung",
-                dailyAvailable: "🎁 Tägliche Belohnung verfügbar!",
-                dailyAmount: "💰 Betrag: {amount} USDT",
-                dailyStreak: "🔥 Serie: {streak} Tage",
-                dailyClaimed: "⏳ Bereits abgeholt",
-                dailyNext: "Nächste in {hours} Stunden",
-                dailyAround: "um {time}",
-                claimNow: "{amount} USDT Abholen",
-                maybeLater: "Später",
-                watchAdToClaim: "Sehen Sie eine Anzeige, um Ihre tägliche Belohnung zu erhalten!"
-            },
-            hi: {
-                // Hindi translations
-                appName: "AdEarn",
-                appDesc: "विज्ञापन देखें और USDT कमाएं!",
-                balance: "आपका बैलेंस",
-                welcome: "स्वागत है",
-                todayAds: "आज के विज्ञापन",
-                totalAds: "कुल विज्ञापन",
-                weeklyAds: "साप्ताहिक विज्ञापन",
-                continue: "जारी रखें",
-                close: "बंद करें",
-                back: "← वापस",
-                watchAds: "📺 विज्ञापन देखें",
-                refer: "👥 रेफर करें",
-                leaderboard: "🏆 लीडरबोर्ड",
-                withdraw: "💸 USDT निकालें",
-                tasks: "📋 कार्य पूरा करें",
-                dailyReward: "दैनिक इनाम",
-                dailyAvailable: "🎁 आपका दैनिक इनाम इंतजार कर रहा है!",
-                dailyAmount: "💰 राशि: {amount} USDT",
-                dailyStreak: "🔥 लगातार: {streak} दिन",
-                dailyClaimed: "⏳ दैनिक इनाम पहले ही लिया जा चुका है",
-                dailyNext: "अगला इनाम {hours} घंटे में",
-                dailyAround: "लगभग {time}",
-                claimNow: "{amount} USDT लें",
-                maybeLater: "बाद में",
-                watchAdToClaim: "दैनिक इनाम पाने के लिए विज्ञापन देखें!"
             }
         };
 
@@ -1036,10 +1082,7 @@
         function showLanguageSelector() {
             const languages = [
                 { code: 'en', name: '🇬🇧 EN' },
-                { code: 'es', name: '🇪🇸 ES' },
-                { code: 'fr', name: '🇫🇷 FR' },
-                { code: 'de', name: '🇩🇪 DE' },
-                { code: 'hi', name: '🇮🇳 HI' }
+                { code: 'es', name: '🇪🇸 ES' }
             ];
             
             return `
@@ -1184,8 +1227,14 @@
             `;
 
             try {
-                if (typeof window.showAdexora === 'undefined') {
-                    throw new Error('Adexora SDK not loaded');
+                // Check if showAdexora exists (either real or mock)
+                if (typeof window.showAdexora !== 'function') {
+                    // If not loaded yet, wait a moment
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    
+                    if (typeof window.showAdexora !== 'function') {
+                        throw new Error('Adexora not available');
+                    }
                 }
 
                 adContainer.innerHTML = `
@@ -1196,7 +1245,7 @@
                     </div>
                 `;
 
-                // Show Adexora ad
+                // Show Adexora ad (real or mock)
                 await window.showAdexora();
                 
                 console.log('✅ Reward Ad completed');
@@ -1244,8 +1293,12 @@
             `;
 
             try {
-                if (typeof window.showAdexora === 'undefined') {
-                    throw new Error('Adexora SDK not loaded');
+                // Check if showAdexora exists
+                if (typeof window.showAdexora !== 'function') {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    if (typeof window.showAdexora !== 'function') {
+                        throw new Error('Adexora not available');
+                    }
                 }
 
                 adContainer.innerHTML = `
@@ -1607,7 +1660,7 @@
                 </button>
 
                 <div class="adexora-badge">
-                    <strong>✅ Adexora Ready</strong><br>
+                    <strong>⏳ Adexora Loading...</strong><br>
                     Ad ID: ${CONFIG.ADEXORA.AD_ID}
                 </div>
 
