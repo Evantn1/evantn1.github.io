@@ -6,12 +6,6 @@
     <title>AdEarn - Watch Ads & Earn USDT</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
-    <!-- Add Supabase client -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    
-    <!-- Adexora Ads SDK -->
-    <script src="https://adexora.com/cdn/ads.js?id=1729"></script>
-    
     <style>
         /* ===== MODERN STYLES ===== */
         * {
@@ -695,7 +689,7 @@
             transition: width 0.3s ease;
         }
 
-        .supabase-badge {
+        .adexora-badge {
             background: #e3f2fd;
             border: 2px solid #2196f3;
             border-radius: 12px;
@@ -704,6 +698,17 @@
             text-align: center;
             font-size: 0.9rem;
             color: #1976d2;
+        }
+
+        .adexora-error-badge {
+            background: #ffebee;
+            border: 2px solid #f44336;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #c62828;
         }
 
         @media (max-width: 480px) {
@@ -789,61 +794,133 @@
         </div>
     </div>
 
-    <script>
-        // ===== SUPABASE CONFIGURATION =====
-        const SUPABASE_URL = 'https://sjwkspqnebndjyvovzsj.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNqdWtzcXBuZWJuZGp5dm92enNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI5MDQwMjcsImV4cCI6MjA4ODQ4MDAyN30.tSUMSJTPWcaI9MzLZiEetDLsuD8U3PSapnjZhVBCcLI';
-        
-        // Initialize Supabase client with error handling (SINGLE DECLARATION ONLY)
-        let supabase;
-        try {
-            if (typeof window.supabase !== 'undefined' && window.supabase.createClient) {
-                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-                console.log('✅ Supabase initialized successfully');
-            } else {
-                console.warn('⚠️ Supabase client not loaded, using mock');
-                // Create mock supabase as fallback
-                supabase = {
-                    from: () => ({
-                        select: () => ({
-                            eq: () => ({
-                                single: async () => ({ data: null, error: { code: 'PGRST116' } }),
-                                limit: async () => ({ data: [], error: null })
-                            })
-                        }),
-                        insert: async () => ({ error: null }),
-                        update: async () => ({ error: null })
-                    })
-                };
-            }
-        } catch (e) {
-            console.error('❌ Supabase initialization error:', e);
-            supabase = { from: () => ({ select: () => ({ eq: () => ({ single: async () => ({ data: null }) }) }) }) };
-        }
+    <!-- Adexora Loading Status (hidden by default) -->
+    <div id="adexoraStatus" style="display: none;"></div>
 
-        // ===== CONFIGURATION =====
-        const CONFIG = {
-            AD_REWARD: 0.00005,
-            DAILY_REWARD: 0.0002,
-            TASK_REWARD: 0.0003,
-            MIN_WITHDRAWAL: 0.015,
-            WITHDRAWAL_FEE: 0.001,
-            WEEKLY_PRIZES: [0.5, 0.3, 0.1],
-            ADMIN_BOT_TOKEN: "8538707433:AAGNv49VSMh-_RUu38Hx6R4UfhkxNg6pS4w",
-            ADMIN_CHAT_ID: "6450016040",
-            REFERRAL_REWARD: 0.0001,
-            BOT_USERNAME: "earnmoneyapppbot",
-            TASK_CHANNEL: "adwatch2",
+    <script>
+        // ===== ADEXORA SAFE LOADER =====
+        // This loads Adexora with fallback if it fails
+        (function() {
+            window.adexoraLoaded = false;
+            window.adexoraLoading = true;
             
-            // Adexora
-            ADEXORA: {
-                AD_ID: "1729"
+            // Create status element
+            const statusDiv = document.createElement('div');
+            statusDiv.id = 'adexora-status-element';
+            statusDiv.style.cssText = 'position:fixed; bottom:10px; left:10px; background:#333; color:white; padding:5px 10px; border-radius:20px; font-size:12px; z-index:9999; display:none;';
+            document.body.appendChild(statusDiv);
+            
+            function updateStatus(message, isError = false) {
+                console.log('Adexora: ' + message);
+                const el = document.getElementById('adexora-status-element');
+                if (el) {
+                    el.style.display = 'block';
+                    el.style.background = isError ? '#c62828' : '#333';
+                    el.textContent = '📺 Adexora: ' + message;
+                    
+                    // Auto hide after 5 seconds
+                    setTimeout(() => {
+                        el.style.display = 'none';
+                    }, 5000);
+                }
             }
-        };
+            
+            // Try to load Adexora script
+            const script = document.createElement('script');
+            script.src = 'https://adexora.com/cdn/ads.js?id=1729';
+            script.async = true;
+            
+            script.onload = function() {
+                console.log('✅ Adexora loaded successfully');
+                window.adexoraLoaded = true;
+                window.adexoraLoading = false;
+                updateStatus('Connected successfully');
+                
+                // Update badge if exists
+                const badge = document.querySelector('.adexora-badge');
+                if (badge) {
+                    badge.style.background = '#d4edda';
+                    badge.style.borderColor = '#28a745';
+                    badge.innerHTML = '<strong>✅ Adexora Connected</strong><br>Ad ID: 1729';
+                }
+            };
+            
+            script.onerror = function() {
+                console.error('❌ Adexora failed to load - using fallback mode');
+                window.adexoraLoaded = false;
+                window.adexoraLoading = false;
+                updateStatus('Using fallback mode (no ads)', true);
+                
+                // Create fallback mock for testing
+                window.showAdexora = function() {
+                    return new Promise((resolve) => {
+                        console.log('🎬 Using mock ad - simulating 3 second ad');
+                        updateStatus('Mock ad playing...');
+                        
+                        // Show mock ad in container if available
+                        const adContainer = document.getElementById('adRewardContainer');
+                        if (adContainer) {
+                            let seconds = 3;
+                            adContainer.innerHTML = `
+                                <div class="ad-icon">📺</div>
+                                <h3>Test Ad Mode</h3>
+                                <p>Ad completes in <span id="mockTimer">3</span> seconds</p>
+                                <div class="progress-bar">
+                                    <div id="mockProgress" class="progress-fill" style="width: 0%"></div>
+                                </div>
+                            `;
+                            
+                            const timer = setInterval(() => {
+                                seconds--;
+                                const timerEl = document.getElementById('mockTimer');
+                                const progressEl = document.getElementById('mockProgress');
+                                if (timerEl) timerEl.textContent = seconds;
+                                if (progressEl) progressEl.style.width = ((3 - seconds) / 3) * 100 + '%';
+                                
+                                if (seconds <= 0) {
+                                    clearInterval(timer);
+                                    resolve();
+                                }
+                            }, 1000);
+                        } else {
+                            // Fallback if no container
+                            setTimeout(resolve, 3000);
+                        }
+                    });
+                };
+                
+                // Create visible warning
+                const warning = document.createElement('div');
+                warning.style.cssText = 'background: #ffc107; color: #000; padding: 10px; text-align: center; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9998; font-size: 14px;';
+                warning.innerHTML = '⚠️ Ad service temporarily unavailable. Using test mode. Ads will be simulated for now.';
+                document.body.appendChild(warning);
+                
+                // Auto remove warning after 10 seconds
+                setTimeout(() => {
+                    if (warning.parentNode) {
+                        warning.style.opacity = '0';
+                        warning.style.transition = 'opacity 1s';
+                        setTimeout(() => {
+                            if (warning.parentNode) warning.remove();
+                        }, 1000);
+                    }
+                }, 10000);
+                
+                // Update badge
+                const badge = document.querySelector('.adexora-badge');
+                if (badge) {
+                    badge.className = 'adexora-error-badge';
+                    badge.innerHTML = '<strong>⚠️ Adexora Fallback Mode</strong><br>Using simulated ads';
+                }
+            };
+            
+            document.head.appendChild(script);
+        })();
 
         // ===== LANGUAGE TRANSLATIONS =====
         const LANGUAGES = {
             en: {
+                // General
                 appName: "AdEarn",
                 appDesc: "Watch ads & earn USDT rewards!",
                 balance: "Your Balance",
@@ -854,11 +931,15 @@
                 continue: "Continue",
                 close: "Close",
                 back: "← Back",
+                
+                // Buttons
                 watchAds: "📺 Watch Ads & Earn",
                 refer: "👥 Refer & Earn",
                 leaderboard: "🏆 Weekly Leaderboard",
                 withdraw: "💸 Withdraw USDT",
                 tasks: "📋 Complete Tasks",
+                
+                // Daily Reward
                 dailyReward: "Daily Reward",
                 dailyAvailable: "🎁 You have a daily reward waiting!",
                 dailyAmount: "💰 Amount: {amount} USDT",
@@ -869,6 +950,8 @@
                 claimNow: "Watch Ad to Claim {amount} USDT",
                 maybeLater: "Maybe Later",
                 watchAdToClaim: "Watch an ad to claim your daily reward!",
+                
+                // Task Page
                 taskTitle: "📋 Complete Tasks",
                 taskDesc: "Earn extra rewards by completing tasks",
                 specialTask: "🔥 SPECIAL TASK",
@@ -882,6 +965,8 @@
                 verifyTask: "✅ Verify & Claim Reward",
                 taskCompleted: "✅ Task Completed!",
                 taskCompletedDesc: "You've already completed this task",
+                
+                // Referral Page
                 referTitle: "👥 Refer & Earn",
                 referDesc: "Invite friends and earn rewards",
                 totalReferrals: "Total Referrals",
@@ -899,6 +984,8 @@
                 noReferrals: "No referrals yet. Share your link to start earning!",
                 earned: "Earned: {amount} USDT",
                 ads: "{count} ads",
+                
+                // Ad related
                 loadingAd: "Loading ad...",
                 pleaseWait: "Please wait",
                 adStarted: "Ad started!",
@@ -910,6 +997,8 @@
                 tryAgain: "Try Again",
                 usingTestAd: "Using Test Ad",
                 failedToLoad: "Failed to load ad",
+                
+                // Success/Error messages
                 rewardEarned: "✅ You earned {amount} USDT!",
                 dailyClaimed: "✅ Daily reward claimed!",
                 streak: "🔥 Streak: {streak} days",
@@ -920,6 +1009,54 @@
                 taskCompletedSuccess: "✅ Task completed! You earned {amount} USDT!",
                 alreadyCompleted: "You've already completed this task",
                 verifyFirst: "Please join the channel first before verifying"
+            },
+            es: {
+                // Spanish translations (simplified for brevity - you can expand these)
+                appName: "AdEarn",
+                appDesc: "¡Mira anuncios y gana USDT!",
+                balance: "Tu Saldo",
+                welcome: "Bienvenido",
+                todayAds: "Anuncios Hoy",
+                totalAds: "Total Anuncios",
+                weeklyAds: "Anuncios Semanales",
+                continue: "Continuar",
+                close: "Cerrar",
+                back: "← Atrás",
+                watchAds: "📺 Ver Anuncios y Ganar",
+                refer: "👥 Referir y Ganar",
+                leaderboard: "🏆 Clasificación Semanal",
+                withdraw: "💸 Retirar USDT",
+                tasks: "📋 Completar Tareas",
+                dailyReward: "Recompensa Diaria",
+                dailyAvailable: "🎁 ¡Tienes una recompensa diaria esperando!",
+                dailyAmount: "💰 Cantidad: {amount} USDT",
+                dailyStreak: "🔥 Racha Actual: {streak} días",
+                dailyClaimed: "⏳ Recompensa diaria ya reclamada",
+                dailyNext: "Próxima recompensa en {hours} horas",
+                dailyAround: "alrededor de {time}",
+                claimNow: "Ver Anuncio para Reclamar {amount} USDT",
+                maybeLater: "Quizás Después",
+                watchAdToClaim: "¡Mira un anuncio para reclamar tu recompensa diaria!"
+            }
+        };
+
+        // ===== CONFIGURATION =====
+        const CONFIG = {
+            AD_REWARD: 0.00005,
+            DAILY_REWARD: 0.0002,
+            TASK_REWARD: 0.0003,
+            MIN_WITHDRAWAL: 0.015,
+            WITHDRAWAL_FEE: 0.001,
+            WEEKLY_PRIZES: [0.5, 0.3, 0.1],
+            ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
+            ADMIN_CHAT_ID: "6450016040",
+            REFERRAL_REWARD: 0.0001,
+            BOT_USERNAME: "earnmoneyapppbot",
+            TASK_CHANNEL: "adwatch2",
+            
+            // Adexora
+            ADEXORA: {
+                AD_ID: "1729"
             }
         };
 
@@ -927,14 +1064,17 @@
         let currentLang = 'en';
 
         // ===== REWARD AD STATE =====
-        let pendingRewardAction = null;
+        let pendingRewardAction = null; // 'daily', 'task', 'referral'
 
         // ===== TRANSLATION FUNCTION =====
         function t(key, replacements = {}) {
             let text = LANGUAGES[currentLang]?.[key] || LANGUAGES.en[key] || key;
+            
+            // Replace placeholders
             for (const [placeholder, value] of Object.entries(replacements)) {
                 text = text.replace(`{${placeholder}}`, value);
             }
+            
             return text;
         }
 
@@ -942,10 +1082,7 @@
         function showLanguageSelector() {
             const languages = [
                 { code: 'en', name: '🇬🇧 EN' },
-                { code: 'es', name: '🇪🇸 ES' },
-                { code: 'fr', name: '🇫🇷 FR' },
-                { code: 'de', name: '🇩🇪 DE' },
-                { code: 'hi', name: '🇮🇳 HI' }
+                { code: 'es', name: '🇪🇸 ES' }
             ];
             
             return `
@@ -963,19 +1100,28 @@
             if (LANGUAGES[langCode]) {
                 currentLang = langCode;
                 localStorage.setItem('preferredLanguage', langCode);
-                refreshCurrentPage();
+                
+                // Refresh current page
+                const currentPage = sessionStorage.getItem('currentPage') || 'home';
+                switch(currentPage) {
+                    case 'home': showHomePage(); break;
+                    case 'watch': showWatchPage(); break;
+                    case 'tasks': showTasksPage(); break;
+                    case 'referral': showReferralPage(); break;
+                    case 'leaderboard': showLeaderboardPage(); break;
+                    case 'withdraw': showWithdrawPage(); break;
+                }
             }
         }
 
         // ===== APP STATE =====
         let userData = {
-            id: null,
-            username: "User",
-            first_name: "User",
-            balance: 0,
+            balance: 0.00000,
             totalAds: 0,
             todayAds: 0,
             weeklyAds: 0,
+            userName: "User",
+            userId: null,
             polygonAddress: "",
             lastDailyClaim: null,
             dailyStreak: 0,
@@ -987,201 +1133,52 @@
         };
 
         // ===== INITIALIZE =====
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load saved language preference
             const savedLang = localStorage.getItem('preferredLanguage');
             if (savedLang && LANGUAGES[savedLang]) {
                 currentLang = savedLang;
             }
-            await initializeApp();
+            
+            initializeApp();
         });
 
-        async function initializeApp() {
-            try {
-                let telegramUser = null;
-                if (typeof Telegram !== 'undefined') {
-                    const tg = window.Telegram.WebApp;
-                    tg.expand();
-                    
-                    if (tg.initDataUnsafe?.user) {
-                        telegramUser = tg.initDataUnsafe.user;
+        function initializeApp() {
+            // Get Telegram user info
+            if (typeof Telegram !== 'undefined') {
+                const tg = window.Telegram.WebApp;
+                tg.expand();
+                
+                if (tg.initDataUnsafe?.user) {
+                    userData.userId = tg.initDataUnsafe.user.id;
+                    userData.userName = tg.initDataUnsafe.user.first_name || "User";
+                    if (tg.initDataUnsafe.user.username) {
+                        userData.userName = "@" + tg.initDataUnsafe.user.username;
                     }
                 }
-                
-                if (!telegramUser) {
-                    telegramUser = {
-                        id: Math.floor(Math.random() * 1000000),
-                        first_name: "Test User",
-                        username: "testuser"
-                    };
-                }
-                
-                const urlParams = new URLSearchParams(window.location.search);
-                const startParam = urlParams.get('startapp');
-                
-                await loadOrCreateUser(telegramUser, startParam);
-                showHomePage();
-            } catch (error) {
-                console.error('Initialization error:', error);
-                showError('Failed to initialize app. Please refresh.');
             }
+            
+            loadUserData();
+            
+            // Generate referral code if not exists
+            if (!userData.referralCode) {
+                userData.referralCode = generateReferralCode();
+                saveUserData();
+            }
+            
+            showHomePage();
         }
 
-        // ===== SUPABASE USER FUNCTIONS =====
-        async function loadOrCreateUser(telegramUser, referralCode = null) {
-            try {
-                let { data: existingUser, error } = await supabase
-                    .from('users')
-                    .select('*')
-                    .eq('id', telegramUser.id)
-                    .single();
-                
-                if (error && error.code !== 'PGRST116') {
-                    console.error('Error fetching user:', error);
-                }
-                
-                const today = new Date().toDateString();
-                
-                if (existingUser) {
-                    userData = {
-                        id: existingUser.id,
-                        username: existingUser.username || telegramUser.username || "User",
-                        first_name: existingUser.first_name || telegramUser.first_name || "User",
-                        balance: parseFloat(existingUser.balance) || 0,
-                        totalAds: existingUser.total_ads || 0,
-                        todayAds: existingUser.last_login === today ? existingUser.today_ads || 0 : 0,
-                        weeklyAds: existingUser.weekly_ads || 0,
-                        polygonAddress: existingUser.polygon_address || "",
-                        lastDailyClaim: existingUser.last_daily_claim,
-                        dailyStreak: existingUser.daily_streak || 0,
-                        referralCode: existingUser.referral_code,
-                        referrals: [],
-                        referralEarnings: parseFloat(existingUser.referral_earnings) || 0,
-                        referredBy: existingUser.referred_by,
-                        completedTasks: existingUser.completed_tasks || []
-                    };
-                    
-                    await loadReferrals(existingUser.id);
-                    
-                    await supabase
-                        .from('users')
-                        .update({ 
-                            last_login: today,
-                            username: telegramUser.username || existingUser.username,
-                            first_name: telegramUser.first_name || existingUser.first_name
-                        })
-                        .eq('id', existingUser.id);
-                    
-                } else {
-                    const newReferralCode = generateReferralCode();
-                    
-                    const newUser = {
-                        id: telegramUser.id,
-                        username: telegramUser.username || null,
-                        first_name: telegramUser.first_name || "User",
-                        balance: referralCode ? CONFIG.AD_REWARD : 0,
-                        total_ads: 0,
-                        today_ads: 0,
-                        weekly_ads: 0,
-                        referral_code: newReferralCode,
-                        referred_by: referralCode,
-                        last_login: today
-                    };
-                    
-                    const { data, error } = await supabase
-                        .from('users')
-                        .insert([newUser])
-                        .select()
-                        .single();
-                    
-                    if (error) throw error;
-                    
-                    userData = {
-                        id: data.id,
-                        username: data.username || "User",
-                        first_name: data.first_name || "User",
-                        balance: parseFloat(data.balance) || 0,
-                        totalAds: data.total_ads || 0,
-                        todayAds: 0,
-                        weeklyAds: data.weekly_ads || 0,
-                        polygonAddress: "",
-                        lastDailyClaim: null,
-                        dailyStreak: 0,
-                        referralCode: data.referral_code,
-                        referrals: [],
-                        referralEarnings: 0,
-                        referredBy: data.referred_by,
-                        completedTasks: []
-                    };
-                    
-                    if (referralCode) {
-                        await processReferral(referralCode, telegramUser);
-                    }
-                }
-                
-                syncToLocalStorage();
-                
-            } catch (error) {
-                console.error('Supabase error:', error);
-                loadFromLocalStorage(telegramUser);
+        function generateReferralCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
             }
+            return code;
         }
 
-        async function loadReferrals(userId) {
-            try {
-                const { data, error } = await supabase
-                    .from('referrals')
-                    .select('*')
-                    .eq('referrer_id', userId);
-                
-                if (error) throw error;
-                
-                userData.referrals = data.map(ref => ({
-                    name: ref.referred_name,
-                    id: ref.referred_id,
-                    earned: parseFloat(ref.earned) || 0,
-                    ads: ref.ads_watched || 0,
-                    joined: ref.joined_at
-                }));
-                
-            } catch (error) {
-                console.error('Error loading referrals:', error);
-            }
-        }
-
-        async function processReferral(referralCode, newUser) {
-            try {
-                const { data: referrer, error } = await supabase
-                    .from('users')
-                    .select('id')
-                    .eq('referral_code', referralCode)
-                    .single();
-                
-                if (error || !referrer) return;
-                
-                await supabase
-                    .from('referrals')
-                    .insert([{
-                        referrer_id: referrer.id,
-                        referred_id: newUser.id,
-                        referred_name: newUser.first_name || "User",
-                        earned: 0,
-                        ads_watched: 0
-                    }]);
-                
-                await supabase
-                    .from('users')
-                    .update({ 
-                        balance: supabase.raw('balance + ' + CONFIG.REFERRAL_REWARD),
-                        referral_earnings: supabase.raw('referral_earnings + ' + CONFIG.REFERRAL_REWARD)
-                    })
-                    .eq('id', referrer.id);
-                
-            } catch (error) {
-                console.error('Error processing referral:', error);
-            }
-        }
-
-        function loadFromLocalStorage(telegramUser) {
+        function loadUserData() {
             const saved = localStorage.getItem('adEarnUser');
             if (saved) {
                 const data = JSON.parse(saved);
@@ -1191,141 +1188,17 @@
                     data.todayAds = 0;
                 }
                 
-                userData = { ...userData, ...data, id: telegramUser.id };
+                userData = { ...userData, ...data };
                 userData.lastLogin = today;
-            } else {
-                userData.id = telegramUser.id;
-                userData.username = telegramUser.username || "User";
-                userData.first_name = telegramUser.first_name || "User";
-                userData.referralCode = generateReferralCode();
             }
-            saveToLocalStorage();
+            saveUserData();
         }
 
-        function syncToLocalStorage() {
-            const data = {
-                id: userData.id,
-                username: userData.username,
-                first_name: userData.first_name,
-                balance: userData.balance,
-                totalAds: userData.totalAds,
-                todayAds: userData.todayAds,
-                weeklyAds: userData.weeklyAds,
-                polygonAddress: userData.polygonAddress,
-                lastDailyClaim: userData.lastDailyClaim,
-                dailyStreak: userData.dailyStreak,
-                referralCode: userData.referralCode,
-                referralEarnings: userData.referralEarnings,
-                referredBy: userData.referredBy,
-                completedTasks: userData.completedTasks,
-                lastLogin: new Date().toDateString()
-            };
-            localStorage.setItem('adEarnUser', JSON.stringify(data));
+        function saveUserData() {
+            localStorage.setItem('adEarnUser', JSON.stringify(userData));
         }
 
-        function saveToLocalStorage() {
-            syncToLocalStorage();
-        }
-
-        async function saveToSupabase() {
-            try {
-                const { error } = await supabase
-                    .from('users')
-                    .update({
-                        balance: userData.balance,
-                        total_ads: userData.totalAds,
-                        today_ads: userData.todayAds,
-                        weekly_ads: userData.weeklyAds,
-                        polygon_address: userData.polygonAddress,
-                        last_daily_claim: userData.lastDailyClaim,
-                        daily_streak: userData.dailyStreak,
-                        referral_earnings: userData.referralEarnings,
-                        completed_tasks: userData.completedTasks
-                    })
-                    .eq('id', userData.id);
-                
-                if (error) throw error;
-                
-            } catch (error) {
-                console.error('Error saving to Supabase:', error);
-                saveToLocalStorage();
-            }
-        }
-
-        async function recordAdWatch(type = 'regular') {
-            try {
-                const { error } = await supabase
-                    .from('ad_watches')
-                    .insert([{
-                        user_id: userData.id,
-                        reward: type === 'daily' ? CONFIG.DAILY_REWARD : 
-                                type === 'task' ? CONFIG.TASK_REWARD : CONFIG.AD_REWARD,
-                        ad_type: type
-                    }]);
-                
-                if (error) throw error;
-                
-            } catch (error) {
-                console.error('Error recording ad watch:', error);
-            }
-        }
-
-        async function updateUserData(updates) {
-            Object.assign(userData, updates);
-            await saveToSupabase();
-            saveToLocalStorage();
-        }
-
-        async function processRegularAdReward() {
-            await updateUserData({
-                balance: userData.balance + CONFIG.AD_REWARD,
-                totalAds: userData.totalAds + 1,
-                todayAds: userData.todayAds + 1,
-                weeklyAds: userData.weeklyAds + 1
-            });
-            await recordAdWatch('regular');
-        }
-
-        async function processDailyReward() {
-            const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
-            const now = new Date();
-            let newStreak = 1;
-            
-            if (lastClaim) {
-                const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
-                newStreak = hoursSinceLastClaim < 48 ? (userData.dailyStreak || 0) + 1 : 1;
-            }
-            
-            await updateUserData({
-                balance: userData.balance + CONFIG.DAILY_REWARD,
-                lastDailyClaim: now.toISOString(),
-                dailyStreak: newStreak
-            });
-            
-            await recordAdWatch('daily');
-            
-            showSuccess(
-                `${t('dailyClaimed')}<br>` +
-                `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
-                `${t('streak', {streak: newStreak})}`
-            );
-            showHomePage();
-        }
-
-        async function processTaskReward() {
-            const completedTasks = [...(userData.completedTasks || []), 'telegram_join'];
-            
-            await updateUserData({
-                balance: userData.balance + CONFIG.TASK_REWARD,
-                completedTasks: completedTasks
-            });
-            
-            await recordAdWatch('task');
-            
-            showSuccess(t('taskCompletedSuccess', {amount: CONFIG.TASK_REWARD.toFixed(5)}));
-            showTasksPage();
-        }
-
+        // ===== AD REWARD FUNCTIONS =====
         function showAdRewardModal(action, message) {
             pendingRewardAction = action;
             document.getElementById('adRewardMessage').innerHTML = message || t('watchAdToClaim');
@@ -1337,6 +1210,7 @@
             pendingRewardAction = null;
         }
 
+        // ===== ADEXORA AD FUNCTION =====
         async function startRewardAd() {
             const startBtn = document.getElementById('startRewardAdBtn');
             const adContainer = document.getElementById('adRewardContainer');
@@ -1353,8 +1227,11 @@
             `;
 
             try {
+                // Check if showAdexora exists (either real or mock)
                 if (typeof window.showAdexora !== 'function') {
+                    // If not loaded yet, wait a moment
                     await new Promise(resolve => setTimeout(resolve, 1000));
+                    
                     if (typeof window.showAdexora !== 'function') {
                         throw new Error('Adexora not available');
                     }
@@ -1368,16 +1245,18 @@
                     </div>
                 `;
 
+                // Show Adexora ad (real or mock)
                 await window.showAdexora();
                 
                 console.log('✅ Reward Ad completed');
                 
+                // Process the pending reward
                 if (pendingRewardAction === 'daily') {
-                    await processDailyReward();
+                    processDailyReward();
                 } else if (pendingRewardAction === 'task') {
-                    await processTaskReward();
+                    processTaskReward();
                 } else if (pendingRewardAction === 'regular') {
-                    await processRegularAdReward();
+                    processRegularAdReward();
                 }
                 
                 closeAdRewardModal();
@@ -1396,6 +1275,7 @@
             }
         }
 
+        // ===== REGULAR AD FUNCTION =====
         async function startRegularAd() {
             const watchBtn = document.getElementById('watchBtn');
             const adContainer = document.getElementById('adContainer');
@@ -1413,6 +1293,7 @@
             `;
 
             try {
+                // Check if showAdexora exists
                 if (typeof window.showAdexora !== 'function') {
                     await new Promise(resolve => setTimeout(resolve, 1000));
                     if (typeof window.showAdexora !== 'function') {
@@ -1429,11 +1310,17 @@
                     </div>
                 `;
 
+                // Show Adexora ad
                 await window.showAdexora();
                 
                 console.log('✅ Regular Ad completed');
                 
-                await processRegularAdReward();
+                // Add reward
+                userData.balance += CONFIG.AD_REWARD;
+                userData.totalAds++;
+                userData.todayAds++;
+                userData.weeklyAds++;
+                saveUserData();
                 
                 adContainer.innerHTML = `
                     <div class="ad-icon">🎉</div>
@@ -1459,8 +1346,10 @@
             }
         }
 
+        // ===== DAILY REWARD FUNCTIONS =====
         function checkDailyReward() {
             if (!userData.lastDailyClaim) return true;
+            
             const lastClaim = new Date(userData.lastDailyClaim);
             const now = new Date();
             const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
@@ -1469,10 +1358,13 @@
 
         function getDailyRewardStatus() {
             if (!userData.lastDailyClaim) return 'available';
+            
             const lastClaim = new Date(userData.lastDailyClaim);
             const now = new Date();
             const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+            
             if (hoursSinceLastClaim >= 24) return 'available';
+            
             const hoursLeft = 24 - hoursSinceLastClaim;
             const nextClaimTime = new Date(lastClaim.getTime() + 24 * 60 * 60 * 1000);
             return { status: 'claimed', hoursLeft, nextClaimTime };
@@ -1506,10 +1398,61 @@
         }
 
         function watchAdForDailyReward() {
-            closeModal();
+            closeModal(); // Close daily reward modal
             showAdRewardModal('daily', t('watchAdToClaim'));
         }
 
+        function processDailyReward() {
+            // Update streak
+            const lastClaim = userData.lastDailyClaim ? new Date(userData.lastDailyClaim) : null;
+            const now = new Date();
+            
+            if (lastClaim) {
+                const hoursSinceLastClaim = (now - lastClaim) / (1000 * 60 * 60);
+                if (hoursSinceLastClaim < 48) {
+                    userData.dailyStreak = (userData.dailyStreak || 0) + 1;
+                } else {
+                    userData.dailyStreak = 1;
+                }
+            } else {
+                userData.dailyStreak = 1;
+            }
+            
+            // Add reward
+            userData.balance += CONFIG.DAILY_REWARD;
+            userData.lastDailyClaim = now.toISOString();
+            saveUserData();
+            
+            showSuccess(
+                `${t('dailyClaimed')}<br>` +
+                `💰 +${CONFIG.DAILY_REWARD.toFixed(5)} USDT<br>` +
+                `${t('streak', {streak: userData.dailyStreak})}`
+            );
+            showHomePage();
+        }
+
+        function processRegularAdReward() {
+            userData.balance += CONFIG.AD_REWARD;
+            userData.totalAds++;
+            userData.todayAds++;
+            userData.weeklyAds++;
+            saveUserData();
+        }
+
+        function processTaskReward() {
+            // Mark task as completed
+            if (!userData.completedTasks) userData.completedTasks = [];
+            userData.completedTasks.push('telegram_join');
+            
+            // Add reward
+            userData.balance += CONFIG.TASK_REWARD;
+            saveUserData();
+            
+            showSuccess(t('taskCompletedSuccess', {amount: CONFIG.TASK_REWARD.toFixed(5)}));
+            showTasksPage();
+        }
+
+        // ===== TASK FUNCTIONS =====
         function showTasksPage() {
             sessionStorage.setItem('currentPage', 'tasks');
             const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
@@ -1561,13 +1504,17 @@
 
         function verifyTask() {
             const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
+            
             if (isTaskCompleted) {
                 showError(t('alreadyCompleted'));
                 return;
             }
+            
+            // Show ad reward modal for task completion
             showAdRewardModal('task', 'Watch an ad to claim your task reward!');
         }
 
+        // ===== REFERRAL FUNCTIONS =====
         function showReferralPage() {
             sessionStorage.setItem('currentPage', 'referral');
             
@@ -1639,25 +1586,19 @@
             const link = document.getElementById('referralLink');
             link.select();
             document.execCommand('copy');
+            
             const btn = document.getElementById('copyBtn');
             const originalText = btn.textContent;
             btn.textContent = t('copied');
             btn.style.background = '#28a745';
+            
             setTimeout(() => {
                 btn.textContent = originalText;
                 btn.style.background = '#28a745';
             }, 2000);
         }
 
-        function generateReferralCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
-        }
-
+        // ===== HOME PAGE =====
         function showHomePage() {
             sessionStorage.setItem('currentPage', 'home');
             const dailyStatus = getDailyRewardStatus();
@@ -1680,7 +1621,7 @@
                 <div class="user-card">
                     <h3>${t('balance')}</h3>
                     <div class="balance">${userData.balance.toFixed(5)} USDT</div>
-                    <p>${t('welcome')}, ${userData.first_name}!</p>
+                    <p>${t('welcome')}, ${userData.userName}!</p>
                 </div>
 
                 <div class="stats">
@@ -1718,9 +1659,9 @@
                     ${t('withdraw')}
                 </button>
 
-                <div class="supabase-badge">
-                    <strong>✅ Supabase Connected</strong><br>
-                    User ID: ${userData.id}
+                <div class="adexora-badge">
+                    <strong>⏳ Adexora Loading...</strong><br>
+                    Ad ID: ${CONFIG.ADEXORA.AD_ID}
                 </div>
 
                 <div class="notice">
@@ -1729,6 +1670,7 @@
             `;
         }
 
+        // ===== WATCH PAGE =====
         function showWatchPage() {
             sessionStorage.setItem('currentPage', 'watch');
             
@@ -1742,7 +1684,7 @@
 
                 <div class="notice success-notice">
                     <p><strong>💰 Reward per Ad:</strong> ${CONFIG.AD_REWARD.toFixed(5)} USDT</p>
-                    <p><strong>🆔 Your ID:</strong> ${userData.id || userData.username || 'guest'}</p>
+                    <p><strong>🆔 Your ID:</strong> ${userData.userId || userData.userName || 'guest'}</p>
                 </div>
 
                 <div class="ad-container" id="adContainer">
@@ -1772,34 +1714,9 @@
             `;
         }
 
-        async function showLeaderboardPage() {
+        // ===== LEADERBOARD PAGE =====
+        function showLeaderboardPage() {
             sessionStorage.setItem('currentPage', 'leaderboard');
-            
-            let leaderboardHtml = '';
-            try {
-                const { data, error } = await supabase
-                    .from('weekly_leaderboard')
-                    .select('*')
-                    .limit(10);
-                
-                if (data && data.length > 0) {
-                    leaderboardHtml = data.map((user, i) => `
-                        <div class="leaderboard-item" style="${user.user_id === userData.id ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                            <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
-                            <div style="flex: 1;">
-                                <strong>${user.username || user.first_name || 'User'} ${user.user_id === userData.id ? '(You)' : ''}</strong>
-                                <div style="color: #666;">${user.ads_watched} ads watched</div>
-                            </div>
-                            <div style="color: #28a745; font-weight: bold;">
-                                ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
-                            </div>
-                        </div>
-                    `).join('');
-                }
-            } catch (error) {
-                console.error('Error loading leaderboard:', error);
-                leaderboardHtml = '<div class="notice">Failed to load leaderboard</div>';
-            }
             
             document.getElementById('app').innerHTML = `
                 <header>
@@ -1815,7 +1732,7 @@
                 </div>
 
                 <div class="leaderboard-list">
-                    ${leaderboardHtml || '<div class="notice">No data yet</div>'}
+                    ${generateLeaderboard()}
                 </div>
 
                 <button onclick="showLeaderboardPage()" class="btn btn-secondary">
@@ -1824,6 +1741,31 @@
             `;
         }
 
+        function generateLeaderboard() {
+            const users = [
+                { name: "CryptoKing", ads: 156 },
+                { name: "AdMaster", ads: 128 },
+                { name: "EarnPro", ads: 97 },
+                { name: userData.userName, ads: userData.weeklyAds, isYou: true },
+                { name: "BitcoinBuddy", ads: 45 },
+                { name: "AdWatcher", ads: 38 }
+            ];
+
+            return users.map((user, i) => `
+                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
+                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
+                    <div style="flex: 1;">
+                        <strong>${user.name} ${user.isYou ? '(You)' : ''}</strong>
+                        <div style="color: #666;">${user.ads} ads watched</div>
+                    </div>
+                    <div style="color: #28a745; font-weight: bold;">
+                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // ===== WITHDRAW PAGE =====
         function showWithdrawPage() {
             sessionStorage.setItem('currentPage', 'withdraw');
             
@@ -1899,37 +1841,22 @@
                 return;
             }
 
-            try {
-                const { error } = await supabase
-                    .from('withdrawals')
-                    .insert([{
-                        user_id: userData.id,
-                        amount: amount,
-                        net_amount: amount - CONFIG.WITHDRAWAL_FEE,
-                        wallet_address: address,
-                        status: 'pending'
-                    }]);
-                
-                if (error) throw error;
-                
-            } catch (error) {
-                console.error('Error creating withdrawal:', error);
-            }
-
-            await updateUserData({
-                balance: userData.balance - amount,
-                polygonAddress: address
-            });
+            userData.polygonAddress = address;
             
-            await sendTelegramNotification({
+            const withdrawalData = {
                 withdrawalId: 'W' + Date.now(),
-                userName: userData.username,
-                userId: userData.id,
+                userName: userData.userName,
+                userId: userData.userId,
                 amount: amount.toFixed(5),
                 netAmount: (amount - CONFIG.WITHDRAWAL_FEE).toFixed(5),
                 walletAddress: address,
                 balance: userData.balance.toFixed(5)
-            });
+            };
+
+            await sendTelegramNotification(withdrawalData);
+            
+            userData.balance -= amount;
+            saveUserData();
             
             showSuccess(t('withdrawalRequested'));
             setTimeout(() => showHomePage(), 2000);
@@ -1964,16 +1891,8 @@
             }
         }
 
-        function refreshCurrentPage() {
-            const currentPage = sessionStorage.getItem('currentPage') || 'home';
-            switch(currentPage) {
-                case 'home': showHomePage(); break;
-                case 'watch': showWatchPage(); break;
-                case 'tasks': showTasksPage(); break;
-                case 'referral': showReferralPage(); break;
-                case 'leaderboard': showLeaderboardPage(); break;
-                case 'withdraw': showWithdrawPage(); break;
-            }
+        function closeRewardModal() {
+            document.getElementById('rewardModal').style.display = 'none';
         }
 
         function showSuccess(message) {
@@ -1996,10 +1915,6 @@
             document.getElementById('rewardModal').style.display = 'none';
             document.getElementById('dailyRewardModal').style.display = 'none';
             document.getElementById('adRewardModal').style.display = 'none';
-        }
-
-        function closeRewardModal() {
-            document.getElementById('rewardModal').style.display = 'none';
         }
     </script>
 </body>
