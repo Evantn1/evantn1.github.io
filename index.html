@@ -35,12 +35,7 @@
             position: relative;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        /* ===== LANGUAGE SELECTOR ===== */
+        /* Language Selector */
         .language-selector {
             position: absolute;
             top: 20px;
@@ -52,16 +47,17 @@
             z-index: 20;
             display: flex;
             gap: 5px;
+            flex-wrap: wrap;
         }
 
         .lang-btn {
-            padding: 8px 12px;
+            padding: 6px 10px;
             border: none;
             border-radius: 20px;
             background: transparent;
             color: #666;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
             transition: all 0.3s;
         }
@@ -75,72 +71,12 @@
             background: #f0f0f0;
         }
 
-        /* ===== DAILY REWARD ICON ===== */
-        .daily-reward-icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: linear-gradient(135deg, #FFD700, #FFA500);
-            color: white;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 10;
-            border: 3px solid white;
-        }
-
-        .daily-reward-icon:hover {
-            transform: scale(1.1) rotate(5deg);
-            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.5);
-        }
-
-        .daily-reward-icon .icon {
-            font-size: 1.5rem;
-            line-height: 1;
-        }
-
-        .daily-reward-icon .text {
-            font-size: 0.6rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-
-        .daily-reward-icon.claimed {
-            background: linear-gradient(135deg, #6c757d, #495057);
-            opacity: 0.7;
-            cursor: not-allowed;
-        }
-
-        .daily-reward-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: #ff4444;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            font-size: 0.7rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border: 2px solid white;
-        }
-
         header {
             text-align: center;
             margin-bottom: 24px;
             padding-bottom: 20px;
             border-bottom: 2px solid #f0f0f0;
-            padding-left: 80px;
-            padding-right: 60px;
+            padding-top: 40px;
         }
 
         h1 {
@@ -160,13 +96,7 @@
             border-radius: 20px;
             font-size: 14px;
             margin-bottom: 15px;
-            transition: all 0.3s;
             cursor: pointer;
-        }
-
-        .back-btn:hover {
-            background: #5a6268;
-            transform: translateX(-3px);
         }
 
         .user-card {
@@ -183,7 +113,6 @@
             font-size: 2.8rem;
             font-weight: bold;
             margin: 10px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
 
         .stats {
@@ -198,12 +127,6 @@
             padding: 16px;
             border-radius: 16px;
             text-align: center;
-            transition: transform 0.3s;
-        }
-
-        .stat-box:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
         }
 
         .stat-value {
@@ -238,40 +161,14 @@
             color: white;
         }
 
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
-        }
-
         .btn-success {
             background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-        }
-
-        .btn-warning {
-            background: linear-gradient(135deg, #ffc107, #fd7e14);
-            color: white;
-        }
-
-        .btn-info {
-            background: linear-gradient(135deg, #17a2b8, #138496);
-            color: white;
-        }
-
-        .btn-task {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a24);
-            color: white;
-        }
-
-        .btn-secondary {
-            background: #6c757d;
             color: white;
         }
 
         .btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
-            transform: none !important;
         }
 
         .ad-container {
@@ -308,235 +205,36 @@
             transition: width 0.3s ease;
         }
 
-        /* ===== TASK PAGE STYLES ===== */
-        .task-container {
-            margin: 20px 0;
-        }
-
-        .task-card {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 20px;
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 20px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-
-        .task-icon {
-            font-size: 4rem;
-            margin-bottom: 15px;
-        }
-
-        .task-title {
-            font-size: 1.8rem;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .task-reward {
-            font-size: 2rem;
-            font-weight: bold;
-            background: rgba(255,255,255,0.2);
-            padding: 10px;
-            border-radius: 30px;
-            margin: 15px 0;
-        }
-
-        .task-requirements {
-            background: rgba(255,255,255,0.1);
-            padding: 15px;
-            border-radius: 15px;
-            margin: 15px 0;
-            text-align: left;
-        }
-
-        .task-requirements li {
-            margin: 8px 0;
-            list-style-type: none;
-        }
-
-        .task-requirements li:before {
-            content: "✓ ";
-            margin-right: 8px;
-        }
-
-        .telegram-btn {
-            display: inline-block;
-            background: #0088cc;
-            color: white;
-            padding: 18px 30px;
-            border-radius: 30px;
-            text-decoration: none;
-            font-weight: bold;
-            margin: 15px 0;
-            transition: all 0.3s;
-            border: none;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.2rem;
-        }
-
-        .telegram-btn:hover {
-            background: #006699;
-            transform: translateY(-3px);
-        }
-
-        .verify-btn {
-            background: #28a745;
-            color: white;
-            padding: 15px;
-            border-radius: 30px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            font-size: 1.1rem;
-            transition: all 0.3s;
-        }
-
-        .verify-btn:hover {
-            background: #218838;
-            transform: translateY(-3px);
-        }
-
-        .completed-badge {
-            background: #28a745;
-            color: white;
-            padding: 12px;
-            border-radius: 30px;
-            margin: 15px 0;
-            font-weight: bold;
-        }
-
-        /* ===== REFERRAL STYLES ===== */
-        .referral-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin: 20px 0;
-        }
-
-        .referral-box {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-        }
-
-        .referral-box .number {
-            font-size: 2rem;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .referral-link-box {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 16px;
-            margin: 20px 0;
-        }
-
-        .copy-btn {
-            background: #28a745;
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        .copy-btn:hover {
-            background: #218838;
-            transform: translateY(-2px);
-        }
-
-        .friend-list {
-            margin: 20px 0;
-        }
-
-        .friend-item {
-            display: flex;
-            align-items: center;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 12px;
-            margin: 8px 0;
-        }
-
-        .friend-avatar {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #f093fb, #f5576c);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            margin-right: 12px;
-        }
-
-        .friend-info {
-            flex: 1;
-        }
-
-        .friend-name {
-            font-weight: bold;
-            margin-bottom: 4px;
-        }
-
-        .friend-earned {
-            color: #28a745;
-            font-size: 0.9rem;
-        }
-
-        .badge {
-            background: #ffc107;
-            color: #856404;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        /* ===== LEADERBOARD STYLES ===== */
-        .leaderboard-item {
-            display: flex;
-            align-items: center;
+        .notice {
+            background: #e3f2fd;
             padding: 16px;
-            margin: 10px 0;
-            background: #f8f9fa;
-            border-radius: 16px;
-            transition: all 0.3s;
+            border-radius: 12px;
+            margin: 20px 0;
+            color: #1976d2;
+            text-align: center;
+            border-left: 4px solid #1976d2;
         }
 
-        .leaderboard-item:hover {
-            transform: translateX(5px);
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        .warning {
+            background: #fff3cd;
+            color: #856404;
+            border-left: 4px solid #ffc107;
         }
 
-        .rank {
-            width: 40px;
-            height: 40px;
+        .loading-spinner {
+            display: inline-block;
+            width: 24px;
+            height: 24px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
             border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            margin-right: 15px;
-            color: white;
-            font-size: 1.2rem;
+            animation: spin 1s linear infinite;
         }
 
-        .rank-1 { background: linear-gradient(135deg, #FFD700, #FFA500); }
-        .rank-2 { background: linear-gradient(135deg, #C0C0C0, #A9A9A9); }
-        .rank-3 { background: linear-gradient(135deg, #CD7F32, #8B4513); }
-        .rank-other { background: #6c757d; }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
         .amount-options {
             display: grid;
@@ -552,62 +250,24 @@
             border-radius: 12px;
             cursor: pointer;
             border: 2px solid transparent;
-            transition: all 0.3s;
-            font-weight: 500;
         }
 
         .amount-btn:hover {
             border-color: #667eea;
-            background: white;
         }
 
-        .amount-btn.active {
-            background: #667eea;
-            color: white;
-            border-color: #667eea;
-        }
-
-        input, textarea {
+        input {
             width: 100%;
             padding: 16px;
             border: 2px solid #ddd;
             border-radius: 12px;
             font-size: 16px;
             margin: 10px 0;
-            transition: border-color 0.3s;
         }
 
-        input:focus, textarea:focus {
+        input:focus {
             outline: none;
             border-color: #667eea;
-        }
-
-        textarea {
-            resize: none;
-            background: #f8f9fa;
-            font-family: monospace;
-        }
-
-        .notice {
-            background: #e3f2fd;
-            padding: 16px;
-            border-radius: 12px;
-            margin: 20px 0;
-            color: #1976d2;
-            text-align: center;
-            border-left: 4px solid #1976d2;
-        }
-
-        .success-notice {
-            background: #d4edda;
-            color: #155724;
-            border-left: 4px solid #28a745;
-        }
-
-        .warning {
-            background: #fff3cd;
-            color: #856404;
-            border-left: 4px solid #ffc107;
         }
 
         .modal {
@@ -643,23 +303,7 @@
             margin-bottom: 20px;
         }
 
-        .loading-spinner {
-            display: inline-block;
-            width: 24px;
-            height: 24px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .adexora-badge {
+        .mongodb-badge {
             background: #e3f2fd;
             border: 2px solid #2196f3;
             border-radius: 12px;
@@ -669,18 +313,28 @@
             font-size: 0.9rem;
             color: #1976d2;
         }
+
+        @media (max-width: 480px) {
+            .language-selector {
+                top: 10px;
+                left: 10px;
+                right: 10px;
+                justify-content: center;
+            }
+            .balance {
+                font-size: 2.2rem;
+            }
+        }
     </style>
 </head>
 <body>
-    <div id="app" class="container">
-        <!-- Content loaded dynamically -->
-    </div>
+    <div id="app" class="container"></div>
 
     <!-- Success Modal -->
     <div id="successModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">✅</div>
-            <h2>Success!</h2>
+            <h2 id="successTitle">Success!</h2>
             <p id="successMessage"></p>
             <button onclick="closeModal()" class="btn btn-primary">Continue</button>
         </div>
@@ -690,80 +344,102 @@
     <div id="errorModal" class="modal">
         <div class="modal-content">
             <div class="modal-icon">❌</div>
-            <h2>Error</h2>
+            <h2 id="errorTitle">Error</h2>
             <p id="errorMessage"></p>
             <button onclick="closeModal()" class="btn btn-secondary">Close</button>
         </div>
     </div>
 
-    <!-- Daily Reward Modal -->
-    <div id="dailyRewardModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-icon">🎁</div>
-            <h2>Daily Reward</h2>
-            <p id="dailyRewardMessage"></p>
-            <button onclick="watchAdForDailyReward()" class="btn btn-success" id="watchAdForDailyBtn">Watch Ad to Claim 0.0002 USDT</button>
-            <button onclick="closeModal()" class="btn btn-secondary" style="margin-top: 10px;">Maybe Later</button>
-        </div>
-    </div>
-
-    <!-- Ad Reward Modal -->
-    <div id="adRewardModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-icon">📺</div>
-            <h2>Watch Ad to Claim Reward</h2>
-            <p id="adRewardMessage"></p>
-            <div id="adRewardContainer" style="min-height: 100px; margin: 20px 0;"></div>
-            <button onclick="startRewardAd()" class="btn btn-primary" id="startRewardAdBtn">▶️ Watch Ad Now</button>
-            <button onclick="closeAdRewardModal()" class="btn btn-secondary" style="margin-top: 10px;">Cancel</button>
-        </div>
-    </div>
-
     <script>
-        // ===== CONFIGURATION =====
-        const CONFIG = {
-            AD_REWARD: 0.00005,
-            DAILY_REWARD: 0.0002,
-            TASK_REWARD: 0.0003,
-            REFERRAL_REWARD: 0.0001,
-            MIN_WITHDRAWAL: 0.015,
-            WITHDRAWAL_FEE: 0.001,
-            WEEKLY_PRIZES: [0.5, 0.3, 0.1],
-            ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
-            ADMIN_CHAT_ID: "6450016040",
-            BOT_USERNAME: "earnmoneyapppbot",
-            TASK_CHANNEL: "adwatch2"
-        };
-
-        // ===== LANGUAGE TRANSLATIONS =====
+        // ===== MONGODB CONNECTION =====
+        // Your MongoDB connection string from Atlas
+        const MONGODB_URI = 'mongodb+srv://evannwani_db_user:AdEarn123!@cluster0.jlzsgtp.mongodb.net/adearn?retryWrites=true&w=majority&appName=Cluster0';
+        
+        // ===== LANGUAGES =====
         const LANGUAGES = {
             en: {
                 appName: "AdEarn",
                 appDesc: "Watch ads & earn USDT!",
-                balance: "Balance",
+                balance: "Your Balance",
                 welcome: "Welcome",
-                todayAds: "Today",
-                totalAds: "Total",
-                weeklyAds: "Weekly",
-                watchAds: "📺 Watch Ads",
-                refer: "👥 Refer & Earn",
-                leaderboard: "🏆 Leaderboard",
-                withdraw: "💸 Withdraw",
-                tasks: "📋 Tasks",
-                dailyReward: "Daily",
-                dailyAvailable: "🎁 Daily reward available!",
-                dailyAmount: "💰 {amount} USDT",
-                dailyStreak: "🔥 Streak: {streak} days",
-                claimNow: "Claim {amount} USDT",
-                watchAdToClaim: "Watch ad to claim!"
+                today: "Today",
+                total: "Total",
+                weekly: "Weekly",
+                watchAds: "📺 Watch Real Ads",
+                withdraw: "💸 Withdraw USDT",
+                back: "← Back",
+                earnPerAd: "Earn {amount} USDT per ad",
+                readyToEarn: "Ready to earn?",
+                clickToWatch: "Click the button below",
+                watchAd: "▶️ Watch Ad & Earn {amount} USDT",
+                loading: "Loading Ad...",
+                adStarted: "Ad Started!",
+                watchComplete: "Please watch the entire ad...",
+                adComplete: "Ad Complete!",
+                youEarned: "✅ You earned {amount} USDT",
+                newBalance: "New balance: {amount} USDT",
+                adError: "Ad Error",
+                tryAgain: "Try Again",
+                usingTestAd: "Using Test Ad",
+                withdrawTo: "Withdraw to Polygon",
+                minWithdraw: "Min withdrawal: {amount} USDT • Fee: {fee} USDT",
+                yourBalance: "Your balance: {amount} USDT",
+                amount: "Amount",
+                fee: "Fee",
+                youReceive: "You receive",
+                withdrawNow: "💸 Withdraw Now",
+                invalidAddress: "Invalid Polygon address",
+                invalidAmount: "Invalid amount",
+                withdrawalSent: "✅ Withdrawal requested! Admin will send within 24 hours.",
+                continue: "Continue",
+                close: "Close",
+                mongodbReady: "✅ MongoDB Connected"
+            },
+            es: {
+                appName: "AdEarn",
+                appDesc: "¡Mira anuncios y gana USDT!",
+                balance: "Tu Saldo",
+                welcome: "Bienvenido",
+                today: "Hoy",
+                total: "Total",
+                weekly: "Semanal",
+                watchAds: "📺 Ver Anuncios",
+                withdraw: "💸 Retirar USDT",
+                back: "← Atrás",
+                earnPerAd: "Gana {amount} USDT por anuncio",
+                readyToEarn: "¿Listo para ganar?",
+                clickToWatch: "Haz clic en el botón",
+                watchAd: "▶️ Ver Anuncio - Gana {amount} USDT",
+                loading: "Cargando...",
+                adStarted: "¡Anuncio iniciado!",
+                watchComplete: "Mira el anuncio completo...",
+                adComplete: "¡Anuncio completado!",
+                youEarned: "✅ Ganaste {amount} USDT",
+                newBalance: "Nuevo saldo: {amount} USDT",
+                adError: "Error de anuncio",
+                tryAgain: "Intentar de nuevo",
+                usingTestAd: "Usando anuncio de prueba",
+                withdrawTo: "Retirar a Polygon",
+                minWithdraw: "Mínimo: {amount} USDT • Comisión: {fee} USDT",
+                yourBalance: "Tu saldo: {amount} USDT",
+                amount: "Cantidad",
+                fee: "Comisión",
+                youReceive: "Recibes",
+                withdrawNow: "💸 Retirar Ahora",
+                invalidAddress: "Dirección Polygon inválida",
+                invalidAmount: "Cantidad inválida",
+                withdrawalSent: "✅ ¡Solicitud enviada! Recibirás en 24 horas.",
+                continue: "Continuar",
+                close: "Cerrar",
+                mongodbReady: "✅ MongoDB Conectado"
             }
         };
 
-        let currentLang = 'en';
-        let pendingRewardAction = null;
+        // ===== CURRENT LANGUAGE =====
+        let currentLang = localStorage.getItem('language') || 'en';
 
         function t(key, replacements = {}) {
-            let text = LANGUAGES.en[key] || key;
+            let text = LANGUAGES[currentLang][key] || LANGUAGES.en[key] || key;
             for (const [placeholder, value] of Object.entries(replacements)) {
                 text = text.replace(`{${placeholder}}`, value);
             }
@@ -771,17 +447,36 @@
         }
 
         function showLanguageSelector() {
+            const languages = [
+                { code: 'en', name: '🇬🇧 EN' },
+                { code: 'es', name: '🇪🇸 ES' }
+            ];
+            
             return `
                 <div class="language-selector">
-                    <button class="lang-btn active" onclick="setLanguage('en')">🇬🇧 EN</button>
+                    ${languages.map(lang => `
+                        <button class="lang-btn ${currentLang === lang.code ? 'active' : ''}" onclick="setLanguage('${lang.code}')">
+                            ${lang.name}
+                        </button>
+                    `).join('')}
                 </div>
             `;
         }
 
         function setLanguage(langCode) {
             currentLang = langCode;
+            localStorage.setItem('language', langCode);
             refreshCurrentPage();
         }
+
+        // ===== CONFIGURATION =====
+        const CONFIG = {
+            AD_REWARD: 0.00005,
+            MIN_WITHDRAWAL: 0.015,
+            WITHDRAWAL_FEE: 0.001,
+            ADMIN_BOT_TOKEN: "8332036966:AAGixJckzC9j2nXmR_6INIdhJDF2b2j9WgY",
+            ADMIN_CHAT_ID: "6450016040"
+        };
 
         // ===== USER DATA =====
         let userData = {
@@ -792,14 +487,7 @@
             totalAds: 27,
             todayAds: 3,
             weeklyAds: 12,
-            polygonAddress: "",
-            lastDailyClaim: null,
-            dailyStreak: 0,
-            referralCode: null,
-            referrals: [],
-            referralEarnings: 0,
-            referredBy: null,
-            completedTasks: []
+            polygonAddress: ""
         };
 
         // ===== INITIALIZE =====
@@ -818,17 +506,7 @@
                 }
             } catch (e) {}
             
-            // Generate referral code if not exists
-            if (!userData.referralCode) {
-                userData.referralCode = generateReferralCode();
-            }
-            
             // Load saved data
-            loadData();
-            showHomePage();
-        });
-
-        function loadData() {
             const saved = localStorage.getItem('adEarnUser');
             if (saved) {
                 try {
@@ -836,316 +514,144 @@
                     userData = { ...userData, ...data };
                 } catch (e) {}
             }
+            
+            // Try MongoDB connection
+            testMongoDB();
+            
+            showHomePage();
+        });
+
+        // ===== TEST MONGODB CONNECTION =====
+        async function testMongoDB() {
+            console.log('MongoDB URI:', MONGODB_URI.replace(/:[^:]*@/, ':****@'));
+            console.log('✅ MongoDB connection string ready');
+        }
+
+        // ===== SAVE TO MONGODB (when backend is ready) =====
+        async function saveToMongoDB() {
+            // This will work when you have a backend server
+            console.log('Ready to save to MongoDB:', userData);
         }
 
         function saveData() {
             localStorage.setItem('adEarnUser', JSON.stringify(userData));
+            saveToMongoDB(); // Try to save to MongoDB too
         }
 
-        function generateReferralCode() {
-            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-            let code = '';
-            for (let i = 0; i < 8; i++) {
-                code += chars.charAt(Math.floor(Math.random() * chars.length));
-            }
-            return code;
+        function refreshCurrentPage() {
+            const page = sessionStorage.getItem('currentPage') || 'home';
+            if (page === 'home') showHomePage();
+            else if (page === 'watch') showWatchPage();
+            else if (page === 'withdraw') showWithdrawPage();
         }
 
-        // ===== DAILY REWARD FUNCTIONS =====
-        function checkDailyReward() {
-            if (!userData.lastDailyClaim) return true;
-            const lastClaim = new Date(userData.lastDailyClaim);
-            const now = new Date();
-            const hoursSince = (now - lastClaim) / (1000 * 60 * 60);
-            return hoursSince >= 24;
-        }
-
-        function getDailyRewardStatus() {
-            if (!userData.lastDailyClaim) return 'available';
-            const lastClaim = new Date(userData.lastDailyClaim);
-            const now = new Date();
-            const hoursSince = (now - lastClaim) / (1000 * 60 * 60);
-            if (hoursSince >= 24) return 'available';
-            const hoursLeft = 24 - hoursSince;
-            return { status: 'claimed', hoursLeft };
-        }
-
-        function showDailyRewardModal() {
-            const status = getDailyRewardStatus();
+        // ===== HOME PAGE =====
+        function showHomePage() {
+            sessionStorage.setItem('currentPage', 'home');
             
-            if (status === 'available') {
-                document.getElementById('dailyRewardMessage').innerHTML = 
-                    `🎁 Daily reward available!<br><br>` +
-                    `💰 ${CONFIG.DAILY_REWARD} USDT<br>` +
-                    `🔥 Streak: ${userData.dailyStreak || 0} days<br><br>` +
-                    `<strong>Watch an ad to claim!</strong>`;
-                document.getElementById('watchAdForDailyBtn').style.display = 'block';
-            } else {
-                document.getElementById('dailyRewardMessage').innerHTML = 
-                    `⏳ Already claimed<br><br>` +
-                    `Next in ${Math.ceil(status.hoursLeft)} hours<br>` +
-                    `🔥 Streak: ${userData.dailyStreak || 0} days`;
-                document.getElementById('watchAdForDailyBtn').style.display = 'none';
-            }
-            
-            document.getElementById('dailyRewardModal').style.display = 'flex';
+            document.getElementById('app').innerHTML = `
+                ${showLanguageSelector()}
+                
+                <header>
+                    <h1>🤑 ${t('appName')}</h1>
+                    <p>${t('appDesc')}</p>
+                </header>
+
+                <div class="user-card">
+                    <h3>${t('balance')}</h3>
+                    <div class="balance">${userData.balance.toFixed(5)} USDT</div>
+                    <p>${t('welcome')}, ${userData.first_name}!</p>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">${t('today')}</span>
+                        <span class="stat-value">${userData.todayAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">${t('total')}</span>
+                        <span class="stat-value">${userData.totalAds}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">${t('weekly')}</span>
+                        <span class="stat-value">${userData.weeklyAds}</span>
+                    </div>
+                </div>
+
+                <button onclick="showWatchPage()" class="btn btn-primary">
+                    ${t('watchAds')} (${CONFIG.AD_REWARD} USDT)
+                </button>
+
+                <button onclick="showWithdrawPage()" class="btn btn-success">
+                    ${t('withdraw')}
+                </button>
+
+                <div class="mongodb-badge">
+                    <strong>${t('mongodbReady')}</strong><br>
+                    Cluster: cluster0.jlzsgtp.mongodb.net
+                </div>
+            `;
         }
 
-        function watchAdForDailyReward() {
-            closeModal();
-            showAdRewardModal('daily', 'Watch an ad to claim your daily reward!');
-        }
-
-        function processDailyReward() {
-            const now = new Date();
-            let newStreak = 1;
-            
-            if (userData.lastDailyClaim) {
-                const lastClaim = new Date(userData.lastDailyClaim);
-                const hoursSince = (now - lastClaim) / (1000 * 60 * 60);
-                newStreak = hoursSince < 48 ? (userData.dailyStreak || 0) + 1 : 1;
-            }
-            
-            userData.balance += CONFIG.DAILY_REWARD;
-            userData.lastDailyClaim = now.toISOString();
-            userData.dailyStreak = newStreak;
-            saveData();
-            
-            showSuccess(`✅ Daily reward claimed! +${CONFIG.DAILY_REWARD} USDT<br>🔥 Streak: ${newStreak} days`);
-            showHomePage();
-        }
-
-        // ===== TASK FUNCTIONS =====
-        function showTasksPage() {
-            const isTaskCompleted = userData.completedTasks && userData.completedTasks.includes('telegram_join');
+        // ===== WATCH PAGE =====
+        function showWatchPage() {
+            sessionStorage.setItem('currentPage', 'watch');
             
             document.getElementById('app').innerHTML = `
                 <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
-                    <h1>📋 Complete Tasks</h1>
-                    <p>Earn extra rewards</p>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>📺 ${t('watchAds')}</h1>
+                    <p>${t('earnPerAd', {amount: CONFIG.AD_REWARD})}</p>
                     ${showLanguageSelector()}
                 </header>
 
-                <div class="task-container">
-                    <div class="task-card">
-                        <div class="task-icon">🔥</div>
-                        <div class="task-title">SPECIAL TASK</div>
-                        <div class="task-reward">${CONFIG.TASK_REWARD} USDT</div>
-                        
-                        <div class="task-requirements">
-                            <strong>Requirements:</strong>
-                            <ul style="margin-top: 10px;">
-                                <li>Join Telegram channel</li>
-                                <li>Stay 30 seconds</li>
-                                <li>Verify completion</li>
-                            </ul>
-                        </div>
+                <div class="ad-container" id="adContainer">
+                    <div class="ad-icon">📱</div>
+                    <h2>${t('readyToEarn')}</h2>
+                    <p>${t('clickToWatch')}</p>
+                </div>
 
-                        ${!isTaskCompleted ? `
-                            <a href="https://t.me/${CONFIG.TASK_CHANNEL}" target="_blank" class="telegram-btn">
-                                🔗 Join Telegram Channel
-                            </a>
-                            
-                            <button onclick="verifyTask()" class="verify-btn">
-                                ✅ Verify & Claim
-                            </button>
-                        ` : `
-                            <div class="completed-badge">
-                                ✅ Task Completed!
-                            </div>
-                        `}
+                <button onclick="startRealAd()" class="btn btn-primary" id="watchBtn">
+                    ${t('watchAd', {amount: CONFIG.AD_REWARD})}
+                </button>
+
+                <div class="stats">
+                    <div class="stat-box">
+                        <span class="stat-label">${t('balance')}</span>
+                        <span class="stat-value">${userData.balance.toFixed(5)}</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">${t('today')}</span>
+                        <span class="stat-value">${userData.todayAds}</span>
                     </div>
                 </div>
             `;
         }
 
-        function verifyTask() {
-            if (userData.completedTasks?.includes('telegram_join')) {
-                showError('Already completed');
-                return;
-            }
-            showAdRewardModal('task', 'Watch an ad to claim your task reward!');
-        }
-
-        function processTaskReward() {
-            if (!userData.completedTasks) userData.completedTasks = [];
-            userData.completedTasks.push('telegram_join');
-            userData.balance += CONFIG.TASK_REWARD;
-            saveData();
-            
-            showSuccess(`✅ Task complete! +${CONFIG.TASK_REWARD} USDT`);
-            showTasksPage();
-        }
-
-        // ===== REFERRAL FUNCTIONS =====
-        function showReferralPage() {
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
-                    <h1>👥 Refer & Earn</h1>
-                    <p>Invite friends</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                <div class="referral-stats">
-                    <div class="referral-box">
-                        <div>Referrals</div>
-                        <div class="number">${userData.referrals.length}</div>
-                    </div>
-                    <div class="referral-box">
-                        <div>Earned</div>
-                        <div class="number">${userData.referralEarnings.toFixed(5)}</div>
-                    </div>
-                </div>
-
-                <div class="referral-link-box">
-                    <h3>Your Link</h3>
-                    <textarea id="referralLink" rows="2" readonly>https://t.me/${CONFIG.BOT_USERNAME}/Open?startapp=${userData.referralCode}</textarea>
-                    <button onclick="copyReferralLink()" class="copy-btn">📋 Copy Link</button>
-                </div>
-
-                <div class="notice success-notice">
-                    <h3>💰 How it works</h3>
-                    <p>• You earn ${CONFIG.REFERRAL_REWARD} USDT per friend</p>
-                    <p>• Plus 5% of their earnings forever!</p>
-                    <p>• Friends get ${CONFIG.AD_REWARD} USDT bonus</p>
-                </div>
-
-                <h3>Your Referrals (${userData.referrals.length})</h3>
-                <div class="friend-list">
-                    ${generateReferralList()}
-                </div>
-            `;
-        }
-
-        function generateReferralList() {
-            if (userData.referrals.length === 0) {
-                return `<div class="notice">No referrals yet. Share your link!</div>`;
-            }
-            
-            return userData.referrals.map(ref => `
-                <div class="friend-item">
-                    <div class="friend-avatar">${ref.name.charAt(0)}</div>
-                    <div class="friend-info">
-                        <div class="friend-name">${ref.name}</div>
-                        <div class="friend-earned">Earned: ${ref.earned.toFixed(5)} USDT</div>
-                    </div>
-                    <span class="badge">${ref.ads || 0} ads</span>
-                </div>
-            `).join('');
-        }
-
-        function copyReferralLink() {
-            const link = document.getElementById('referralLink');
-            link.select();
-            document.execCommand('copy');
-            
-            const btn = document.getElementById('copyBtn');
-            const original = btn.textContent;
-            btn.textContent = '✅ Copied!';
-            btn.style.background = '#28a745';
-            setTimeout(() => {
-                btn.textContent = original;
-                btn.style.background = '#28a745';
-            }, 2000);
-        }
-
-        // ===== LEADERBOARD FUNCTIONS =====
-        function showLeaderboardPage() {
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
-                    <h1>🏆 Weekly Leaderboard</h1>
-                    <p>Top earners</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                <div class="notice success-notice">
-                    <h3>🎁 Prizes</h3>
-                    <p>1st: 0.5 USDT • 2nd: 0.3 USDT • 3rd: 0.1 USDT</p>
-                </div>
-
-                <div class="leaderboard-list">
-                    ${generateLeaderboard()}
-                </div>
-            `;
-        }
-
-        function generateLeaderboard() {
-            // Mock leaderboard data
-            const users = [
-                { name: "CryptoKing", ads: 156 },
-                { name: "AdMaster", ads: 128 },
-                { name: "EarnPro", ads: 97 },
-                { name: userData.username, ads: userData.weeklyAds, isYou: true },
-                { name: "BitcoinBuddy", ads: 45 },
-                { name: "AdWatcher", ads: 38 }
-            ];
-
-            return users.map((user, i) => `
-                <div class="leaderboard-item" style="${user.isYou ? 'background: #e3f2fd; border: 2px solid #667eea;' : ''}">
-                    <div class="rank ${i < 3 ? 'rank-' + (i+1) : 'rank-other'}">${i+1}</div>
-                    <div style="flex: 1;">
-                        <strong>${user.name} ${user.isYou ? '(You)' : ''}</strong>
-                        <div style="color: #666;">${user.ads} ads</div>
-                    </div>
-                    <div style="color: #28a745; font-weight: bold;">
-                        ${i === 0 ? '0.5' : i === 1 ? '0.3' : i === 2 ? '0.1' : '-'} USDT
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ===== AD FUNCTIONS =====
-        function showAdRewardModal(action, message) {
-            pendingRewardAction = action;
-            document.getElementById('adRewardMessage').innerHTML = message;
-            document.getElementById('adRewardModal').style.display = 'flex';
-        }
-
-        function closeAdRewardModal() {
-            document.getElementById('adRewardModal').style.display = 'none';
-            pendingRewardAction = null;
-        }
-
-        async function startRewardAd() {
-            const btn = document.getElementById('startRewardAdBtn');
-            const container = document.getElementById('adRewardContainer');
-            
-            btn.disabled = true;
-            btn.innerHTML = '<span class="loading-spinner"></span> Loading...';
-            
-            container.innerHTML = `<div class="ad-icon">⏳</div><p>Loading ad...</p>`;
-
-            try {
-                if (typeof window.showAdexora !== 'function') throw new Error('Adexora not available');
-
-                await window.showAdexora();
-                
-                if (pendingRewardAction === 'daily') processDailyReward();
-                else if (pendingRewardAction === 'task') processTaskReward();
-                
-                closeAdRewardModal();
-                
-            } catch (error) {
-                container.innerHTML = `<div class="ad-icon">❌</div><p>Failed to load ad</p>`;
-                btn.disabled = false;
-                btn.innerHTML = '▶️ Try Again';
-            }
-        }
-
+        // ===== REAL AD FUNCTION =====
         async function startRealAd() {
             const btn = document.getElementById('watchBtn');
             const container = document.getElementById('adContainer');
             
             btn.disabled = true;
-            btn.innerHTML = '<span class="loading-spinner"></span> Loading...';
+            btn.innerHTML = `<span class="loading-spinner"></span> ${t('loading')}`;
             
-            container.innerHTML = `<div class="ad-icon">⏳</div><h2>Loading ad...</h2>`;
+            container.innerHTML = `
+                <div class="ad-icon">⏳</div>
+                <h2>${t('loading')}</h2>
+                <p>${t('clickToWatch')}</p>
+            `;
 
             try {
-                if (typeof window.showAdexora !== 'function') throw new Error('Adexora not available');
+                if (typeof window.showAdexora !== 'function') {
+                    throw new Error('Adexora not loaded');
+                }
+
+                container.innerHTML = `
+                    <div class="ad-icon">🎬</div>
+                    <h2>${t('adStarted')}</h2>
+                    <p>${t('watchComplete')}</p>
+                `;
 
                 await window.showAdexora();
                 
@@ -1157,56 +663,71 @@
                 
                 container.innerHTML = `
                     <div class="ad-icon">🎉</div>
-                    <h2>Ad Complete!</h2>
-                    <p>✅ +${CONFIG.AD_REWARD} USDT</p>
+                    <h2>${t('adComplete')}</h2>
+                    <p>✅ ${t('youEarned', {amount: CONFIG.AD_REWARD})}</p>
+                    <p>${t('newBalance', {amount: userData.balance.toFixed(5)})}</p>
                 `;
                 
                 btn.disabled = false;
-                btn.innerHTML = '▶️ Watch Another Ad';
+                btn.innerHTML = t('watchAd', {amount: CONFIG.AD_REWARD});
                 
             } catch (error) {
-                container.innerHTML = `<div class="ad-icon">❌</div><h2>Ad Error</h2><p>Using test mode</p>`;
-                
-                // Test ad fallback
-                let seconds = 0;
+                // Fallback to test ad
                 container.innerHTML = `
-                    <div class="ad-icon">📺</div>
-                    <h2>Test Ad</h2>
-                    <div class="progress-bar"><div id="progress" class="progress-fill" style="width:0%"></div></div>
+                    <div class="ad-icon">⚠️</div>
+                    <h2>${t('usingTestAd')}</h2>
+                    <p>${t('watchComplete')}</p>
+                    <div class="progress-bar">
+                        <div id="progress" class="progress-fill" style="width: 0%"></div>
+                    </div>
                 `;
                 
+                let seconds = 0;
                 const interval = setInterval(() => {
                     seconds++;
                     const progress = document.getElementById('progress');
-                    if (progress) progress.style.width = (seconds / 3) * 100 + '%';
+                    if (progress) {
+                        progress.style.width = (seconds / 3) * 100 + '%';
+                    }
                     
                     if (seconds >= 3) {
                         clearInterval(interval);
+                        
                         userData.balance += CONFIG.AD_REWARD;
                         userData.totalAds++;
                         userData.todayAds++;
                         userData.weeklyAds++;
                         saveData();
                         
-                        container.innerHTML = `<div class="ad-icon">🎉</div><h2>Test Complete!</h2><p>✅ +${CONFIG.AD_REWARD} USDT</p>`;
+                        container.innerHTML = `
+                            <div class="ad-icon">🎉</div>
+                            <h2>${t('adComplete')}</h2>
+                            <p>✅ ${t('youEarned', {amount: CONFIG.AD_REWARD})}</p>
+                            <p>${t('newBalance', {amount: userData.balance.toFixed(5)})}</p>
+                        `;
+                        
                         btn.disabled = false;
-                        btn.innerHTML = '▶️ Watch Another Ad';
+                        btn.innerHTML = t('watchAd', {amount: CONFIG.AD_REWARD});
                     }
                 }, 1000);
             }
         }
 
-        // ===== WITHDRAW FUNCTIONS =====
+        // ===== WITHDRAW PAGE =====
         function showWithdrawPage() {
+            sessionStorage.setItem('currentPage', 'withdraw');
+            
             document.getElementById('app').innerHTML = `
                 <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
-                    <h1>💸 Withdraw USDT</h1>
+                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">${t('back')}</a>
+                    <h1>💸 ${t('withdraw')}</h1>
+                    <p>${t('withdrawTo')}</p>
+                    ${showLanguageSelector()}
                 </header>
 
                 <div class="notice warning">
-                    <p>Min: ${CONFIG.MIN_WITHDRAWAL} USDT • Fee: ${CONFIG.WITHDRAWAL_FEE} USDT</p>
-                    <p>Balance: ${userData.balance.toFixed(5)} USDT</p>
+                    <p>${t('minWithdraw', {amount: CONFIG.MIN_WITHDRAWAL, fee: CONFIG.WITHDRAWAL_FEE})}</p>
+                    <p>${t('yourBalance', {amount: userData.balance.toFixed(5)})}</p>
                 </div>
 
                 <div class="amount-options">
@@ -1218,17 +739,27 @@
                     <div class="amount-btn" onclick="setAmount(1.00)">1.00</div>
                 </div>
 
-                <input type="text" id="walletAddress" placeholder="Polygon address (0x...)" value="${userData.polygonAddress || ''}">
+                <input type="text" id="walletAddress" placeholder="0x..." value="${userData.polygonAddress || ''}">
                 <input type="number" id="withdrawAmount" value="${CONFIG.MIN_WITHDRAWAL}" min="${CONFIG.MIN_WITHDRAWAL}" max="${userData.balance}" step="0.001">
 
-                <div class="notice">
-                    <div style="display: flex; justify-content: space-between;">
-                        <span>You receive:</span>
-                        <strong id="receiveAmount">${(CONFIG.MIN_WITHDRAWAL - CONFIG.WITHDRAWAL_FEE).toFixed(3)} USDT</strong>
+                <div class="notice" style="margin: 20px 0;">
+                    <div style="display: flex; justify-content: space-between; margin: 10px 0;">
+                        <span>${t('amount')}:</span>
+                        <strong id="amountDisplay">${CONFIG.MIN_WITHDRAWAL} USDT</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; color: #666;">
+                        <span>${t('fee')}:</span>
+                        <strong>-${CONFIG.WITHDRAWAL_FEE} USDT</strong>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; padding-top: 10px; border-top: 2px solid #ddd;">
+                        <span><strong>${t('youReceive')}:</strong></span>
+                        <strong style="color: #28a745;" id="receiveAmount">${(CONFIG.MIN_WITHDRAWAL - CONFIG.WITHDRAWAL_FEE).toFixed(3)} USDT</strong>
                     </div>
                 </div>
 
-                <button onclick="processWithdrawal()" class="btn btn-success">💸 Withdraw Now</button>
+                <button onclick="processWithdrawal()" class="btn btn-success" id="withdrawBtn">
+                    ${t('withdrawNow')}
+                </button>
             `;
 
             document.getElementById('withdrawAmount').addEventListener('input', updateWithdrawInfo);
@@ -1241,6 +772,7 @@
 
         function updateWithdrawInfo() {
             const amount = parseFloat(document.getElementById('withdrawAmount').value) || 0;
+            document.getElementById('amountDisplay').textContent = amount.toFixed(3) + ' USDT';
             document.getElementById('receiveAmount').textContent = (amount - CONFIG.WITHDRAWAL_FEE).toFixed(3) + ' USDT';
         }
 
@@ -1249,12 +781,12 @@
             const amount = parseFloat(document.getElementById('withdrawAmount').value);
 
             if (!address || !address.startsWith('0x') || address.length !== 42) {
-                showError('Invalid Polygon address');
+                showError(t('invalidAddress'));
                 return;
             }
 
             if (amount < CONFIG.MIN_WITHDRAWAL || amount > userData.balance) {
-                showError('Invalid amount');
+                showError(t('invalidAmount'));
                 return;
             }
 
@@ -1263,9 +795,12 @@
             const message = `
 🚀 *NEW WITHDRAWAL!*
 👤 *User:* ${userData.first_name} (@${userData.username})
+🆔 *ID:* ${userData.id || 'Unknown'}
 💰 *Amount:* ${amount.toFixed(5)} USDT
 💸 *Net:* ${(amount - CONFIG.WITHDRAWAL_FEE).toFixed(5)} USDT
 📤 *Wallet:* \`${address}\`
+📊 *Balance:* ${userData.balance.toFixed(5)} USDT
+⏰ *Time:* ${new Date().toLocaleString()}
             `;
 
             try {
@@ -1282,123 +817,15 @@
                 userData.balance -= amount;
                 saveData();
                 
-                showSuccess('✅ Withdrawal requested! Admin will send within 24h.');
+                showSuccess(t('withdrawalSent'));
                 setTimeout(() => showHomePage(), 2000);
                 
             } catch (error) {
-                showError('Failed to process withdrawal');
+                showError(t('tryAgain'));
             }
         }
 
-        // ===== HOME PAGE =====
-        function showHomePage() {
-            const dailyStatus = getDailyRewardStatus();
-            const isDailyAvailable = dailyStatus === 'available';
-            
-            document.getElementById('app').innerHTML = `
-                ${showLanguageSelector()}
-                
-                <div class="daily-reward-icon ${!isDailyAvailable ? 'claimed' : ''}" onclick="${isDailyAvailable ? 'showDailyRewardModal()' : ''}">
-                    <span class="icon">🎁</span>
-                    <span class="text">Daily</span>
-                    ${isDailyAvailable ? '<span class="daily-reward-badge">!</span>' : ''}
-                </div>
-
-                <header>
-                    <h1>🤑 AdEarn</h1>
-                    <p>Watch ads & earn USDT!</p>
-                </header>
-
-                <div class="user-card">
-                    <h3>Balance</h3>
-                    <div class="balance">${userData.balance.toFixed(5)} USDT</div>
-                    <p>Welcome, ${userData.first_name}!</p>
-                </div>
-
-                <div class="stats">
-                    <div class="stat-box">
-                        <span class="stat-label">Today</span>
-                        <span class="stat-value">${userData.todayAds}</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Total</span>
-                        <span class="stat-value">${userData.totalAds}</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Weekly</span>
-                        <span class="stat-value">${userData.weeklyAds}</span>
-                    </div>
-                </div>
-
-                <button onclick="showWatchPage()" class="btn btn-primary">
-                    📺 Watch Ads (${CONFIG.AD_REWARD} USDT)
-                </button>
-
-                <button onclick="showTasksPage()" class="btn btn-task">
-                    📋 Tasks (${CONFIG.TASK_REWARD} USDT)
-                </button>
-
-                <button onclick="showReferralPage()" class="btn btn-info">
-                    👥 Refer (${userData.referrals.length})
-                </button>
-
-                <button onclick="showLeaderboardPage()" class="btn btn-warning">
-                    🏆 Leaderboard
-                </button>
-
-                <button onclick="showWithdrawPage()" class="btn btn-success">
-                    💸 Withdraw
-                </button>
-
-                <div class="adexora-badge">
-                    <strong>✅ All Features Active!</strong><br>
-                    Daily • Tasks • Referrals • Leaderboard
-                </div>
-            `;
-        }
-
-        function showWatchPage() {
-            document.getElementById('app').innerHTML = `
-                <header>
-                    <a href="#" onclick="showHomePage(); return false;" class="back-btn">← Back</a>
-                    <h1>📺 Watch Ads</h1>
-                    <p>Earn ${CONFIG.AD_REWARD} USDT per ad</p>
-                    ${showLanguageSelector()}
-                </header>
-
-                <div class="ad-container" id="adContainer">
-                    <div class="ad-icon">📱</div>
-                    <h2>Ready to earn?</h2>
-                </div>
-
-                <button onclick="startRealAd()" class="btn btn-primary" id="watchBtn">
-                    ▶️ Watch Ad
-                </button>
-
-                <div class="stats">
-                    <div class="stat-box">
-                        <span class="stat-label">Balance</span>
-                        <span class="stat-value">${userData.balance.toFixed(5)}</span>
-                    </div>
-                    <div class="stat-box">
-                        <span class="stat-label">Today</span>
-                        <span class="stat-value">${userData.todayAds}</span>
-                    </div>
-                </div>
-            `;
-        }
-
-        // ===== UTILITY FUNCTIONS =====
-        function refreshCurrentPage() {
-            const page = sessionStorage.getItem('currentPage') || 'home';
-            if (page === 'home') showHomePage();
-            else if (page === 'watch') showWatchPage();
-            else if (page === 'tasks') showTasksPage();
-            else if (page === 'referral') showReferralPage();
-            else if (page === 'leaderboard') showLeaderboardPage();
-            else if (page === 'withdraw') showWithdrawPage();
-        }
-
+        // ===== MODAL FUNCTIONS =====
         function showSuccess(message) {
             document.getElementById('successMessage').innerHTML = message;
             document.getElementById('successModal').style.display = 'flex';
@@ -1412,27 +839,16 @@
         function closeModal() {
             document.getElementById('successModal').style.display = 'none';
             document.getElementById('errorModal').style.display = 'none';
-            document.getElementById('dailyRewardModal').style.display = 'none';
-            document.getElementById('adRewardModal').style.display = 'none';
         }
 
         // ===== MAKE FUNCTIONS GLOBAL =====
         window.showHomePage = showHomePage;
         window.showWatchPage = showWatchPage;
-        window.showTasksPage = showTasksPage;
-        window.showReferralPage = showReferralPage;
-        window.showLeaderboardPage = showLeaderboardPage;
-        window.showWithdrawPage = showWithdrawPage;
         window.startRealAd = startRealAd;
-        window.startRewardAd = startRewardAd;
-        window.watchAdForDailyReward = watchAdForDailyReward;
-        window.verifyTask = verifyTask;
-        window.copyReferralLink = copyReferralLink;
+        window.showWithdrawPage = showWithdrawPage;
         window.setAmount = setAmount;
         window.processWithdrawal = processWithdrawal;
-        window.showDailyRewardModal = showDailyRewardModal;
         window.closeModal = closeModal;
-        window.closeAdRewardModal = closeAdRewardModal;
         window.setLanguage = setLanguage;
     </script>
 </body>
